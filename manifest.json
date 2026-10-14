@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "graphics": {
+    "food-beverage": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "additive-manufacturing": [
+      1,
+      2,
+      3,
+      4
+    ]
+  }
+}
