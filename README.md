@@ -6,7 +6,7 @@ Interactive product graphics for the Sutton marketing site. Webflow loads them f
 
 1. The Industries template in Webflow has one small loader embed (see `loader.html`).
 2. The loader reads the page's Graphic Key from the `data-sx-industry` attribute (bound to the Graphic Key field in the Industries CMS) and falls back to the URL slug.
-3. It fetches `manifest.json` and, for the cards listed there, loads `graphics/<key>/card-<n>.js` only when that card is within about 800 pixels of the screen. Nothing downloads for graphics nobody scrolls to.
+3. It fetches `manifest.json`. After the page finishes loading it downloads the listed card files quietly in the background, then mounts each graphic when its card is within about 1,600 pixels of the screen. A failed download is retried up to three times, and each graphic fades in over the card photo.
 4. Each file mounts its graphic into the matching card visual. If anything fails to load, the card shows its normal CMS image.
 
 Page weight stays flat no matter how many industries we add.
@@ -44,3 +44,15 @@ When a graphic moves over from old Webflow embeds, hide those embeds in the temp
 * To roll back, point the loader's `BASE` at the previous tag.
 * No secrets, customer names or internal data. Graphic data is illustrative.
 * Keep ranking copy in native Webflow fields. These graphics are visual only.
+
+## After a release
+
+jsDelivr pulls each file from GitHub the first time anyone requests it, and that first request can be slow or fail. After creating a release, open each industry page once. The loader downloads that page's files, which warms the CDN so the first real visitor doesn't wait.
+
+## Debugging
+
+Add `?sxgdebug=1` to any industry page URL. A black box at the bottom of the screen lists what the loader did: the key it found, whether the manifest loaded, each card's load, retries and the server's answer to any failure. Visitors never see it.
+
+## The loader and this repo
+
+`loader.html` here is a copy of the embed in the Webflow Industries template. Webflow holds the live one, so when you change the loader, change both. Only the version in `BASE` needs to change for a new release.
