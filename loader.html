@@ -1,40 +1,62 @@
 <script>
 (function(){
-var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.0.0/';
+var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.0.1/';
+var DBG=/[?&]sxgdebug/.test(location.search),box;
+function log(t){if(!DBG)return;try{if(!box){box=document.createElement('pre');box.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;margin:0;padding:8px;max-height:45vh;overflow:auto;background:#000;color:#0f0;font:11px/1.35 monospace;white-space:pre-wrap';document.body.appendChild(box);}box.textContent+=t+'\n';}catch(e){}}
+if(DBG)window.addEventListener('error',function(e){log('ERROR '+e.message+' @'+String(e.filename||'').split('/').slice(-2).join('/')+':'+e.lineno);});
+function idle(f){if('requestIdleCallback' in window)requestIdleCallback(f,{timeout:4000});else setTimeout(f,1500);}
 function go(){
+log('loader started');
 var cards=document.querySelectorAll('.capabilities_card-visual');
+log('cards found: '+cards.length);
 if(!cards.length)return;
 var tag=document.querySelector('[data-sx-industry]');
 var key=(tag&&tag.getAttribute('data-sx-industry'))||'';
+log('attribute key: "'+key+'"');
 if(!key){var p=location.pathname.match(/\/industries\/([^\/?#]+)/);key=p?p[1]:'';}
 key=key.toLowerCase().replace(/[^a-z0-9-]/g,'');
+log('key used: "'+key+'"');
 if(!key)return;
-fetch(BASE+'manifest.json').then(function(r){return r.ok?r.json():null;}).then(function(m){
+fetch(BASE+'manifest.json').then(function(r){log('manifest http '+r.status);return r.ok?r.json():null;}).then(function(m){
 var list=m&&m.graphics&&m.graphics[key];
+log('cards listed for key: '+JSON.stringify(list||null));
 if(!list||!list.length)return;
 var st=document.createElement('style');
-st.textContent='.capabilities_card-visual[data-sxg]{flex:none;aspect-ratio:604/540}.capabilities_card-visual[data-sxg] .capabilities_visual-bg{position:absolute;top:0;left:0;width:100%;height:100%;max-height:none}@media (min-width:1440px){.capabilities_card-visual[data-sxg]{aspect-ratio:604/523}}';
+st.textContent='.capabilities_card-visual[data-sxg]{flex:none;aspect-ratio:604/540}.capabilities_card-visual[data-sxg] .capabilities_visual-bg{position:absolute;top:0;left:0;width:100%;height:100%;max-height:none}@media (min-width:1440px){.capabilities_card-visual[data-sxg]{aspect-ratio:604/523}}@keyframes sxgfade{from{opacity:0}to{opacity:1}}.capabilities_card-visual[data-sxg] [data-sxg-host],.capabilities_card-visual[data-sxg] div[id^="sx-"][id$="-stage"]{animation:sxgfade .4s ease both}@media (prefers-reduced-motion:reduce){.capabilities_card-visual[data-sxg] [data-sxg-host],.capabilities_card-visual[data-sxg] div[id^="sx-"][id$="-stage"]{animation:none}}';
 document.head.appendChild(st);
+var warm=function(){log('warming card files');list.forEach(function(n){try{fetch(BASE+'graphics/'+key+'/card-'+n+'.js',{mode:'no-cors'}).catch(function(){});}catch(e){}});};
+if(document.readyState==='complete')idle(warm);else window.addEventListener('load',function(){idle(warm);});
 list.forEach(function(n){
 var c=cards[n-1];
-if(!c)return;
+if(!c){log('card '+n+' missing');return;}
 c.setAttribute('data-sxg','1');
 if(!c.getAttribute('data-sx-industry'))c.setAttribute('data-sx-industry',key);
-var load=function(){
+var url=BASE+'graphics/'+key+'/card-'+n+'.js';
+var load=function(t){
+t=t||0;
+log('loading card '+n+(t?' (retry '+t+')':''));
 var s=document.createElement('script');
-s.src=BASE+'graphics/'+key+'/card-'+n+'.js';
+s.src=url+(t?'?r='+t:'');
 s.async=true;
+s.onload=function(){if(DBG)setTimeout(function(){var h=c.querySelector('[data-sxg-host],[id^="sx-"]');log('card '+n+' loaded, host='+!!h+', shadow='+!!(h&&h.shadowRoot)+', card size='+c.offsetWidth+'x'+c.offsetHeight);},400);};
+s.onerror=function(){
+var u=s.src;
+if(s.parentNode)s.parentNode.removeChild(s);
+log('card '+n+' load error');
+if(DBG)fetch(u).then(function(r){log('card '+n+' probe: http '+r.status+' '+r.headers.get('content-type')+' len '+r.headers.get('content-length'));}).catch(function(e){log('card '+n+' probe failed: '+e);});
+if(t<3){setTimeout(function(){load(t+1);},1500*(t+1));}else{log('card '+n+' gave up');}
+};
 s.sxCard=c;
 document.head.appendChild(s);
 };
 if('IntersectionObserver' in window){
 var io=new IntersectionObserver(function(es){
-if(es.some(function(e){return e.isIntersecting;})){io.disconnect();load();}
-},{rootMargin:'800px 0px'});
+if(es.some(function(e){return e.isIntersecting;})){io.disconnect();log('card '+n+' near screen');load();}
+},{rootMargin:'1600px 0px'});
 io.observe(c);
 }else{load();}
 });
-}).catch(function(){});
+}).catch(function(e){log('catch: '+e);});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();
 })();
