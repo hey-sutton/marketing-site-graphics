@@ -1,6 +1,6 @@
 <script>
 (function(){
-var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.5.0/';
+var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.6.0/';
 var DBG=/[?&]sxgdebug/.test(location.search),box;
 function log(t){if(!DBG)return;try{if(!box){box=document.createElement('pre');box.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;margin:0;padding:8px;max-height:45vh;overflow:auto;background:#000;color:#0f0;font:11px/1.35 monospace;white-space:pre-wrap';document.body.appendChild(box);}box.textContent+=t+'\n';}catch(e){}}
 if(DBG)window.addEventListener('error',function(e){log('ERROR '+e.message+' @'+String(e.filename||'').split('/').slice(-2).join('/')+':'+e.lineno);});
@@ -18,7 +18,7 @@ key=key.toLowerCase().replace(/[^a-z0-9-]/g,'');
 log('key used: "'+key+'"');
 if(!key)return;
 var st=document.getElementById('sxg-size')||document.createElement('style');
-st.textContent='.capabilities_card-visual[data-sxg]{flex:none;aspect-ratio:604/540}.capabilities_card-visual[data-sxg] .capabilities_visual-bg{position:absolute;top:0;left:0;width:100%;height:100%;max-height:none}@media (min-width:1440px){.capabilities_card-visual[data-sxg]{aspect-ratio:604/523}}@keyframes sxgfade{from{opacity:0}to{opacity:1}}.capabilities_card-visual[data-sxg] [data-sxg-host],.capabilities_card-visual[data-sxg] div[id^="sx-"][id$="-stage"]{animation:sxgfade .4s ease both}@media (prefers-reduced-motion:reduce){.capabilities_card-visual[data-sxg] [data-sxg-host],.capabilities_card-visual[data-sxg] div[id^="sx-"][id$="-stage"]{animation:none}}';
+st.textContent='.capabilities_card-visual[data-sxg]{flex:none;aspect-ratio:604/540}.capabilities_card-visual[data-sxg] .capabilities_visual-bg{position:absolute;top:0;left:0;width:100%;height:100%;max-height:none}@media (min-width:1440px){.capabilities_card-visual[data-sxg]{aspect-ratio:604/523}}@keyframes sxgfade{from{opacity:0}to{opacity:1}}.capabilities_card-visual[data-sxg] [data-sxg-host],.capabilities_card-visual[data-sxg] div[id^="sx-"][id$="-stage"],[data-sxg-hero] [data-sxg-host]{animation:sxgfade .4s ease both}@media (prefers-reduced-motion:reduce){[data-sxg-hero] [data-sxg-host],.capabilities_card-visual[data-sxg] [data-sxg-host],.capabilities_card-visual[data-sxg] div[id^="sx-"][id$="-stage"]{animation:none}}';
 st.id='sxg-size';if(!st.parentNode)document.head.appendChild(st);
 [].forEach.call(cards,function(c){c.setAttribute('data-sxg','1');});
 fetch(BASE+'manifest.json').then(function(r){log('manifest http '+r.status);return r.ok?r.json():null;}).then(function(m){
@@ -27,14 +27,15 @@ log('cards listed for key: '+JSON.stringify(list||null));
 if(!list||!list.length){[].forEach.call(cards,function(c){c.removeAttribute('data-sxg');});return;}
 [].forEach.call(cards,function(c,i){if(list.indexOf(i+1)<0)c.removeAttribute('data-sxg');});
 
-var warm=function(){log('warming card files');list.forEach(function(n){try{fetch(BASE+'graphics/'+key+'/card-'+n+'.js',{mode:'no-cors'}).catch(function(){});}catch(e){}});};
+var warm=function(){log('warming card files');list.forEach(function(n){try{fetch(BASE+'graphics/'+key+'/'+(n==='hero'?'hero':'card-'+n)+'.js',{mode:'no-cors'}).catch(function(){});}catch(e){}});};
 if(document.readyState==='complete')idle(warm);else window.addEventListener('load',function(){idle(warm);});
 list.forEach(function(n){
-var c=cards[n-1];
-if(!c){log('card '+n+' missing');return;}
-c.setAttribute('data-sxg','1');
-if(!c.getAttribute('data-sx-industry'))c.setAttribute('data-sx-industry',key);
-var url=BASE+'graphics/'+key+'/card-'+n+'.js';
+var hero=n==='hero';
+var c=hero?document.querySelector('.feature-hero_visual,[data-sxg-hero-slot]'):cards[n-1];
+if(!c){log((hero?'hero':'card '+n)+' missing');return;}
+if(hero)c.setAttribute('data-sxg-hero','1');else{c.setAttribute('data-sxg','1');
+if(!c.getAttribute('data-sx-industry'))c.setAttribute('data-sx-industry',key);}
+var url=BASE+'graphics/'+key+'/'+(hero?'hero':'card-'+n)+'.js';
 var load=function(t){
 t=t||0;
 log('loading card '+n+(t?' (retry '+t+')':''));
@@ -52,7 +53,8 @@ if(t<3){setTimeout(function(){load(t+1);},1500*(t+1));}else{log('card '+n+' gave
 s.sxCard=c;
 document.head.appendChild(s);
 };
-if('IntersectionObserver' in window){
+if(hero){if(document.readyState==='complete')idle(function(){load();});else window.addEventListener('load',function(){idle(function(){load();});});}
+else if('IntersectionObserver' in window){
 var io=new IntersectionObserver(function(es){
 if(es.some(function(e){return e.isIntersecting;})){io.disconnect();log('card '+n+' near screen');load();}
 },{rootMargin:'1600px 0px'});

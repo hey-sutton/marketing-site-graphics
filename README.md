@@ -50,6 +50,8 @@ The loader is not in a template for feature pages. Each feature page carries it 
 1. Inside `<head>`: `feature-page-head.html`. It sets the demo size before the first paint, so the section does not jump when the graphics load.
 2. Before `</body>`: `loader.html`, unchanged. The loader reads the key from the `/features/<slug>` address. A page can also set it with `data-sxg-key` on any element or `window.SXG_KEY`.
 
+A feature page can also have an interactive hero. List `"hero"` after the card numbers in the manifest (for example `[1, 2, 3, 4, 5, 6, "hero"]`) and add `hero.js` plus `hero-bg.jpg` to the folder. The loader mounts it into `.feature-hero_visual` after the page has finished loading, so the hero image stays the page's first paint. Set the page's Hero Background in Webflow to the same clean landscape, so visitors never see an old screenshot before the demo fades in.
+
 When the loader version changes, update it on every feature page that carries it, as well as in the Industries template.
 
 ## Rules
