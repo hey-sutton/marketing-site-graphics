@@ -33,7 +33,11 @@ tools/fragments-to-card.py         wraps existing Webflow embed code into a grap
 4. Create a release with a new tag, for example `v1.0.1`.
 5. In Webflow, change the version in the loader's `BASE` line to the new tag. That one edit goes live for every page.
 
-Two industries can share a graphic by giving them the same Graphic Key in the CMS.
+Every industry gets its own Graphic Key, its own folder, its own four cards and its own backgrounds. Industries never share a graphic, and a child page never reuses its parent's.
+
+**Backgrounds are repo hosted.** Each card's background is a JPG in its folder, `graphics/<key>/bg-<n>.jpg` (604 by 540 pixels, progressive JPEG, about 50 KB, n matches the card number). The card finds it relative to its own script address, so the image ships inside the release tag and does not depend on any Webflow asset. The pattern, copied from `graphics/distribution-management-software/card-2.js`, is `var SRC=document.currentScript&&document.currentScript.src;var BGU=SRC?new URL('bg-2.jpg',SRC).href:'';`, with the CSS holding a `__BG__` placeholder that is replaced with `BGU`. The older Food and beverage and Additive Manufacturing cards still load Webflow hosted backgrounds and will be migrated later.
+
+The `version` in `manifest.json`, the `BASE` tag in `loader.html` and the release tag must all match.
 
 When a graphic moves over from old Webflow embeds, hide those embeds in the template first, check the page, and delete them later. Hiding keeps a way back.
 
