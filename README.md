@@ -52,8 +52,6 @@ The loader is not in a template for feature pages. Each feature page carries it 
 
 When the loader version changes, update it on every feature page that carries it, as well as in the Industries template.
 
-Cards are tagged in their top left chip: **In Sutton** for core product screens, **Studio app** for screens built with Studio.
-
 ## Rules
 
 * Pin the loader to a tag, never `main`. jsDelivr caches branches for hours, and an unreviewed push would go live.
