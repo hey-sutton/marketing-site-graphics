@@ -28,7 +28,9 @@ manifest = json.load(open(os.path.join(repo, "manifest.json")))
 cards = manifest.get("graphics", {}).get(a.key)
 if not cards:
     sys.exit(f"FAIL: key '{a.key}' is not in manifest.json ({list(manifest.get('graphics', {}))})")
-missing = [n for n in cards if not os.path.exists(os.path.join(repo, "graphics", a.key, f"card-{n}.js"))]
+def fname(n): return "hero.js" if n == "hero" else f"card-{n}.js"
+nums = [n for n in cards if n != "hero"]
+missing = [n for n in cards if not os.path.exists(os.path.join(repo, "graphics", a.key, fname(n)))]
 if missing:
     sys.exit(f"FAIL: missing files for cards {missing}")
 
@@ -41,10 +43,10 @@ if a.slug and a.slug != a.key:
     warnings.append(f"graphic key {a.key!r} differs from the CMS slug {a.slug!r}. Set the CMS Graphic Key to the key explicitly, or the loader (which falls back to the slug) will find nothing.")
 legacy, bgfiles = [], {}
 for n in cards:
-    src = open(os.path.join(repo, "graphics", a.key, f"card-{n}.js"), encoding="utf-8", errors="ignore").read()
+    src = open(os.path.join(repo, "graphics", a.key, fname(n)), encoding="utf-8", errors="ignore").read()
     if "website-files.com" in src and re.search(r"\.(avif|png|jpg|webp)", src):
         legacy.append(n)
-    mm = re.search(r"new URL\('(bg-\d\.jpg)'", src)
+    mm = re.search(r"new URL\('((?:bg-\d|hero-bg)\.jpg)'", src)
     bgfiles[n] = mm.group(1) if mm else None
     if bgfiles[n] and not os.path.exists(os.path.join(repo, "graphics", a.key, bgfiles[n])):
         warnings.append(f"card {n} references {bgfiles[n]} but that file is not in the folder.")
@@ -71,7 +73,9 @@ GIF = "data:image/gif;base64,R0lGODlGAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=
 html_cards = "".join(
     f'<div class="capabilities_card-visual" id="cv{i}"><img class="capabilities_visual-bg" alt="" src="{GIF}" '
     f'style="display:block;width:100%;aspect-ratio:604/540">' + (loader if i == 1 else "") + "</div>"
-    for i in range(1, 5))
+    for i in range(1, max(nums + [4]) + 1))
+if "hero" in cards:
+    html_cards = f'<div class="feature-hero_visual" id="cvhero" style="position:relative;overflow:hidden;width:640px;height:590px;margin-bottom:20px"></div>' + html_cards
 page = (f'<!doctype html><html><head><meta charset="utf-8"><style>body{{margin:0;background:#fff}}'
         f'.w{{width:640px;padding:20px}}.capabilities_card-visual{{position:relative;overflow:hidden;margin-bottom:20px}}</style></head>'
         f'<body><section data-sx-industry="{a.key}"><div class="w">{html_cards}</div></section></body></html>')
@@ -83,7 +87,7 @@ with sync_playwright() as p:
     pg = b.new_page(viewport={"width": 700, "height": 3000})
     errors = []
     bg_status = {}
-    pg.on("response", lambda r: bg_status.__setitem__(r.url.split("/")[-1], r.status) if re.search(r"/bg-\d\.jpg", r.url) else None)
+    pg.on("response", lambda r: bg_status.__setitem__(r.url.split("/")[-1], r.status) if re.search(r"/(bg-\d|hero-bg)\.jpg", r.url) else None)
     pg.on("pageerror", lambda e: errors.append(str(e)[:200]))
     pg.on("console", lambda m: errors.append("console: " + m.text[:200]) if m.type == "error" else None)
     pg.route("https://cdn.prod.website-files.com/**", lambda r: r.abort())  # backgrounds are not needed for the test
