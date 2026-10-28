@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0",
+  "version": "1.4.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -30,6 +30,14 @@
       2,
       3,
       4
+    ],
+    "features-traceability": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
     ]
   }
 }
