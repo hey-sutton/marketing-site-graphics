@@ -41,6 +41,17 @@ The `version` in `manifest.json`, the `BASE` tag in `loader.html` and the releas
 
 When a graphic moves over from old Webflow embeds, hide those embeds in the template first, check the page, and delete them later. Hiding keeps a way back.
 
+## Feature pages
+
+Feature pages (`/features/<slug>`) are static pages, not CMS items, and they use the same capabilities card classes as the Industries template. Their Graphic Key is `features-<slug>`, for example `features-traceability`, and the folder is `graphics/features-<slug>/`. A feature page can list up to six cards.
+
+The loader is not in a template for feature pages. Each feature page carries it in its own page custom code:
+
+1. Inside `<head>`: `feature-page-head.html`. It sets the demo size before the first paint, so the section does not jump when the graphics load.
+2. Before `</body>`: `loader.html`, unchanged. The loader reads the key from the `/features/<slug>` address. A page can also set it with `data-sxg-key` on any element or `window.SXG_KEY`.
+
+When the loader version changes, update it on every feature page that carries it, as well as in the Industries template.
+
 ## Rules
 
 * Pin the loader to a tag, never `main`. jsDelivr caches branches for hours, and an unreviewed push would go live.
