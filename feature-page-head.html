@@ -14,6 +14,14 @@
 .section_feature-hero .feature-hero_actions{width:auto;flex-direction:row;flex-wrap:wrap}
 .section_feature-hero .feature-hero_visual{width:auto;max-width:693px}
 }
+/* 768 to 991px: text and walkthrough side by side. The hero has a third item, the mobile logo roll, so this width uses a grid and the logo roll takes its own full width row underneath. As a third flex item it squeezed the walkthrough to nothing. */
+@media (min-width:768px) and (max-width:991px){
+.section_feature-hero .feature-hero_layout{display:grid;grid-template-columns:minmax(20rem,1fr) minmax(0,693px);column-gap:3rem;row-gap:2.5rem;align-items:center}
+.section_feature-hero .feature-hero_content{min-width:0}
+.section_feature-hero .feature-hero_content .heading-style-h1{text-align:left}
+.section_feature-hero .feature-hero_visual{width:auto;max-width:none;min-width:0}
+.section_feature-hero .solution-hero_trusted.is-mobile{grid-column:1/-1;margin-top:0}
+}
 @media (max-width:767px){
 .section_feature-hero .feature-hero_layout{flex-direction:column;align-items:stretch}
 .section_feature-hero .feature-hero_visual{order:-1;flex:none;width:100%;max-width:none}
