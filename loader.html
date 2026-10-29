@@ -1,6 +1,6 @@
 <script>
 (function(){
-var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.7.0/';
+var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.7.1/';
 var DBG=/[?&]sxgdebug/.test(location.search),box;
 function log(t){if(!DBG)return;try{if(!box){box=document.createElement('pre');box.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;margin:0;padding:8px;max-height:45vh;overflow:auto;background:#000;color:#0f0;font:11px/1.35 monospace;white-space:pre-wrap';document.body.appendChild(box);}box.textContent+=t+'\n';}catch(e){}}
 if(DBG)window.addEventListener('error',function(e){log('ERROR '+e.message+' @'+String(e.filename||'').split('/').slice(-2).join('/')+':'+e.lineno);});
