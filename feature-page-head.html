@@ -2,7 +2,7 @@
 <style>
 .section_capabilities .capabilities_card-visual{flex:none;aspect-ratio:604/540}
 .section_capabilities .capabilities_card-visual .capabilities_visual-bg{position:absolute;top:0;left:0;width:100%;height:100%;max-height:none}
-@media (min-width:1280px){.section_capabilities .capabilities_card-visual,.section_capabilities .capabilities_card-visual[data-sxg]{flex:1 1 0%;aspect-ratio:auto}}
+@media (min-width:1440px){.section_capabilities .capabilities_card-visual,.section_capabilities .capabilities_card-visual[data-sxg]{flex:1 1 0%;aspect-ratio:auto}}
 /* Hero walkthrough: keep its 693 by 640 shape at every width and give it the same 1px stroke as the capability cards. The text column narrows first; only below 768px does the text drop under the walkthrough. */
 .section_feature-hero .feature-hero_layout{column-gap:3rem}
 .section_feature-hero .feature-hero_content{flex:1 1 20rem;min-width:20rem}
@@ -13,6 +13,14 @@
 .section_feature-hero .feature-hero_subtext{text-align:left}
 .section_feature-hero .feature-hero_actions{width:auto;flex-direction:row;flex-wrap:wrap}
 .section_feature-hero .feature-hero_visual{width:auto;max-width:693px}
+}
+/* 768 to 991px: text and walkthrough side by side. The hero has a third item, the mobile logo roll, so this width uses a grid and the logo roll takes its own full width row underneath. As a third flex item it squeezed the walkthrough to nothing. */
+@media (min-width:768px) and (max-width:991px){
+.section_feature-hero .feature-hero_layout{display:grid;grid-template-columns:minmax(20rem,1fr) minmax(0,693px);column-gap:3rem;row-gap:2.5rem;align-items:center}
+.section_feature-hero .feature-hero_content{min-width:0}
+.section_feature-hero .feature-hero_content .heading-style-h1{text-align:left}
+.section_feature-hero .feature-hero_visual{width:auto;max-width:none;min-width:0}
+.section_feature-hero .solution-hero_trusted.is-mobile{grid-column:1/-1;margin-top:0}
 }
 @media (max-width:767px){
 .section_feature-hero .feature-hero_layout{flex-direction:column;align-items:stretch}
