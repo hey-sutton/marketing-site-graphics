@@ -1,6 +1,6 @@
 <script>
 (function(){
-var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.6.0/';
+var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.7.0/';
 var DBG=/[?&]sxgdebug/.test(location.search),box;
 function log(t){if(!DBG)return;try{if(!box){box=document.createElement('pre');box.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;margin:0;padding:8px;max-height:45vh;overflow:auto;background:#000;color:#0f0;font:11px/1.35 monospace;white-space:pre-wrap';document.body.appendChild(box);}box.textContent+=t+'\n';}catch(e){}}
 if(DBG)window.addEventListener('error',function(e){log('ERROR '+e.message+' @'+String(e.filename||'').split('/').slice(-2).join('/')+':'+e.lineno);});
@@ -53,7 +53,7 @@ if(t<3){setTimeout(function(){load(t+1);},1500*(t+1));}else{log('card '+n+' gave
 s.sxCard=c;
 document.head.appendChild(s);
 };
-if(hero){if(document.readyState==='complete')idle(function(){load();});else window.addEventListener('load',function(){idle(function(){load();});});}
+if(hero){load();}
 else if('IntersectionObserver' in window){
 var io=new IntersectionObserver(function(es){
 if(es.some(function(e){return e.isIntersecting;})){io.disconnect();log('card '+n+' near screen');load();}
