@@ -1,0 +1,33 @@
+<script>
+(function(){
+var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.8.0/';
+var KEY='blog-food-traceability';
+var SLUGS=['traceability-in-food-industry','food-recall-management','best-food-traceability-software'];
+var m=location.pathname.match(/\/blog\/([^\/?#]+)/);
+var slug=m?m[1].toLowerCase():'';
+if(SLUGS.indexOf(slug)<0)return;
+function go(){
+var body=document.querySelector('.w-richtext');
+var h=body&&body.querySelector('h2');
+if(!h||document.querySelector('[data-sxg-blog]'))return;
+var fig=h.nextElementSibling;
+var box=document.createElement('div');
+box.setAttribute('data-sxg-blog','1');
+box.style.cssText='position:relative;width:100%;aspect-ratio:604/660;overflow:hidden;border-radius:12px;border:1px solid var(--light--stroke,#e2e3e6);margin:1.5rem 0;';
+box.setAttribute('role','group');
+if(fig&&fig.tagName==='FIGURE'){fig.style.display='none';fig.setAttribute('data-sxg-replaced','1');}
+h.parentNode.insertBefore(box,fig&&fig.tagName==='FIGURE'?fig:h.nextSibling);
+var s=document.createElement('script');
+s.src=BASE+'graphics/'+KEY+'/card-1.js';
+s.async=true;
+s.sxCard=box;
+s.onerror=function(){box.remove();if(fig)fig.style.display='';};
+function start(){document.head.appendChild(s);}
+if('IntersectionObserver' in window){
+var io=new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting;})){io.disconnect();start();}},{rootMargin:'1200px 0px'});
+io.observe(box);
+}else start();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();
+})();
+</script>
