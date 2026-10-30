@@ -3,26 +3,35 @@
 var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.8.0/';
 var KEY='blog-food-traceability';
 var SLUGS=['traceability-in-food-industry','food-recall-management','best-food-traceability-software'];
+var DBG=/[?&]sxgdebug/.test(location.search);
+function log(t){if(DBG&&window.console)console.log('[sxg-blog] '+t);}
 var m=location.pathname.match(/\/blog\/([^\/?#]+)/);
 var slug=m?m[1].toLowerCase():'';
 if(SLUGS.indexOf(slug)<0)return;
+function find(){
+/* The graphic replaces the HowdyGo embed that sits under the "with Sutton" heading. */
+var emb=document.querySelector('.w-richtext #howdygo-embed,.w-richtext [id^="howdygo"]');
+if(emb){var t=emb.closest('.w-embed,[data-rt-embed-type]')||emb;log('replacing howdygo embed');return{ref:t,hide:t};}
+var hs=document.querySelectorAll('.w-richtext h2,.w-richtext h3');
+for(var i=0;i<hs.length;i++){if(/with sutton\s*$|^\s*1\.\s*sutton/i.test(hs[i].textContent)){log('no howdygo embed, placing after heading');return{ref:hs[i].nextSibling,hide:null,parent:hs[i].parentNode};}}
+return null;}
 function go(){
-var body=document.querySelector('.w-richtext');
-var h=body&&body.querySelector('h2');
-if(!h||document.querySelector('[data-sxg-blog]'))return;
-var fig=h.nextElementSibling;
+if(document.querySelector('[data-sxg-blog]'))return;
+var f=find();
+if(!f){log('no target found');return;}
 var box=document.createElement('div');
 box.setAttribute('data-sxg-blog','1');
-box.style.cssText='position:relative;width:100%;aspect-ratio:604/660;overflow:hidden;border-radius:12px;border:1px solid var(--light--stroke,#e2e3e6);margin:1.5rem 0;';
+box.style.cssText='position:relative;width:100%;max-width:720px;aspect-ratio:604/660;overflow:hidden;border-radius:12px;border:1px solid var(--light--stroke,#e2e3e6);margin:1.5rem auto;';
 box.setAttribute('role','group');
-if(fig&&fig.tagName==='FIGURE'){fig.style.display='none';fig.setAttribute('data-sxg-replaced','1');}
-h.parentNode.insertBefore(box,fig&&fig.tagName==='FIGURE'?fig:h.nextSibling);
+if(f.hide)f.hide.style.display='none';
+(f.parent||f.ref.parentNode).insertBefore(box,f.ref);
+log('mounted box '+box.offsetWidth+'x'+box.offsetHeight);
 var s=document.createElement('script');
 s.src=BASE+'graphics/'+KEY+'/card-1.js';
 s.async=true;
 s.sxCard=box;
-s.onerror=function(){box.remove();if(fig)fig.style.display='';};
-function start(){document.head.appendChild(s);}
+s.onerror=function(){log('graphic failed to load');box.remove();if(f.hide)f.hide.style.display='';};
+function start(){log('loading graphic');document.head.appendChild(s);}
 if('IntersectionObserver' in window){
 var io=new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting;})){io.disconnect();start();}},{rootMargin:'1200px 0px'});
 io.observe(box);
