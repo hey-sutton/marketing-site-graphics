@@ -1,5 +1,5 @@
 {
-  "version": "1.7.2",
+  "version": "1.8.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -39,6 +39,9 @@
       5,
       6,
       "hero"
+    ],
+    "blog-food-traceability": [
+      1
     ]
   }
 }
