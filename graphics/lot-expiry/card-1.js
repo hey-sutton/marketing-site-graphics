@@ -99,7 +99,7 @@ if(r[5]!=='available'){er.textContent='Only available labels can be picked.';ret
 if(!n||n<1||n>r[3]){er.textContent='Enter 1 to '+fmt(r[3])+' lb.';return;}
 turnOff();var before=avail(S.L);S.newId='LP-00463';
 if(n===r[3]){r[5]='picked';}else{r[3]-=n;S.L.splice(i+1,0,[S.newId,r[1],r[2],n,r[4],'picked',r[0]]);}
-S.done=true;S.sel=null;S.hl=true;draw();
+S.done=true;S.sel=null;S.hl=true;S.f='all';draw();
 var after=avail(S.L);
 res.innerHTML='<b>'+fmt(n)+' lb picked for <span class="mono">'+MO+'</span></b><span>'+(n===S.L[i][3]&&S.L[i][5]==='picked'?'Whole label picked.':'<span class="mono">'+S.L[i][0]+'</span> keeps '+fmt(S.L[i][3])+' lb with the same expiration date, <span class="mono">'+dstr(S.L[i][2])+'</span>. New label <span class="mono">'+S.newId+'</span> carries '+fmt(n)+' lb and the same date.')+'</span><span class="mut">Available oats: '+fmt(before)+' lb before, '+fmt(after)+' lb after.</span><span class="mut">Pick list for <span class="mono">'+MO+'</span>: <span class="mono">'+S.newId+'</span>, lot <span class="mono">'+S.L[i][1]+'</span>, '+fmt(n)+' lb, expires <span class="mono">'+dstr(S.L[i][2])+'</span>, bin <span class="mono">'+S.L[i][4]+'</span>.</span>';
 res.classList.add('on');drawHist();live.textContent=res.textContent;}
