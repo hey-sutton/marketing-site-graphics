@@ -1,13 +1,24 @@
 <script>
 (function(){
-var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.8.0/';
-var KEY='blog-food-traceability';
-var SLUGS=['traceability-in-food-industry','food-recall-management','best-food-traceability-software'];
+var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.9.0/';
+/* One entry per post: which graphic folder to load and, for lot-trace, which fact leads (supplier, genealogy or batch). */
+var MAP={
+'traceability-in-food-industry':{key:'blog-food-traceability',ar:'604/660'},
+'food-recall-management':{key:'blog-food-traceability',ar:'604/660'},
+'best-food-traceability-software':{key:'blog-food-traceability',ar:'604/660'},
+'food-supply-chain':{key:'lot-trace',em:'supplier'},
+'food-processing':{key:'lot-trace',em:'genealogy'},
+'batch-manufacturing':{key:'lot-trace',em:'batch'},
+'shelf-life-management':{key:'lot-expiry'},
+'fefo':{key:'lot-expiry'}
+};
 var DBG=/[?&]sxgdebug/.test(location.search);
 function log(t){if(DBG&&window.console)console.log('[sxg-blog] '+t);}
 var m=location.pathname.match(/\/blog\/([^\/?#]+)/);
 var slug=m?m[1].toLowerCase():'';
-if(SLUGS.indexOf(slug)<0)return;
+var cfg=MAP[slug];
+if(!cfg)return;
+var KEY=cfg.key;
 function find(){
 /* The graphic replaces the HowdyGo embed that sits under the "with Sutton" heading. */
 var emb=document.querySelector('.w-richtext #howdygo-embed,.w-richtext [id^="howdygo"]');
@@ -21,7 +32,8 @@ var f=find();
 if(!f){log('no target found');return;}
 var box=document.createElement('div');
 box.setAttribute('data-sxg-blog','1');
-box.style.cssText='position:relative;width:100%;max-width:720px;aspect-ratio:604/660;overflow:hidden;border-radius:12px;border:1px solid var(--light--stroke,#e2e3e6);margin:1.5rem auto;';
+if(cfg.em)box.setAttribute('data-sx-emphasis',cfg.em);
+box.style.cssText='position:relative;width:100%;max-width:720px;aspect-ratio:'+(cfg.ar||'604/580')+';overflow:hidden;border-radius:12px;border:1px solid var(--light--stroke,#e2e3e6);margin:1.5rem auto;';
 box.setAttribute('role','group');
 if(f.hide)f.hide.style.display='none';
 (f.parent||f.ref.parentNode).insertBefore(box,f.ref);
