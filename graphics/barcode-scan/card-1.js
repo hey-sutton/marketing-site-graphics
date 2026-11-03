@@ -100,8 +100,9 @@ function resetState(){S={open:false,cur:-1,done:false,seen:[]};drawGrid();draw()
 scanb.addEventListener('click',openM);$('cls').addEventListener('click',closeM);
 lbs.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.lb');if(b)scan(+b.getAttribute('data-i'));});
 root.addEventListener('keydown',function(e){if(e.key==='Escape'&&S.open)closeM();});
-ov.addEventListener('click',function(e){if(e.target===ov)closeM();});
-function prompt(){openM();turnSay('Click a label to scan it');}
+var eAt=0;
+ov.addEventListener('click',function(e){if(e.target===ov&&Date.now()-eAt>400)closeM();});
+function prompt(){eAt=Date.now();openM();turnSay('Click a label to scan it');}
 function script(){var t=1800;
 later(function(){say(1,'Scan from any inventory screen','Open Scan, point at a label.');moveGhost(winPos(scanb,10,10));},t-1500);
 click(function(){return scanb;},function(){openM();},t+1000);var tc=t+1330;
