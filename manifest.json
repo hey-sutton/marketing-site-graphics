@@ -1,5 +1,5 @@
 {
-  "version": "1.9.0",
+  "version": "1.10.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -47,6 +47,9 @@
       1
     ],
     "lot-expiry": [
+      1
+    ],
+    "warehouse-ops": [
       1
     ]
   }
