@@ -1,7 +1,7 @@
 <script>
 (function(){
-var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.9.0/';
-/* One entry per post: which graphic folder to load and, for lot-trace, which fact leads (supplier, genealogy or batch). */
+var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.10.0/';
+/* One entry per post: which graphic folder to load, an optional card shape (ar), an optional emphasis for lot-trace (supplier, genealogy or batch), and all:true when a post carries duplicate HowdyGo embeds that must all be hidden. */
 var MAP={
 'traceability-in-food-industry':{key:'blog-food-traceability',ar:'604/660'},
 'food-recall-management':{key:'blog-food-traceability',ar:'604/660'},
@@ -10,7 +10,10 @@ var MAP={
 'food-processing':{key:'lot-trace',em:'genealogy'},
 'batch-manufacturing':{key:'lot-trace',em:'batch'},
 'shelf-life-management':{key:'lot-expiry'},
-'fefo':{key:'lot-expiry'}
+'fefo':{key:'lot-expiry'},
+'best-warehouse-management-software':{key:'warehouse-ops',ar:'604/650'},
+'warehouse-management-process':{key:'warehouse-ops',ar:'604/650'},
+'pick-pack-ship':{key:'warehouse-ops',ar:'604/650'}
 };
 var DBG=/[?&]sxgdebug/.test(location.search);
 function log(t){if(DBG&&window.console)console.log('[sxg-blog] '+t);}
@@ -21,10 +24,11 @@ if(!cfg)return;
 var KEY=cfg.key;
 function find(){
 /* The graphic replaces the HowdyGo embed that sits under the "with Sutton" heading. */
-var emb=document.querySelector('.w-richtext #howdygo-embed,.w-richtext [id^="howdygo"]');
-if(emb){var t=emb.closest('.w-embed,[data-rt-embed-type]')||emb;log('replacing howdygo embed');return{ref:t,hide:t};}
+var embs=[].slice.call(document.querySelectorAll('.w-richtext #howdygo-embed'));
+if(!embs.length){var one=document.querySelector('.w-richtext [id^="howdygo"]');if(one)embs=[one];}
+if(embs.length){var hide=[];embs.forEach(function(e){var t=e.closest('.w-embed,[data-rt-embed-type]')||e;if(hide.indexOf(t)<0)hide.push(t);});if(!cfg.all)hide=hide.slice(0,1);log('replacing '+hide.length+' howdygo embed(s)');return{ref:hide[0],hide:hide};}
 var hs=document.querySelectorAll('.w-richtext h2,.w-richtext h3');
-for(var i=0;i<hs.length;i++){if(/with sutton\s*$|^\s*1\.\s*sutton/i.test(hs[i].textContent)){log('no howdygo embed, placing after heading');return{ref:hs[i].nextSibling,hide:null,parent:hs[i].parentNode};}}
+for(var i=0;i<hs.length;i++){if(/with sutton\s*$|^\s*1\.\s*sutton/i.test(hs[i].textContent)){log('no howdygo embed, placing after heading');return{ref:hs[i].nextSibling,hide:[],parent:hs[i].parentNode};}}
 return null;}
 function go(){
 if(document.querySelector('[data-sxg-blog]'))return;
@@ -35,14 +39,14 @@ box.setAttribute('data-sxg-blog','1');
 if(cfg.em)box.setAttribute('data-sx-emphasis',cfg.em);
 box.style.cssText='position:relative;width:100%;max-width:720px;aspect-ratio:'+(cfg.ar||'604/580')+';overflow:hidden;border-radius:12px;border:1px solid var(--light--stroke,#e2e3e6);margin:1.5rem auto;';
 box.setAttribute('role','group');
-if(f.hide)f.hide.style.display='none';
+f.hide.forEach(function(e){e.style.display='none';});
 (f.parent||f.ref.parentNode).insertBefore(box,f.ref);
 log('mounted box '+box.offsetWidth+'x'+box.offsetHeight);
 var s=document.createElement('script');
 s.src=BASE+'graphics/'+KEY+'/card-1.js';
 s.async=true;
 s.sxCard=box;
-s.onerror=function(){log('graphic failed to load');box.remove();if(f.hide)f.hide.style.display='';};
+s.onerror=function(){log('graphic failed to load');box.remove();f.hide.forEach(function(e){e.style.display='';});};
 function start(){log('loading graphic');document.head.appendChild(s);}
 if('IntersectionObserver' in window){
 var io=new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting;})){io.disconnect();start();}},{rootMargin:'1200px 0px'});
