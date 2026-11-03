@@ -17,10 +17,16 @@ var MAP={
 'warehouse-barcode-system':{key:'barcode-scan',ar:'604/650',em:'warehouse',all:true},
 'manufacturing-barcode-system':{key:'barcode-scan',ar:'604/650',em:'manufacturing'}
 };
+/* Posts with no graphic yet whose HowdyGo embed is broken: take the embed off the page. The article text is not touched. */
+var REMOVE=['3pl-warehouse-management-system','food-processing-and-manufacturing','standardized-recipe','quickbooks-online-bill-of-materials','contract-manufacturing','multi-level-boms','food-production-line'];
 var DBG=/[?&]sxgdebug/.test(location.search);
 function log(t){if(DBG&&window.console)console.log('[sxg-blog] '+t);}
 var m=location.pathname.match(/\/blog\/([^\/?#]+)/);
 var slug=m?m[1].toLowerCase():'';
+if(REMOVE.indexOf(slug)>=0){
+var drop=function(){[].forEach.call(document.querySelectorAll('.w-richtext #howdygo-embed'),function(e){var t=e.closest('.w-embed,[data-rt-embed-type]')||e;if(t.parentNode){log('removing howdygo embed');t.parentNode.removeChild(t);}});};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',drop);else drop();
+return;}
 var cfg=MAP[slug];
 if(!cfg)return;
 var KEY=cfg.key;
