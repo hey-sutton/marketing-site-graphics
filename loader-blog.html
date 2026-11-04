@@ -44,7 +44,7 @@ for(var i=0;i<hs.length;i++){if(/with sutton\s*$|^\s*1\.\s*sutton/i.test(hs[i].t
 return null;}
 /* The Sutton frame: a green bar on top, the demo stage, a slim gray strip below. It is built inside its own shadow root so the site's article styles cannot change it. */
 var FCSS=':host{all:initial}*{box-sizing:border-box}'
-+'.fr{display:block;border:1px solid #103d35;background:#fff;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;line-height:1.4;color:#16171b}'
++'.fr{display:block;border:1px solid #c5d0cb;box-shadow:0 2px 14px rgba(16,61,53,.10);background:#fff;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;line-height:1.4;color:#16171b}'
 +'.top{background:#103d35;color:#fff;min-height:56px;padding:10px 16px 10px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}'
 +'.l{display:flex;align-items:center;min-width:0}'
 +'.logo{display:block;width:86px;height:18px;max-width:none;filter:brightness(0) invert(1)}'
@@ -102,11 +102,8 @@ s.async=true;
 s.sxCard=box;
 s.onload=function(){var h=box.querySelector('[data-sxg-host]');if(h&&h.shadowRoot){var q=document.createElement('style');q.textContent='.studio{display:none!important}';h.shadowRoot.appendChild(q);}};
 s.onerror=function(){log('graphic failed to load');fr.remove();f.hide.forEach(function(e){e.style.display='';});};
-function start(){log('loading graphic');document.head.appendChild(s);}
-if('IntersectionObserver' in window){
-var io=new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting;})){io.disconnect();start();}},{rootMargin:'1200px 0px'});
-io.observe(box);
-}else start();
+var bgi=new Image();bgi.src=BASE+'graphics/'+KEY+'/bg-'+({'lot-expiry':2,'warehouse-ops':4,'barcode-scan':4}[KEY]||1)+'.jpg';
+log('loading graphic');document.head.appendChild(s);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();
 })();
