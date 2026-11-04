@@ -54,6 +54,9 @@
     ],
     "barcode-scan": [
       1
+    ],
+    "threepl-fulfillment": [
+      1
     ]
   }
 }

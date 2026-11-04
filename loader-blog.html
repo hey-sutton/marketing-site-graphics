@@ -15,12 +15,13 @@ var MAP={
 'warehouse-management-process':{key:'warehouse-ops',ar:'604/650'},
 'pick-pack-ship':{key:'warehouse-ops',ar:'604/650'},
 'warehouse-barcode-system':{key:'barcode-scan',ar:'604/650',em:'warehouse',all:true},
-'manufacturing-barcode-system':{key:'barcode-scan',ar:'604/650',em:'manufacturing'}
+'manufacturing-barcode-system':{key:'barcode-scan',ar:'604/650',em:'manufacturing'},
+'3pl-warehouse-management-system':{key:'threepl-fulfillment',ar:'604/635'}
 };
 /* Posts with no graphic yet whose HowdyGo embed is broken: take the embed off the page. The article text is not touched. */
-var REMOVE=['3pl-warehouse-management-system','food-processing-and-manufacturing','standardized-recipe','quickbooks-online-bill-of-materials','contract-manufacturing','multi-level-boms','food-production-line'];
+var REMOVE=['food-processing-and-manufacturing','standardized-recipe','quickbooks-online-bill-of-materials','contract-manufacturing','multi-level-boms','food-production-line'];
 /* Banner copy per graphic: the screen name used in the footer strip. */
-var FRAME={'blog-food-traceability':'Food traceability','lot-trace':'Lot trace','lot-expiry':'Lot expiry','warehouse-ops':'Warehouse operations','barcode-scan':'Barcode scanning'};
+var FRAME={'blog-food-traceability':'Food traceability','lot-trace':'Lot trace','lot-expiry':'Lot expiry','warehouse-ops':'Warehouse operations','barcode-scan':'Barcode scanning','threepl-fulfillment':'Client fulfillment'};
 var DEMO_URL='https://heysutton.com/book-a-demo';
 var STUDIO_URL='https://heysutton.com/studio';
 var DBG=/[?&]sxgdebug/.test(location.search);
@@ -101,7 +102,7 @@ s.async=true;
 s.sxCard=box;
 s.onload=function(){var h=box.querySelector('[data-sxg-host]');if(h&&h.shadowRoot){var q=document.createElement('style');q.textContent='.studio{display:none!important}.fw-title,.ch{font-family:"Acid Grotesk",Inter,system-ui,sans-serif!important;font-weight:400!important;letter-spacing:0!important}.fw-title{font-size:15px!important}';h.shadowRoot.appendChild(q);}};
 s.onerror=function(){log('graphic failed to load');fr.remove();f.hide.forEach(function(e){e.style.display='';});};
-var bgi=new Image();bgi.src=BASE+'graphics/'+KEY+'/bg-'+({'lot-expiry':2,'warehouse-ops':4,'barcode-scan':4}[KEY]||1)+'.jpg';
+var bgi=new Image();bgi.src=BASE+'graphics/'+KEY+'/bg-'+({'lot-expiry':2,'warehouse-ops':4,'barcode-scan':4,'threepl-fulfillment':4}[KEY]||1)+'.jpg';
 log('loading graphic');document.head.appendChild(s);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();
