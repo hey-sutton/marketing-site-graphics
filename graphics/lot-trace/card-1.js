@@ -55,14 +55,14 @@ function turnSay(text,el,where){live.textContent=text;turn.innerHTML='<div class
 function turnOff(){turn.classList.remove('on');}
 function click(get,fn,t){later(function(){var el=get();if(el)moveGhost(winPos(el,null,null));},t-LEAD);later(function(){var el=get();ghost.classList.add('pr');if(el)el.classList.add('fakehover','press');},t);later(function(){var el=get();ghost.classList.remove('pr');if(el)el.classList.remove('fakehover','press');fn();},t+330);}
 function point(el,t,dx,dy){later(function(){var e=typeof el==='function'?el():el;if(e)moveGhost(winPos(e,dx,dy));},t);}
-function typeInto(inp,txt,t){later(function(){inp.value='';},t);for(var i=1;i<=txt.length;i++)(function(i){later(function(){inp.value=txt.slice(0,i);},t+i*TYPE);})(i);return t+txt.length*TYPE;}
+function typeInto(inp,txt,t,step){step=step||TYPE;later(function(){inp.value='';},t);for(var i=1;i<=txt.length;i++)(function(i){later(function(){inp.value=txt.slice(0,i);},t+i*step);})(i);return t+txt.length*step;}
 function clearHints(){[].slice.call(root.querySelectorAll('.hint,.fakehover,.press')).forEach(function(b){b.classList.remove('hint','fakehover','press');});}
 function cancelAll(){timers.forEach(clearTimeout);timers=[];tourOn=false;ghost.classList.remove('on','pr');hush();clearHints();}
 function tour(){if(reduce||engaged||!visible||tourOn)return;tourOn=true;timers=[];resetState();turnOff();moveGhost({l:visW()/2,t:visH()/2},true);ghost.classList.add('on');var total=script();later(function(){tourOn=false;tour();},total);}
 function engage(){if(engaged)return;engaged=true;cancelAll();resetState();prompt();}
 function replay(){engaged=false;cancelAll();resetState();turnOff();tour();}
 if(!STATIC)rp.addEventListener('click',replay);
-function startObserver(){if('IntersectionObserver'in window){new IntersectionObserver(function(es){es.forEach(function(en){visible=en.intersectionRatio>=0.3;if(visible&&!engaged&&!tourOn)later(tour,900);if(!visible&&!engaged&&tourOn){cancelAll();resetState();turnOff();}});},{threshold:[0,0.3,0.6]}).observe(host.parentNode);}else{visible=true;if(!engaged)setTimeout(tour,800);}}
+function startObserver(){if('IntersectionObserver'in window){new IntersectionObserver(function(es){es.forEach(function(en){visible=en.intersectionRatio>=0.3;if(visible&&!engaged&&!tourOn)later(tour,450);if(!visible&&!engaged&&tourOn){cancelAll();resetState();turnOff();}});},{threshold:[0,0.3,0.6]}).observe(host.parentNode);}else{visible=true;if(!engaged)setTimeout(tour,800);}}
 function fmt(n,d){return n.toLocaleString('en-US',{minimumFractionDigits:d||0,maximumFractionDigits:d||0});}
 function money(n){return '$'+fmt(n,2);}
 
@@ -93,8 +93,8 @@ else{var f=FWD[+k.slice(1)],y=XF[f[1]];h='<span class="mut">Shipment</span><span
 r.innerHTML=h;r.classList.add('on');}
 function note(m){det.className='det empty rv on';det.textContent=m;$('recs').classList.remove('on');}
 /* Step 1: the lot is found, then everything behind it. */
-function trace(){if(S.traced)return;S.traced=true;q.value='GR-1021A';on($('ctr'),0);on($('chb'),500);show('b',900);
-on($('tlp'),3000);timeline();later(function(){fwd.disabled=false;},reduce?0:2200);
+function trace(){if(S.traced)return;S.traced=true;q.value='GR-1021A';on($('ctr'),0);on($('chb'),250);show('b',450);
+on($('tlp'),1500);timeline();later(function(){fwd.disabled=false;},reduce?0:1300);
 live.textContent='Lot GR-1021A found. Five ingredient lots shown.';
 if(engaged)later(function(){turnSay('Open any ingredient lot',nodes.querySelector('[data-k="b1"]'));},reduce?0:2300);}
 function pick(k){if(!S.traced)return;S.sel=k;[].slice.call(nodes.querySelectorAll('.nd')).forEach(function(n){n.classList.toggle('sel',n.getAttribute('data-k')===k);});[].slice.call(wires.querySelectorAll('path')).forEach(function(p){p.classList.toggle('hot',p.getAttribute('data-k')===k);});
@@ -113,9 +113,9 @@ nodes.addEventListener('click',function(e){var n=e.target.closest&&e.target.clos
 fwd.addEventListener('click',forward);
 /* Taking over, or reduced motion: start at the search with the next step offered. */
 function prompt(){q.value='GR-1021A';go.classList.add('hint');turnSay('Click Trace to start',go);}
-function script(){var t=1800;
-later(function(){say(1,'Start from a finished lot','Type any lot number, from raw material to finished goods.');moveGhost(winPos(q,30,10));},t-1500);t=typeInto(q,'GR-1021A',t+600)+700;
-click(function(){return go;},function(){trace();},t+1500);var tc=t+1830;
+function script(){var t=800;
+later(function(){say(1,'Start from a finished lot','Type any lot number, from raw material to finished goods.');moveGhost(winPos(q,30,10));},0);t=typeInto(q,'GR-1021A',t+100,38)+200;
+click(function(){return go;},function(){trace();},t+700);var tc=t+1030;
 later(function(){say(2,'Back to every ingredient lot','Five lots from five suppliers.');},tc+900);point(function(){return nodes.querySelector('[data-k="b2"]');},tc+900,110,20);
 t=tc+4200;later(function(){hush();},t-300);click(function(){return nodes.querySelector('[data-k="b1"]');},function(){pick('b1');},t+1400);
 later(function(){say(3,CAP3[0],CAP3[1]);},t+2100);t+=7000;
