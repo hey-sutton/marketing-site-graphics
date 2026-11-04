@@ -16,7 +16,7 @@ var MAP={
 'pick-pack-ship':{key:'warehouse-ops',ar:'604/650'},
 'warehouse-barcode-system':{key:'barcode-scan',ar:'604/650',em:'warehouse',all:true},
 'manufacturing-barcode-system':{key:'barcode-scan',ar:'604/650',em:'manufacturing'},
-'3pl-warehouse-management-system':{key:'threepl-fulfillment',ar:'604/635'}
+'3pl-warehouse-management-system':{key:'threepl-fulfillment',ar:'604/635',after:/what is a 3pl/i}
 };
 /* Posts with no graphic yet whose HowdyGo embed is broken: take the embed off the page. The article text is not touched. */
 var REMOVE=['food-processing-and-manufacturing','standardized-recipe','quickbooks-online-bill-of-materials','contract-manufacturing','multi-level-boms','food-production-line'];
@@ -38,6 +38,8 @@ var KEY=cfg.key;
 function find(){
 /* The graphic replaces the HowdyGo embed that sits under the "with Sutton" heading. */
 var embs=[].slice.call(document.querySelectorAll('.w-richtext #howdygo-embed'));
+/* A post can ask for the demo to sit under one heading and take the place of the image that follows it. The embed higher up the page is hidden too. */
+if(cfg.after){var hh=document.querySelectorAll('.w-richtext h1,.w-richtext h2,.w-richtext h3');for(var k=0;k<hh.length;k++){if(cfg.after.test(hh[k].textContent)){var hid=[];embs.forEach(function(e){var w=e.closest('.w-embed,[data-rt-embed-type]')||e;if(hid.indexOf(w)<0)hid.push(w);});var nx=hh[k].nextElementSibling;if(nx&&nx.tagName==='FIGURE')hid.push(nx);log('placing under heading, replacing '+(nx&&nx.tagName==='FIGURE'?'the image':'nothing')+' and hiding '+embs.length+' embed(s)');return{ref:nx||hh[k].nextSibling,hide:hid,parent:hh[k].parentNode};}}}
 if(!embs.length){var one=document.querySelector('.w-richtext [id^="howdygo"]');if(one)embs=[one];}
 if(embs.length){var hide=[];embs.forEach(function(e){var t=e.closest('.w-embed,[data-rt-embed-type]')||e;if(hide.indexOf(t)<0)hide.push(t);});if(!cfg.all)hide=hide.slice(0,1);log('replacing '+hide.length+' howdygo embed(s)');return{ref:hide[0],hide:hide};}
 var hs=document.querySelectorAll('.w-richtext h2,.w-richtext h3');
