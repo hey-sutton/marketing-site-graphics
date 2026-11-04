@@ -1,5 +1,5 @@
 {
-  "version": "1.12.0",
+  "version": "1.13.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -53,6 +53,9 @@
       1
     ],
     "barcode-scan": [
+      1
+    ],
+    "threepl-fulfillment": [
       1
     ]
   }
