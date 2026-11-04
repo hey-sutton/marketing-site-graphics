@@ -51,7 +51,7 @@ st.textContent='.sxg-frame{max-width:720px;margin:1.5rem auto;border:1px solid #
 +'.sxg-h{min-height:104px;padding:16px 24px;border-bottom:1px solid #e2e3e6;display:flex;align-items:center;justify-content:space-between;gap:16px;background:#fff}'
 +'.sxg-hl{display:flex;flex-direction:column;gap:12px;min-width:0}'
 +'.sxg-r1{display:flex;align-items:center;gap:12px;min-height:24px}'
-+'.sxg-logo{display:block;width:86px;height:auto}'
++'.sxg-logo{display:block;width:86px;height:auto;aspect-ratio:1190/253}'
 +'.sxg-tag{font-size:11px;font-weight:500;letter-spacing:.16em;color:#ef7029;text-transform:uppercase;line-height:1}'
 +'.sxg-hd{margin:0;font-size:20px;font-weight:500;line-height:1.25;color:#16171b}'
 +'.sxg-live{flex:none;height:26px;display:inline-flex;align-items:center;gap:7px;padding:0 10px;background:#16171b;color:#fff;font-size:10.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;line-height:1}'
@@ -78,7 +78,7 @@ function frame(cfg,stage){
 var fc=FRAME[cfg.key]||['this screen','data'];
 var wrap=el('div','sxg-frame');wrap.setAttribute('role','group');wrap.setAttribute('aria-label','Sutton demo: '+fc[0]);
 var h=el('div','sxg-h');var hl=el('div','sxg-hl');var r1=el('div','sxg-r1');
-var logo=document.createElement('img');logo.className='sxg-logo';logo.alt='Sutton';logo.width=86;logo.src=BASE+'assets/sutton-logo-color.svg';logo.onerror=function(){logo.style.display='none';log('logo failed to load');};
+var logo=document.createElement('img');logo.className='sxg-logo';logo.alt='Sutton';logo.width=86;logo.src=BASE+'assets/sutton-logo-color.png';logo.onerror=function(){logo.style.display='none';log('logo failed to load');};
 r1.appendChild(logo);r1.appendChild(el('span','sxg-tag','AI-native ERP'));
 hl.appendChild(r1);hl.appendChild(el('p','sxg-hd','This is '+fc[0]+' in Sutton.'));
 var live=el('span','sxg-live');live.appendChild(el('i'));live.appendChild(document.createTextNode('Live demo'));

@@ -17,6 +17,8 @@ Page weight stays flat no matter how many industries we add.
 manifest.json                      which cards have a graphic, per Graphic Key
 loader.html                        the embed pasted into Webflow (one copy, in the template)
 graphics/<key>/card-<n>.js         one file per graphic, n is the card number 1 to 4
+loader-blog.html                   the embed pasted into the Blog Posts Template: maps each blog post to its graphic and wraps it in the Sutton banner frame
+assets/                            shared images, for example sutton-logo-color.png (the official logo, used in the blog banner)
 tools/fragments-to-card.py         wraps existing Webflow embed code into a graphic file
 ```
 
