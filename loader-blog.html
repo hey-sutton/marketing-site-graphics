@@ -1,19 +1,19 @@
 <script>
 (function(){
-var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.17.0/';
+var BASE='https://cdn.jsdelivr.net/gh/hey-sutton/marketing-site-graphics@v1.18.0/';
 /* One entry per post: which graphic folder to load, an optional card shape (ar), shell2:true for a card built on the new card shell (it inlines its own photo and fires sxg:complete), an optional emphasis (lot-trace: supplier, genealogy or batch; barcode-scan: warehouse or manufacturing), and all:true when a post carries duplicate HowdyGo embeds that must all be hidden. */
 var MAP={
-'traceability-in-food-industry':{key:'blog-food-traceability',ar:'604/660'},
-'food-recall-management':{key:'blog-food-traceability',ar:'604/660'},
-'best-food-traceability-software':{key:'blog-food-traceability',ar:'604/660'},
+'traceability-in-food-industry':{key:'blog-food-traceability',ar:'604/635',shell2:true},
+'food-recall-management':{key:'blog-food-traceability',ar:'604/635',shell2:true},
+'best-food-traceability-software':{key:'blog-food-traceability',ar:'604/635',shell2:true},
 'food-supply-chain':{key:'lot-trace',em:'supplier'},
 'food-processing':{key:'lot-trace',em:'genealogy'},
 'batch-manufacturing':{key:'lot-trace',em:'batch'},
 'shelf-life-management':{key:'lot-expiry'},
 'fefo':{key:'lot-expiry'},
-'best-warehouse-management-software':{key:'warehouse-ops',ar:'604/650'},
-'warehouse-management-process':{key:'warehouse-ops',ar:'604/650'},
-'pick-pack-ship':{key:'warehouse-ops',ar:'604/650'},
+'best-warehouse-management-software':{key:'warehouse-ops',ar:'604/635',shell2:true},
+'warehouse-management-process':{key:'warehouse-ops',ar:'604/635',shell2:true},
+'pick-pack-ship':{key:'warehouse-ops',ar:'604/635',shell2:true},
 'warehouse-barcode-system':{key:'barcode-scan',ar:'604/650',em:'warehouse',all:true},
 'manufacturing-barcode-system':{key:'barcode-scan',ar:'604/650',em:'manufacturing'},
 '3pl-warehouse-management-system':{key:'threepl-fulfillment',ar:'604/635',after:/what is a 3pl/i,shell2:true}
@@ -175,7 +175,7 @@ s.async=true;
 s.sxCard=box;
 s.onload=function(){var h=box.querySelector('[data-sxg-host]');if(h&&h.shadowRoot){var q=document.createElement('style');q.textContent=(cfg.shell2?'.rp{display:none!important}':'.rp{display:none!important}@container (max-width:520px){.studio{display:none!important}}')+'.fw-title,.ch{font-family:"Acid Grotesk",Inter,system-ui,sans-serif!important;font-weight:400!important;letter-spacing:0!important}.fw-title{font-size:15px!important}';h.shadowRoot.appendChild(q);}};
 s.onerror=function(){log('graphic failed to load');fr.remove();f.hide.forEach(function(e){e.style.display='';});};
-if(!cfg.shell2){var bgi=new Image();bgi.src=BASE+'graphics/'+KEY+'/bg-'+({'lot-expiry':2,'warehouse-ops':4,'barcode-scan':4}[KEY]||1)+'.jpg';}
+if(!cfg.shell2){var bgi=new Image();bgi.src=BASE+'graphics/'+KEY+'/bg-'+({'lot-expiry':2,'barcode-scan':4}[KEY]||1)+'.jpg';}
 log('loading graphic');document.head.appendChild(s);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();
