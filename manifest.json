@@ -1,5 +1,5 @@
 {
-  "version": "1.18.0",
+  "version": "1.19.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -59,6 +59,12 @@
       1
     ],
     "dairy": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "packaging": [
       1,
       2,
       3,
