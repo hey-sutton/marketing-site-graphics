@@ -1,5 +1,5 @@
 {
-  "version": "1.13.0",
+  "version": "1.15.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -57,6 +57,12 @@
     ],
     "threepl-fulfillment": [
       1
+    ],
+    "dairy": [
+      1,
+      2,
+      3,
+      4
     ]
   }
 }
