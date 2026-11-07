@@ -1,0 +1,85 @@
+"""Apparel card 3: Cut to Pack Production. Layout: a stage board with lanes Cut, Sew, At vendor and Pack, a held strip and a stage log on the left; the side panel holds the forms."""
+SUMMARY = 'Cut to Pack Production (cut ticket with tagged bundles, bundles scanned into sewing, defects held by stage, an outside finisher with its charge, receiving, packing)'
+ARIA = 'Interactive product screen: create cut ticket CT-0412 for run RUN-0412, scan its 12 bundles into sewing, record sewing defects, send the pieces to an outside finisher, receive them back and pack them into cartons'
+STEPS = 6
+STUDIO = dict(lede='A typical production board, built on your Sutton data with Studio. Want it different? Describe the change.',
+              examples=['A bundle tracking view', 'A defect reason list', 'A vendor turnaround watch', 'A line balance screen'],
+              built_on='Production runs, bundles, vendors and stock', change='Stages, defect reasons and views')
+
+CSS = (
+ '.b3{display:grid;grid-template-columns:414px 1fr;gap:12px;padding:12px 40px 0 16px;height:596px}'
+ '.col{display:flex;flex-direction:column;gap:10px;min-height:0}'
+ '.lanes{display:grid;grid-template-columns:repeat(4,1fr)}.ln{border-left:1px solid #F0F0F1;min-height:262px;display:flex;flex-direction:column}.ln:first-child{border-left:0}'
+ '.ln .lh{display:flex;justify-content:space-between;align-items:center;height:30px;padding:0 8px;background:#FAFAFA;border-bottom:1px solid #E4E4E7;font-size:9.8px;font-weight:600}.ln .lh b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px}'
+ '.ln .lb{padding:7px 6px;display:grid;grid-template-columns:1fr 1fr;gap:4px;align-content:start}.ln.on .lh{background:#F4F4F5}'
+ '.bd{border:1px solid #D4D4D8;border-radius:5px;padding:3px 4px;background:#fff;display:flex;flex-direction:column;gap:1px;font-size:8.4px;line-height:1.15}.bd b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:8.8px}.bd span{color:#71717A}'
+ '.bk{grid-column:1/-1;border:1px solid #18181B;border-radius:7px;padding:6px 7px;background:#fff;display:flex;flex-direction:column;gap:3px;font-size:9.2px}.bk b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px}.bk small{color:#71717A;font-size:8.6px}.bk.gh{border:1px dashed #D4D4D8;background:#FAFAFA}'
+ '.ctn{border:1px solid #BBF7D0;background:#F0FDF4;color:#166534}'
+ '.hld .row{grid-template-columns:72px 1fr 40px;min-height:24px;font-size:9.6px}'
+ '.lg{flex:1 1 0;min-height:0}.lg .row{grid-template-columns:40px 1fr;min-height:23px;font-size:9.4px}.lg .row.new{animation:exflash 1.4s ease}'
+ '.sd .cd{display:flex;flex-direction:column}.frm .g{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:9px 11px}.frm .g .w{grid-column:1/-1}.frm .ft{display:flex;justify-content:flex-end;padding:2px 11px 10px}'
+ '.sz .row{grid-template-columns:32px 1fr 46px;min-height:21px;font-size:9.4px}.pad{padding:9px 11px;display:flex;flex-direction:column;gap:8px}.kv3{display:grid;grid-template-columns:1fr 1fr;gap:8px}'
+ '.sum{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;border-top:1px solid #F0F0F1;background:#FAFAFA}.pos{color:#166534;font-weight:600}'
+)
+
+WIN = (
+ '<div class="hd"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="1.5" y="3" width="3" height="10" rx="1" stroke="#18181B" stroke-width="1.2"/><rect x="5.8" y="3" width="3" height="10" rx="1" stroke="#18181B" stroke-width="1.2"/><rect x="10.1" y="3" width="3" height="10" rx="1" stroke="#18181B" stroke-width="1.2"/></svg>'
+ '<span class="tt"><span class="mono">RUN-0412</span> crew tee ST-210</span><span class="ch c-idle" id="hst">Ready to cut</span><span class="sb grow">360 pieces, Black, Navy and Sand</span></div>'
+ '<div class="b3"><div class="col">'
+ '<div class="cd"><div class="lanes" id="lanes"></div></div>'
+ '<div class="cd hld"><div class="ct">Held<span class="mut" style="font-weight:500" id="hn">0 pieces</span></div><div id="hld"></div></div>'
+ '<div class="cd lg"><div class="ct">Stage log<span class="mut" style="font-weight:500">RUN-0412</span></div><div id="lg"></div></div>'
+ '</div><div class="col sd" id="sd"></div></div>'
+)
+
+JS = r'''
+var FOC='.hd>*,.ln,.hld,.lg,.sd .ct,.sd .fld,.sd .kv,.sd .kv3,.sd .sz,.sd .bt,.sd .sum,.sd .pad>p';
+var BUN=[['XS',1,30],['S',2,25],['M',2,40],['L',5,30],['XL',2,25]];
+var TAGS=[];(function(){var k=1;BUN.forEach(function(b){for(var i=0;i<b[1];i++){TAGS.push(['B'+('0'+k).slice(-2),b[0],b[2]]);k++;}});})();
+var RATE=0.85,VENDOR='Bayline Finishing';
+var S;
+function m(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function render(){var st=S.step;
+var cnt=[st<2?(st>=1?360:0):0,st===2||st===3?(st===3?S.good:360):0,st===4?S.sent:0,st>=5?S.pass:0];
+var lanes='';['Cut','Sew','At vendor','Pack'].forEach(function(L,i){var b='';
+if(i===0&&st===0)b='<div class="bk gh"><b>RUN-0412</b><small>360 pieces, waiting for a cut ticket</small></div>';
+if((i===0&&st===1)||(i===1&&(st===2||st===3)))b=TAGS.map(function(t,k){return '<div class="bd'+(S.anim?' in':'')+'" style="animation-delay:'+(k*35)+'ms"><b>'+t[0]+'</b><span>'+t[1]+', '+t[2]+'</span></div>';}).join('')+(i===1&&st===3?'<div class="bk"><b>'+S.good+' good</b><small>'+S.def+' held for rework</small></div>':'');
+if(i===2&&st===4)b='<div class="bk'+(S.anim?' in':'')+'"><b>'+S.sent+' pieces</b><small>'+VENDOR+', washing and finishing</small><span class="ch c-info" style="align-self:flex-start">Still in stock</span></div>';
+if(i===3&&st===5)b='<div class="bk'+(S.anim?' in':'')+'"><b>'+S.pass+' ready</b><small>Passed the finisher check</small></div>';
+if(i===3&&st>=6){for(var c=0;c<S.cart;c++){var q=Math.min(S.size,S.pass-c*S.size);b+='<div class="bd ctn'+(S.anim?' in':'')+'" style="animation-delay:'+(c*60)+'ms"><b>C'+(c+1)+'</b><span>'+q+' pcs</span></div>';}}
+if(!b)b='<div class="bk gh"><small>Nothing here</small></div>';
+lanes+='<div class="ln'+(cnt[i]?' on':'')+'"><div class="lh">'+L+'<b>'+cnt[i]+'</b></div><div class="lb">'+b+'</div></div>';});
+$('lanes').innerHTML=lanes;
+var H=[];if(st>=3)H.push(['Sewing',S.reason,S.def]);if(st>=5)H.push(['Finisher',S.reason2,S.held2]);
+var ht=H.reduce(function(a,x){return a+x[2];},0);$('hn').textContent=ht+' pieces';
+$('hld').innerHTML=H.length?H.map(function(x){return '<div class="row'+(S.anim?' in':'')+'"><span>'+x[0]+'</span><span class="mut">'+x[1]+'</span><span class="mono r">'+x[2]+'</span></div>';}).join(''):'<div class="row"><span class="mut">None</span><span class="mut">Held pieces show here with the stage and reason</span><span></span></div>';
+$('hst').textContent=['Ready to cut','Cut','In sewing','Sewn','At vendor','Ready to pack','Packed'][st];$('hst').className='ch '+(st>=6?'c-ok':st===0?'c-idle':'c-info');
+$('lg').innerHTML=S.log.slice().reverse().map(function(l,i){return '<div class="row'+(i===0&&S.flash?' new':'')+'"><span class="mut mono">'+l[0]+'</span><span>'+l[1]+'</span></div>';}).join('');
+var d='';
+if(st===0)d='<div class="cd frm"><div class="ct">Cut ticket<span class="ch c-idle">New</span></div><div class="sz"><div class="row h"><span>Size</span><span>Bundles</span><span class="r">Pieces</span></div>'+BUN.map(function(b){return '<div class="row"><span>'+b[0]+'</span><span class="mut">'+b[1]+' of '+b[2]+'</span><span class="mono r">'+b[1]*b[2]+'</span></div>';}).join('')+'</div><div class="g"><label class="fld w" id="fro"><small>Rolls</small><input id="iro" value="R-4410, R-4411" autocomplete="off" spellcheck="false"><span class="em">Add the rolls for this cut</span></label></div><div class="ft"><button type="button" class="bt pri" id="cct">Create cut ticket</button></div></div>';
+else if(st===1)d='<div class="cd frm"><div class="ct">Ticket <span class="mono">CT-0412</span><span class="ch c-info">12 bundles tagged</span></div><div class="g"><label class="fld w" id="fbn"><small>Bundles to scan into sewing</small><input id="ibn" value="All 12" autocomplete="off"><span class="em">Scan all 12 bundles</span></label><div class="kv"><small>Pieces</small><b class="mono">360</b></div><div class="kv"><small>Line</small><b>Sew line 3</b></div></div><div class="ft"><button type="button" class="bt pri" id="sbs">Scan bundles into sewing</button></div></div>';
+else if(st===2)d='<div class="cd frm"><div class="ct">Record sewing<span class="ch c-info">360 in sewing</span></div><div class="g"><label class="fld" id="fgd"><small>Good</small><input id="igd" value="354" inputmode="numeric" autocomplete="off"><span class="em">Good and defects make 360</span></label><label class="fld" id="fdf"><small>Defects</small><input id="idf" value="6" inputmode="numeric" autocomplete="off"><span class="em">Whole number</span></label><label class="fld w" id="frs"><small>Reason</small><input id="irs" value="Open seam, M 2, L 4" autocomplete="off"><span class="em">Add a reason</span></label></div><div class="ft"><button type="button" class="bt pri" id="rsw">Record sewing</button></div></div>';
+else if(st===3)d='<div class="cd frm"><div class="ct">Send to finisher<span class="ch c-info">'+S.good+' ready</span></div><div class="g"><label class="fld" id="fsp"><small>Pieces</small><input id="isp" value="'+S.good+'" inputmode="numeric" autocomplete="off"><span class="em">Send the '+S.good+' good pieces</span></label><label class="fld" id="frt"><small>Rate a piece</small><input id="irt" value="0.85" inputmode="decimal" autocomplete="off"><span class="em">0.01 to 9.99</span></label><div class="kv w"><small>Vendor</small><b>'+VENDOR+'</b></div></div><div class="sum"><span>Vendor charge</span><b class="mono" id="vch">'+m(S.good*RATE)+'</b></div><div class="ft" style="padding-top:8px"><button type="button" class="bt pri" id="stf">Send to finisher</button></div></div>';
+else if(st===4)d='<div class="cd frm"><div class="ct">Receive from finisher<span class="ch c-info">'+S.sent+' at vendor</span></div><div class="g"><label class="fld" id="frc"><small>Received</small><input id="irc" value="'+S.sent+'" inputmode="numeric" autocomplete="off"><span class="em">Received must equal '+S.sent+'</span></label><label class="fld" id="fps"><small>Pass</small><input id="ips" value="350" inputmode="numeric" autocomplete="off"><span class="em">Pass and held make '+S.sent+'</span></label><label class="fld" id="fhd"><small>Held</small><input id="ihd" value="4" inputmode="numeric" autocomplete="off"><span class="em">Whole number</span></label><label class="fld" id="fr2"><small>Reason</small><input id="ir2" value="Shade, L 2, XL 2" autocomplete="off"><span class="em">Add a reason</span></label></div><div class="sum"><span>Charge on file</span><b class="mono">'+m(S.charge)+'</b></div><div class="ft" style="padding-top:8px"><button type="button" class="bt pri" id="rff">Receive from finisher</button></div></div>';
+else if(st===5)d='<div class="cd frm"><div class="ct">Pack<span class="ch c-info">'+S.pass+' ready</span></div><div class="g"><label class="fld" id="fcs"><small>Pieces a carton</small><input id="ics" value="50" inputmode="numeric" autocomplete="off"><span class="em">10 to 100</span></label><div class="kv"><small>Ready</small><b class="mono">'+S.pass+'</b></div></div><div class="ft"><button type="button" class="bt pri" id="pck">Pack</button></div></div>';
+else d='<div class="cd'+(S.anim?' in':'')+'"><div class="ct">RUN-0412 packed<span class="ch c-ok">Posted</span></div><div class="pad"><div class="kv3"><div class="kv"><small>Finished goods</small><b class="mono pos" id="fg">+'+S.pass+'</b></div><div class="kv"><small>Cartons</small><b class="mono" id="nct">'+S.cart+'</b></div><div class="kv"><small>Held</small><b class="mono" id="nhd">'+(S.def+S.held2)+'</b></div><div class="kv"><small>Vendor charge</small><b class="mono">'+m(S.charge)+'</b></div></div></div><div class="sz"><div class="row h"><span>Stage</span><span>Pieces</span><span class="r">Count</span></div><div class="row"><span>Pack</span><span class="mut">Finished goods</span><span class="mono r">'+S.pass+'</span></div><div class="row"><span>Sew</span><span class="mut">Held for rework</span><span class="mono r">'+S.def+'</span></div><div class="row"><span>Vendor</span><span class="mut">Held after finishing</span><span class="mono r">'+S.held2+'</span></div><div class="row" style="font-weight:600;background:#FAFAFA"><span></span><span>Total</span><span class="mono r">'+(S.pass+S.def+S.held2)+'</span></div></div></div>';
+var x='<div class="cd"><div class="ct">Run record<span class="mut" style="font-weight:500">From CUT-0412</span></div><div class="sz"><div class="row"><span class="mut">Rolls</span><span>R-4410, R-4411, NAV-2611</span><span></span></div><div class="row"><span class="mut">Fabric</span><span>192.0 yd used</span><span></span></div><div class="row"><span class="mut">Due</span><span>11/20, to finished goods</span><span></span></div></div></div>';
+$('sd').innerHTML=d+x;S.anim=false;S.flash=false;}
+$('sd').addEventListener('input',function(e){if(e.target.id==='isp'||e.target.id==='irt'){var p=parseInt(val('isp'),10),r=parseFloat(val('irt'));var v=$('vch');if(v&&p>0&&r>0)v.textContent=m(Math.round(p*r*100)/100);}});
+function resetState(){S={step:0,good:354,def:6,reason:'Open seam, M 2, L 4',sent:354,charge:300.90,pass:350,held2:4,reason2:'Shade, L 2, XL 2',size:50,cart:7,anim:false,flash:false,log:[['10/24','Size run for ST-210 approved by T. Moreno'],['10/27','Bayline Finishing booked for 11/08'],['10/30','RUN-0412 planned, 360 pieces in 3 colors'],['11/02','Cut order CUT-0412 released from planning'],['11/04','Fabric allocated, R-4410 and R-4411, NAV-2611'],['11/05','Cutting table 2 booked for 11/06'],['11/06','192.0 yd cut, 3.0 yd back to R-4411']]};render();}
+function val(id){var e=$(id);return e?String(e.value).trim():'';}
+function bad(id,c){var f=$(id);if(f)f.classList.toggle('err',c);return c;}
+function int(v){return /^\d+$/.test(v)?parseInt(v,10):NaN;}
+var CAPAT=function(hh){return{l:14,t:visH()-hh-14};};
+var ST=[
+{id:'cct',target:function(){return $('cct');},prompt:'Click Create cut ticket',where:'below',ok:function(){return !bad('fro',!val('iro'));},run:function(){S.step=1;S.anim=true;S.flash=true;S.log.push(['11/06','Ticket CT-0412, 12 bundles tagged, 360 pieces']);render();},after:['A tag for every bundle','CT-0412 carries the size breakdown, the rolls and 12 tagged bundles.']},
+{id:'sbs',target:function(){return $('sbs');},prompt:'Click Scan bundles into sewing',where:'below',ok:function(){return !bad('fbn',!/^(all\s*12|12)$/i.test(val('ibn')));},run:function(){S.step=2;S.anim=true;S.flash=true;S.log.push(['11/06','12 bundles scanned into sew line 3']);render();},after:['The count moves with the bundles','Sew shows 360 and Cut shows 0 as each bundle is scanned.']},
+{id:'rsw',target:function(){return $('rsw');},prompt:'Click Record sewing',where:'below',ok:function(){var g=int(val('igd')),d=int(val('idf')),a=bad('fgd',!(g+d===360)),b=bad('fdf',!(d>=0)),c=bad('frs',!val('irs'));return !(a||b||c);},
+ run:function(){S.good=int(val('igd'))||354;S.def=360-S.good;S.reason=val('irs')||S.reason;S.step=3;S.anim=true;S.flash=true;S.log.push(['11/07',S.good+' sewn, '+S.def+' held, '+S.reason]);render();},after:function(){return['Defects caught at sewing, by size',S.good+' move on and '+S.def+' are held for rework with the reason.'];}},
+{id:'stf',target:function(){return $('stf');},prompt:'Click Send to finisher',where:'below',ok:function(){var p=int(val('isp')),r=parseFloat(val('irt')),a=bad('fsp',p!==S.good),b=bad('frt',!(r>0&&r<10&&/^\d+(\.\d+)?$/.test(val('irt'))));return !(a||b);},
+ run:function(){var r=parseFloat(val('irt'));if(!(r>0))r=RATE;S.sent=S.good;S.charge=Math.round(S.sent*r*100)/100;S.step=4;S.anim=true;S.flash=true;S.log.push(['11/08',S.sent+' sent to '+VENDOR+', charge '+m(S.charge)]);render();},after:function(){return['Pieces at a vendor stay on the books',S.sent+' at '+VENDOR+', still in stock, with a '+m(S.charge)+' charge attached.'];}},
+{id:'rff',target:function(){return $('rff');},prompt:'Click Receive from finisher',where:'below',ok:function(){var rc=int(val('irc')),p=int(val('ips')),h=int(val('ihd')),a=bad('frc',rc!==S.sent),b=bad('fps',!(p+h===S.sent)),c=bad('fhd',!(h>=0)),d=bad('fr2',!val('ir2'));return !(a||b||c||d);},
+ run:function(){S.pass=int(val('ips'));S.held2=S.sent-S.pass;S.reason2=val('ir2')||S.reason2;S.step=5;S.anim=true;S.flash=true;S.log.push(['11/12',S.sent+' received from '+VENDOR+', '+S.pass+' pass, '+S.held2+' held']);render();},after:function(){return['Back through receiving with a check',S.pass+' are ready to pack and '+S.held2+' are held. At vendor is back to 0.'];}},
+{id:'pck',target:function(){return $('pck');},prompt:'Click Pack',where:'below',ok:function(){var c=int(val('ics'));return !bad('fcs',!(c>=10&&c<=100));},
+ run:function(){S.size=int(val('ics'))||50;S.cart=Math.ceil(S.pass/S.size);S.step=6;S.anim=true;S.flash=true;S.log.push(['11/13',S.pass+' packed in '+S.cart+' cartons to finished goods']);render();},after:function(){return['Packed, with every held piece traced',S.pass+' of 360 in '+S.cart+' cartons. '+(S.def+S.held2)+' held, each at its own stage.'];}}];
+'''
