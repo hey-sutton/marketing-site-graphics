@@ -23,7 +23,8 @@ REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.append(os.path.join(REPO, 'tools', 'dairy'))
 from gfx_scaffold import Scaffold, COMMON_CSS  # noqa: E402
 
-KEY = 'electronics'
+KEY = 'electronics'   # build scripts for other industries set frame.KEY and frame.LABEL
+LABEL = 'Electronics'
 
 ENGINE_CSS = (
  # top bar: Watch | Try it toggle, status pill, Replay
@@ -194,7 +195,7 @@ def build(n, summary, aria, win, css, js, steps, studio_html):
     pre = pre.replace("{aspect-ratio:604/523}}'", "{aspect-ratio:604/523}}" + rule + "'")
     pre = pre.replace("'brewery'", "'%s'" % KEY).replace('sx-brewery-card-css', 'sx-%s-card-css' % KEY).replace('data-sx-industry*="brewery"', 'data-sx-industry*="%s"' % KEY)
     assert 'brewery' not in pre
-    out = ['/* Electronics, card %d: %s\n   Loaded by the site loader. Mounts into the card visual passed in by the loader.\n   Source of truth: tools/electronics/build.py. Edit there, rebuild, open a pull request, then release a new tag. */' % (n, summary),
+    out = [('/* %s, card %d: %s\n   Loaded by the site loader. Mounts into the card visual passed in by the loader.\n   Source of truth: tools/%s/build.py. Edit there, rebuild, open a pull request, then release a new tag. */' % (LABEL, n, summary, KEY)),
            '(function(){',
            "var SRC=document.currentScript&&document.currentScript.src;var BGU=SRC?new URL('bg-%d.jpg',SRC).href:'';" % n,
            'var CSS=' + json.dumps(base_css) + ".replace('__BG__',BGU);",

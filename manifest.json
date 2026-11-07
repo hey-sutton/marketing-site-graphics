@@ -1,5 +1,5 @@
 {
-  "version": "1.21.0",
+  "version": "1.22.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -71,6 +71,12 @@
       4
     ],
     "electronics": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "apparel": [
       1,
       2,
       3,

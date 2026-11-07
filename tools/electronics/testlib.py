@@ -10,6 +10,8 @@ from playwright.sync_api import sync_playwright
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
+KEY = 'electronics'   # tests for other industries set testlib.KEY
+EXTRA_CLAIMS = None   # optional compiled regex of extra words to ban
 SHOTS = os.environ.get('GFX_SHOTS', '/tmp/electronics_shots')
 os.makedirs(SHOTS, exist_ok=True)
 
@@ -18,8 +20,8 @@ PAGE = '''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport"
 <style>body{margin:0;background:#F6F6F4;font-family:Inter,sans-serif}.wrap{padding:24px 16px 1200px;display:flex;justify-content:center}
 .capabilities_card-visual{position:relative;overflow:hidden;border-radius:8px;width:var(--w);max-width:calc(100vw - 32px);aspect-ratio:604/540;background:#ddd}
 .capabilities_visual-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}</style></head>
-<body><div class="wrap"><div class="capabilities_card-visual" id="cv" style="--w:@Wpx"><img class="capabilities_visual-bg" alt="" src="/graphics/electronics/bg-@N.jpg"></div></div>
-<script>var s=document.createElement('script');s.src='/graphics/electronics/card-@N.js';s.sxCard=document.getElementById('cv');document.head.appendChild(s);</script></body></html>'''
+<body><div class="wrap"><div class="capabilities_card-visual" id="cv" style="--w:@Wpx"><img class="capabilities_visual-bg" alt="" src="/graphics/@K/bg-@N.jpg"></div></div>
+<script>var s=document.createElement('script');s.src='/graphics/@K/card-@N.js';s.sxCard=document.getElementById('cv');document.head.appendChild(s);</script></body></html>'''
 
 _srv = None
 
@@ -48,8 +50,8 @@ def serve():
 
 def page_url(n, card_w):
     port, pages = serve()
-    name = 'card%d_%d.html' % (n, card_w)
-    open(os.path.join(pages, name), 'w').write(PAGE.replace('@W', str(card_w)).replace('@N', str(n)))
+    name = '%s_card%d_%d.html' % (KEY, n, card_w)
+    open(os.path.join(pages, name), 'w').write(PAGE.replace('@W', str(card_w)).replace('@N', str(n)).replace('@K', KEY))
     return 'http://127.0.0.1:%d/_pages/%s' % (port, name)
 
 
@@ -126,6 +128,9 @@ def text_scan(f, text, label):
     f.check(not re.search(r'\bDigit\b', text), '%s: no "Digit"' % label)
     f.check(not re.search(r'\brecipe', text, re.I), '%s: no "recipe"' % label)
     f.check(not CLAIMS.search(text), '%s: no certification or compliance claims' % label)
+    if EXTRA_CLAIMS is not None:
+        m = EXTRA_CLAIMS.search(text)
+        f.check(not m, '%s: no banned names or claims%s' % (label, (' (found ' + m.group(0) + ')') if m else ''))
 
 
 def visible_text(pg):
@@ -281,6 +286,6 @@ def run_card(n, plan, numbers, extra=None):
         f.check(('Your turn1 of %d' % N) in pill(pg) and pg.locator('#cv .fw-ghost.on').count() == 0, 'reduced motion: starts in Try it, no autoplay')
         pg.close()
         b.close()
-    size = os.path.getsize(os.path.join(REPO, 'graphics', 'electronics', 'card-%d.js' % n))
+    size = os.path.getsize(os.path.join(REPO, 'graphics', KEY, 'card-%d.js' % n))
     f.check(40 * 1024 <= size <= 80 * 1024, 'size %.1f KB' % (size / 1024))
     return f
