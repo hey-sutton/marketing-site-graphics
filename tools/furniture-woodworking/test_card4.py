@@ -20,8 +20,8 @@ RV, E, A = sum(rev.values()), sum(est.values()), sum(act.values())
 assert (RV, E, A, RV - E, RV - A, A - E) == (80300, 50240, 53428, 30060, 26872, 3188) and pm(RV, E) == 37.4 and pm(RV, A) == 33.5
 k = card4.SUBS[0]
 assert (k[3][0] - k[2][0], (k[3][1] - k[2][1]) * R, k[3][2] - k[2][2]) == (1550, 1456, 140) and 1550 + 1456 + 140 == 3146 == 36486 - 33340
-assert sum(d[2] for d in card4.DEPTS) == 248 and sum(d[1] for d in card4.DEPTS) == 220 and [d[2] - d[1] for d in card4.DEPTS] == [6, 8, 6, 8]
-assert sum(x[3] for x in card4.BUILD_LOG) + card4.BUILD_REST[1] == 74
+assert sum(d[2] for d in card4.DEPTS) == 248 and sum(d[1] for d in card4.DEPTS) == 220 and [d[2] - d[1] for d in card4.DEPTS] == [4, 10, 6, 8] and max(card4.DEPTS, key=lambda d: d[2] - d[1])[0] == 'Build'
+assert sum(x[3] for x in card4.BUILD_LOG) + card4.BUILD_REST[1] == 76
 
 
 def start(pg, f):
@@ -63,7 +63,7 @@ PLAN = [('Pick a project to see how it really went', 'P-0409'),
         ('The project ran $3,188 over', '37.4% to 33.5%'),
         ('The Kitchen is where the margin went', '+$3,146'),
         ('Labor shows which departments ran long', '248 h'),
-        ('Build ran eight hours over', '74 h, 11 entries'),
+        ('Build ran ten hours over', '76 h, 11 entries'),
         ('Some jobs beat the estimate. Now you know which', '42.9%')]
 
 f = run_all(4, PLAN, ['42.9%', '$3,188 over', '37.4% to 33.5%'], extra={'before': {0: start, 1: load, 2: chips, 3: totals, 4: var, 5: labor}, 'after': end},

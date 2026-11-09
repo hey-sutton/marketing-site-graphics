@@ -18,9 +18,9 @@ RATE = 52
 SUBS = [('Kitchen', 52000, (19800, 220, 2100), (21350, 248, 2240)),
         ('Primary closet', 18500, (6900, 70, 600), (6650, 64, 590)),
         ('Mudroom', 9800, (3300, 40, 380), (3520, 47, 410))]
-DEPTS = [('Mill', 56, 62), ('Build', 66, 74), ('Finish', 46, 52), ('Assemble', 52, 60)]
+DEPTS = [('Mill', 56, 60), ('Build', 66, 76), ('Finish', 46, 52), ('Assemble', 52, 60)]
 BUILD_LOG = [('Nov 10', 'DS', 'Face frames', 8.0), ('Nov 11', 'DS', 'Door panels', 7.5), ('Nov 12', 'KM', 'Door rework, two doors', 6.5), ('Nov 13', 'DS', 'Drawer boxes', 8.0)]
-BUILD_REST = (7, 44.0)   # entries and hours not listed
+BUILD_REST = (7, 46.0)   # entries and hours not listed
 
 CSS = (
  '.tb{display:flex;align-items:flex-end;gap:10px;flex:none;position:relative}.tb .fld{width:210px}.tb .fld input{font-size:11px;padding:6px 8px}.smp{height:28px;padding:0 9px;border:1px dashed #A1A1AA;border-radius:6px;background:#fff;font-size:9.8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}.smp:hover,.smp.fakehover{background:#F4F4F5}.smp .mono{font-weight:600}'
@@ -103,7 +103,7 @@ var ST=[
 {id:'kit',target:function(){return $('g-k');},prompt:'Click the Kitchen bars',where:'right',run:function(){S.sel=0;S.scr='kv';render();},
  after:function(){var L=lines(0);return['The Kitchen is where the margin went','Materials '+sg(L[0][2]-L[0][1])+', labor '+sg(L[1][2]-L[1][1])+', other '+sg(L[2][2]-L[2][1])+'.'];},pc:'The Kitchen is where the margin went'},
 {id:'lab',target:function(){return $('lab');},prompt:'Click View labor entries',where:'below',run:function(){S.scr='lab';render();},after:['Labor shows which departments ran long','248 hours against 220 estimated, by department.'],pc:'Labor shows which departments ran long'},
-{id:'bld',target:function(){return $('d-build');},prompt:'Click the Build row',where:'below',run:function(){S.bo=true;render();},after:['Build ran eight hours over','74 h against 66, including 6.5 h of door rework.']},
+{id:'bld',target:function(){return $('d-build');},prompt:'Click the Build row',where:'below',run:function(){S.bo=true;render();},after:['Build ran ten hours over, the most of any department','76 h against 66, including 6.5 h of door rework.'],pc:'Build ran ten hours over'},
 {id:'back',target:function(){return $(ph()?'bn-rep':'nv-rep');},prompt:'Click Reports',where:'right',run:function(){S.scr='m';S.sel=null;S.win=true;render();},
  after:function(){var x=sub(1);return['Some jobs beat the estimate. Now you know which','Primary closet: '+p1(x.am)+' actual margin against '+p1(x.em)+' estimated.'];},pc:'Some jobs beat the estimate'}];
 '''
