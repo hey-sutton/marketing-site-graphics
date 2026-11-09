@@ -177,6 +177,86 @@ startObserver();
 '''
 
 
+# ---------------------------------------------------------------------------------------------------------------
+# Opt-in app shell (SHELL) and phone layout (PHONE). Added for Recycling, November 2026.
+# A card that does not pass shell= or phone= to build() is built exactly as before.
+#   SHELL: a persistent mini app inside the window: a left nav of modules, a breadcrumb row and a page header with a
+#          status chip. The card renders each screen into #pg and calls setNav({...}) to move the nav, breadcrumb,
+#          title and chip. The current screen name goes on the window as data-scr (the tests read it).
+#   PHONE: under 520 px of card width the card visual becomes a phone stage (square up to 400 px, then 1 to 0.88 tall
+#          from 401 to 520 px), the window is laid out to the stage at a fixed scale of 0.95 with a strip for the step
+#          arrows under it, the nav becomes a bottom bar of icons, and captions are one line. The card renders a phone
+#          screen when ph() is true, and a step may carry pc, a short phone caption.
+# ---------------------------------------------------------------------------------------------------------------
+MODS = [('rec', 'Receiving', '<path d="M2 9.5h3l1 1.8h4l1-1.8h3M2 9.5l1.6-5h8.8l1.6 5V13H2z" />'),
+        ('pro', 'Processing', '<circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v2M8 12.2v2M1.8 8h2M12.2 8h2M3.6 3.6l1.4 1.4M11 11l1.4 1.4M3.6 12.4L5 11M11 5l1.4-1.4"/>'),
+        ('inv', 'Inventory', '<path d="M2.5 5.2L8 2.5l5.5 2.7v5.6L8 13.5l-5.5-2.7z M2.5 5.2L8 8l5.5-2.8M8 8v5.5"/>'),
+        ('sal', 'Sales', '<path d="M2.5 8.6V2.5h6.1l5 5-6.1 6.1z"/><circle cx="5.4" cy="5.4" r="1"/>'),
+        ('shp', 'Shipping', '<path d="M1.5 4h8v6.5h-8zM9.5 6.5h2.8l2.2 2.2v1.8h-5z"/><circle cx="4.2" cy="11.6" r="1.3"/><circle cx="11.6" cy="11.6" r="1.3"/>'),
+        ('rep', 'Reports', '<path d="M2.5 13.5h11M4 11.5V8M7 11.5V4.5M10 11.5V6.5M13 11.5V3"/>')]
+
+
+def _ico(p):
+    return '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>'
+
+
+def shell(company, sub):
+    """The app frame HTML. Goes first in the card's WIN; #pg is where screens render."""
+    rail = ''.join('<button type="button" class="ni" id="nv-%s" data-m="%s">%s<span>%s</span></button>' % (k, k, _ico(p), t) for k, t, p in MODS)
+    bot = ''.join('<button type="button" class="bi" id="bn-%s" data-m="%s" aria-label="%s">%s</button>' % (k, k, t, _ico(p)) for k, t, p in MODS)
+    return ('<div class="app"><nav class="rail" aria-label="Modules"><div class="co"><span class="lg">' + ''.join(w[0] for w in company.split()[:2]) + '</span><span><b>' + company + '</b><small>' + sub + '</small></span></div>' + rail + '</nav>'
+            '<div class="mn"><div class="bc" id="bc"></div><div class="phd hd"><button type="button" class="bk" id="bk" aria-label="Back"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
+            '<span class="pt tt" id="pt"></span><span class="ch c-idle" id="pc"></span><span class="grow"></span><span class="pa" id="pa"></span></div><div class="pg" id="pg"></div><nav class="bn" aria-label="Modules">' + bot + '</nav></div></div>')
+
+
+SHELL_CSS = (
+ '.app{position:absolute;inset:0;display:grid;grid-template-columns:120px 1fr;background:#fff}'
+ '.rail{background:#FAFAFA;border-right:1px solid #E4E4E7;padding:10px 8px;display:flex;flex-direction:column;gap:2px}'
+ '.co{display:flex;align-items:center;gap:7px;padding:2px 4px 12px;line-height:1.2}.co .lg{width:24px;height:24px;border-radius:6px;background:#18181B;color:#fff;display:grid;place-items:center;font-size:9px;font-weight:700;flex:none}.co b{display:block;font-size:10px}.co small{display:block;font-size:8.6px;color:#71717A}'
+ '.ni{display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border:0;border-radius:6px;background:transparent;color:#52525B;font-size:10.4px;cursor:pointer;text-align:left;transition:background-color .2s,color .2s}'
+ '.ni:hover,.ni.fakehover{background:#F0F0F1}.ni.on{background:#fff;color:#18181B;font-weight:600;box-shadow:0 0 0 1px #E4E4E7}.ni svg{flex:none}.ni:focus-visible,.bi:focus-visible,.cb:focus-visible,.bk:focus-visible{outline:2px solid #18181B;outline-offset:1px}'
+ '.mn{display:flex;flex-direction:column;min-width:0;min-height:0}'
+ '.bc{height:30px;flex:none;display:flex;align-items:center;gap:5px;padding:0 16px;border-bottom:1px solid #F0F0F1;font-size:9.6px;color:#71717A;white-space:nowrap}.bc .sep{color:#D4D4D8}.bc b{color:#18181B;font-weight:500}'
+ '.cb{border:0;background:none;padding:2px 3px;margin:0 -3px;border-radius:4px;font:inherit;color:#52525B;cursor:pointer;text-decoration:underline;text-decoration-color:#D4D4D8;text-underline-offset:2px}.cb:hover,.cb.fakehover{background:#F4F4F5;color:#18181B}'
+ '.phd{height:42px;flex:none;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:0}.pt{font-size:13px;font-weight:600;white-space:nowrap}.bk{display:none}'
+ '.pg{flex:1 1 0;min-height:0;padding:0 40px 0 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden}.bn{display:none}'
+ '.pa{display:flex;align-items:center;gap:6px;margin-right:24px;position:relative}'
+)
+
+SHELL_JS = r'''
+/* ===== App shell (opt-in) ===== */
+function ph(){return false;}
+function setNav(o){[].forEach.call(winEl.querySelectorAll('.ni,.bi'),function(b){var on=b.getAttribute('data-m')===o.m;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
+$('bc').innerHTML=o.bc.map(function(c,i){return (i?'<span class="sep">/</span>':'')+(typeof c==='string'?(i===o.bc.length-1?'<b>'+c+'</b>':'<span>'+c+'</span>'):'<button type="button" class="cb" id="'+c[1]+'">'+c[0]+'</button>');}).join('');
+$('pt').textContent=o.t;var c=$('pc');c.className='ch '+(o.chip?o.chip[0]:'c-idle');c.textContent=o.chip?o.chip[1]:'';c.style.display=o.chip?'':'none';
+$('pa').innerHTML=o.pa||'';winEl.querySelector('.phd').classList.toggle('hb',!!o.back);winEl.setAttribute('data-scr',o.scr);winEl.setAttribute('data-mod',o.m);}
+'''
+
+PHONE_CSS = (
+ '.shot.ph .fwin{overflow:visible;border-radius:14px}.shot.ph .app{border-radius:14px;overflow:hidden;grid-template-columns:1fr}'
+ '.shot.ph .rail,.shot.ph .bc{display:none}.shot.ph .phd{height:40px;padding:0 12px;border-bottom:1px solid #F0F0F1}.shot.ph .phd.hb .bk{display:grid;place-items:center;width:26px;height:26px;margin-left:-6px;border:0;border-radius:6px;background:none;color:#18181B}'
+ '.shot.ph .pt{font-size:12.5px;overflow:hidden;text-overflow:ellipsis}.shot.ph .pa{margin-right:0}.shot.ph .pg{padding:10px 12px 8px;gap:8px}.shot.ph .pg>*{flex-shrink:0}'
+ '.shot.ph .bn{display:flex;flex:none;height:44px;border-top:1px solid #E4E4E7;background:#FAFAFA;justify-content:space-around;align-items:center;padding:0 6px}'
+ '.bi{width:40px;height:34px;border:0;border-radius:8px;background:none;color:#71717A;display:grid;place-items:center;cursor:pointer;transition:background-color .2s,color .2s}.bi.on{color:#18181B;background:#fff;box-shadow:0 0 0 1px #E4E4E7}.bi.fakehover{background:#F0F0F1}'
+ '.shot.ph .stp{right:auto;left:50%;bottom:-33px;transform:translateX(-50%)}.shot.ph .stp .sn{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.45)}'
+ '.shot.ph .cap{max-width:calc(100% - 16px)}.shot.ph .cap:not(.turn) .m{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.shot.ph .cap:not(.turn) .m i{display:inline-grid;vertical-align:-3px;margin-right:6px}.shot.ph .cap:not(.turn) .s{display:none}'
+)
+
+PHONE_JS = r'''
+/* ===== Phone layout (opt-in): replaces fit() and caption() above, and ph() from the shell ===== */
+function ph(){return shot.classList.contains('ph');}
+function fit(){var P=host.parentNode,W=P.clientWidth,was=shot.classList.contains('ph'),on=W<520,cv=root.host&&root.host.parentElement;
+shot.style.setProperty('--cw',W+'px');shot.classList.toggle('nar',W<430);shot.classList.toggle('ph',on);
+if(cv&&cv.style)cv.style.aspectRatio=on?(W<=400?'1':(1/(1-0.12*(W-400)/120)).toFixed(4)):'';
+var H=P.clientHeight;
+if(on){var s=.95,ww=Math.round((W-16)/s),wh=Math.round((H-48-36)/s);host.style.left=Math.round((W-ww*s)/2)+'px';host.style.top='48px';host.style.width=winEl.style.width=ww+'px';host.style.height=winEl.style.height=wh+'px';host.style.transform='scale('+s+')';}
+else{host.style.left=host.style.top=host.style.width=host.style.height=winEl.style.width=winEl.style.height='';host.style.transform='scale('+(W/742)+')';}
+if(was!==on&&typeof S!=='undefined'&&S)render();}
+function caption(i){var s=ST[i],a=typeof s.after==='function'?s.after():s.after;if(ph())say2(i+1,s.pc||a[0],'');else say2(i+1,a[0],a[1]);}
+function placeBox(box,l,t){var w=box.offsetWidth,hh=box.offsetHeight;box.style.left=Math.max(8,Math.min(visW()-w-8,l))+'px';box.style.top=Math.max(ph()?4:48,Math.min(visH()-hh-8,t))+'px';}
+'''
+
+
 def studio(lede, examples, built_on, change):
     ex = ''.join('<li style="--i:%d">%s</li>' % (i, e) for i, e in enumerate(examples))
     sc = Scaffold.studio(lede, examples, built_on)
@@ -185,9 +265,9 @@ def studio(lede, examples, built_on, change):
     return sc
 
 
-def build(n, summary, aria, win, css, js, steps, studio_html):
+def build(n, summary, aria, win, css, js, steps, studio_html, shell=False, phone=False):
     sc = Scaffold(REPO)
-    base_css = sc.css + COMMON_CSS + ENGINE_CSS + css
+    base_css = sc.css + COMMON_CSS + ENGINE_CSS + (SHELL_CSS if shell else '') + (PHONE_CSS if phone else '') + css
     body = ('<div class="sx-stage"><div class="shot"><div class="shot-img"><div class="win-host" role="group" aria-label="' + aria + '"><div class="fwin">'
             + win + sc.chevrons().replace('1 of 5', '1 of %d' % steps) + '</div></div></div>' + studio_html + '</div></div>')
     pre = sc.pre
@@ -201,7 +281,7 @@ def build(n, summary, aria, win, css, js, steps, studio_html):
            "var SRC=document.currentScript&&document.currentScript.src;var BGU=SRC?new URL('bg-%d.jpg',SRC).href:'';" % n,
            'var CSS=' + json.dumps(base_css) + ".replace('__BG__',BGU);",
            'var BODY=' + json.dumps(body) + ';',
-           pre.rstrip('\n'), BOOT_HEAD.rstrip('\n'), ('var NS=%d;' % steps) + js.rstrip('\n'), ENGINE_JS.rstrip('\n'), TAIL.strip('\n')]
+           pre.rstrip('\n'), BOOT_HEAD.rstrip('\n'), ('var NS=%d;' % steps) + js.rstrip('\n') + (SHELL_JS.rstrip('\n') if shell else ''), ENGINE_JS.rstrip('\n') + (PHONE_JS.rstrip('\n') if phone else ''), TAIL.strip('\n')]
     res = '\n'.join(out) + '\n'
     d = os.path.join(REPO, 'graphics', KEY)
     os.makedirs(d, exist_ok=True)
