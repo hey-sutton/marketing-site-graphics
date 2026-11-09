@@ -1,0 +1,123 @@
+"""Furniture and woodworking card 3: Quote to Configured Order. A split configurator: options on the left, a live BOM and
+price on the right. Quote Q-1184 for a dining table (white oak, 72 in, matte lacquer) prices at cost 1,732.00 and 2,794,
+becomes SO-1184 and production order MO-3306 with four department work orders, then a change order to 84 in moves only the
+difference: lumber +8 bf, labor +2 h, price +329. Price = cost / (1 - 0.38), rounded to the dollar."""
+SUMMARY = 'Quote to Configured Order (options drive a live BOM and price, the quote becomes a sales order and a linked production order with department work orders, and a change order shows only the delta)'
+ARIA = 'Interactive product screen: configure a dining table in white oak, 72 inches, matte lacquer, see the BOM, cost 1,732 and price 2,794, create sales order SO-1184 and production order MO-3306, then apply a change order to 84 inches that adds 329'
+STEPS = 8
+HEADLINE = 'Quote to Configured Order'
+STUDIO = dict(lede='A typical quote configurator, built on your Sutton data with Studio. Want it different? Describe the change.',
+              examples=['Add a finish sample approval step', 'Price casework by linear foot', 'Require a deposit before release', 'Show lead time by species availability'],
+              built_on='Quotes, sales orders and BOMs', change='Options, pricing rules and steps')
+STORY = [('Configurator', 'sal', 'select', 'top left'), ('Configurator', 'sal', 'product chip', 'top center'),
+         ('Configurator', 'sal', 'option', 'left'), ('Configurator', 'sal', 'tab', 'top right'),
+         ('Production order MO-3306', 'pro', 'primary button', 'bottom right'), ('Sales order SO-1184', 'sal', 'link', 'top left'),
+         ('Change order CO-1184-1', 'sal', 'primary button', 'bottom right'), ('Production order MO-3306', 'pro', 'nav item', 'top left')]
+SPECIES = [('Walnut', 18.00), ('White oak', 12.50), ('Maple', 9.00)]
+WIDTHS = [(60, 48, 16), (72, 56, 18), (84, 64, 20)]          # top width in, board feet, labor hours
+FINISHES = [('Natural oil', 38.00), ('Matte lacquer', 54.00), ('Stain and lacquer', 76.00)]
+HARDWARE, RATE, MARGIN = 42.00, 52, 0.38
+
+
+def price(sp, w, f):
+    """Reference pricing, the same formula the card runs. Returns (cost, price)."""
+    cost = WIDTHS[w][1] * SPECIES[sp][1] + FINISHES[f][1] + HARDWARE + WIDTHS[w][2] * RATE
+    return round(cost, 2), int(cost / (1 - MARGIN) + 0.5)
+
+
+CSS = (
+ '.qh{display:flex;align-items:flex-end;gap:12px;flex:none}.sel2{display:flex;flex-direction:column;gap:3px}.sel2 small{font-size:8.9px;color:#71717A}'
+ '.sbx{height:30px;min-width:176px;padding:0 9px;border:1px solid #D4D4D8;border-radius:6px;background:#fff;font-size:10.2px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:left}.sbx.fakehover,.sbx:hover{background:#FAFAFA}.sbx .ph0{color:#A1A1AA}'
+ '.pch{display:flex;gap:6px}.pc{height:30px;padding:0 11px;border:1px solid #E4E4E7;border-radius:999px;background:#fff;font-size:10.2px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}.pc.on{background:#18181B;border-color:#18181B;color:#fff}.pc.fakehover{background:#F4F4F5}.pc.on.fakehover{background:#3F3F46}.pc[disabled]{opacity:.45;cursor:default}'
+ '.spl{display:grid;grid-template-columns:232px 1fr;gap:12px;flex:1 1 0;min-height:0}.lft{display:flex;flex-direction:column;gap:10px;min-height:0}'
+ '.og{padding:9px 11px 11px;display:flex;flex-direction:column;gap:6px;border-top:1px solid #F0F0F1}.og:first-of-type{border-top:0}.og>small{font-size:9px;color:#71717A;font-weight:600}.ops{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}'
+ '.op2{border:1px solid #E4E4E7;border-radius:7px;background:#fff;padding:5px 6px;display:flex;flex-direction:column;gap:1px;cursor:pointer;text-align:left;font-size:9.6px;line-height:1.25;transition:background-color .2s,border-color .2s}.op2 small{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:8.2px;color:#71717A}.op2.on{border-color:#18181B;box-shadow:inset 0 0 0 1px #18181B;background:#FAFAFA}.op2.fakehover{background:#F4F4F5}'
+ '.rgt{display:flex;flex-direction:column;min-height:0}.rgt .tabs{padding:0 11px}'
+ '.bl .row{grid-template-columns:1fr 70px;font-size:9.8px;min-height:30px}.bl .row>span:last-child{text-align:right}.bl .row.in{background:#FFFBEB}'
+ '.pr .row{grid-template-columns:1fr 92px 76px;font-size:9.8px;min-height:27px}.pr .row>span:nth-child(n+2){text-align:right}.pr .row.tt{font-weight:600}.pbig{display:flex;justify-content:space-between;align-items:flex-end;padding:10px 11px;border-top:1px solid #E4E4E7}.pbig .kv b.big{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:21px}'
+ '.act{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:9px 11px;border-top:1px solid #E4E4E7}'
+ '.wo .row{grid-template-columns:76px 1fr 64px 52px 62px;font-size:9.8px;min-height:29px;white-space:nowrap}.wo .row>span:nth-child(n+3){text-align:right}'
+ '.mb .row{grid-template-columns:1fr 92px 70px;font-size:9.8px;min-height:29px}.mb .row>span:nth-child(n+2){text-align:right}.was{color:#A1A1AA;text-decoration:line-through;margin-right:6px}'
+ '.lnk{border:0;background:none;padding:2px 3px;margin:0 -3px;border-radius:4px;font:inherit;color:#18181B;font-weight:600;cursor:pointer;text-decoration:underline;text-decoration-color:#A1A1AA;text-underline-offset:2px}.lnk.fakehover,.lnk:hover{background:#F4F4F5}'
+ '.src{display:flex;align-items:center;gap:8px;font-size:10px;flex:none}'
+ '.dl3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:none}.dt3{border:1px solid #E4E4E7;border-radius:8px;padding:9px 11px;display:flex;flex-direction:column;gap:3px}.dt3 small{font-size:8.9px;color:#71717A}.dt3 b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:16px;font-weight:600}.dt3 span{font-size:9px;color:#52525B;font-family:"JetBrains Mono",ui-monospace,monospace}.dt3.pr2{background:#FAFAFA;border-color:#18181B}'
+ '.cob{padding:10px 11px;display:flex;flex-direction:column;gap:8px;font-size:9.8px}.cob .wl{display:flex;justify-content:space-between}.cob .wl b{font-family:"JetBrains Mono",ui-monospace,monospace}'
+ '.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:none}'
+ # phone
+ '.shot.ph .og{padding:2px 0;flex-direction:row;align-items:center;border:0;gap:6px}.shot.ph .og>small{width:44px;flex:none}.shot.ph .ops{flex:1;gap:4px}.shot.ph .op2{padding:5px 4px;text-align:center;font-size:9.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.shot.ph .op2 small{display:none}'
+ '.shot.ph .bl .row,.shot.ph .pr .row,.shot.ph .wo .row,.shot.ph .mb .row{min-height:23px}.shot.ph .pbig{padding:6px 9px}.shot.ph .pbig .big{font-size:17px}.shot.ph .dt3{padding:5px 9px;flex-direction:row;align-items:baseline;justify-content:space-between}.shot.ph .dt3 b{font-size:13px}.shot.ph .dl3{grid-template-columns:1fr;gap:5px}'
+ '.shot.ph .pc{height:28px;padding:0 9px;font-size:9.8px}.shot.ph .sbx{min-width:0;width:100%}.shot.ph .qh{flex-direction:column;align-items:stretch;gap:8px}.shot.ph .cob{padding:7px 9px;gap:5px}.shot.ph .wo .row{grid-template-columns:64px 1fr 50px 34px}'
+)
+
+WIN = ''
+
+JS = r'''
+var FOC='.rail .ni,.bc,.phd>*,.bn .bi,.qh>*,.pch>*,.pg .og,.pg .cd>*,.pg .cd .row,.rgt .tabs>*,.pg .src>*,.dl3>*,.cob>*,.pg .act>*,.pg .empt';
+var SP=__SP__,WD=__WD__,FN=__FN__,HW=__HW__,RATE=__RATE__,MG=__MG__;
+var DATES=[['WO-3306-1','Mill','Nov 30',4,4],['WO-3306-2','Build','Dec 3',8,9],['WO-3306-3','Finish','Dec 8',3,4],['WO-3306-4','Assemble','Dec 10',3,3]];
+var S;
+function calc(sp,w,f){var bf=WD[w][1],h=WD[w][2],lum=bf*SP[sp][1],lab=h*RATE,cost=Math.round((lum+FN[f][1]+HW+lab)*100)/100;return {bf:bf,h:h,lum:lum,fin:FN[f][1],hw:HW,lab:lab,cost:cost,price:Math.round(cost/(1-MG))};}
+root.host.sxCalc=calc;
+function done(){return S.sp!=null&&S.w!=null&&S.f!=null;}
+function C(){return calc(S.sp,S.co?2:S.w,S.f);}
+function C0(){return calc(S.sp,S.w,S.f);}
+function d0(n){return '$'+n0(n);}
+function nextOpt(){return S.sp==null?'o-sp-1':S.w==null?'o-w-1':S.f==null?'o-f-1':null;}
+function pick(id){if(id==='o-sp-1')S.sp=1;else if(id==='o-w-1')S.w=1;else if(id==='o-f-1')S.f=1;S.last=id;}
+function opts(P){if(!S.prod)return '<div class="cd" style="flex:1 1 0;display:flex"><div class="empt" style="border:0;flex:1"><b>No product yet</b><span>Pick a product to configure it.</span></div></div>';
+ var g=function(lab,key,list,fmt){return '<div class="og"><small>'+lab+'</small><div class="ops">'+list.map(function(o,i){return '<button type="button" class="op2'+(S[key]===i?' on':'')+'" id="o-'+key+'-'+i+'">'+fmt(o)[0]+'<small>'+fmt(o)[1]+'</small></button>';}).join('')+'</div></div>';};
+ return '<div class="cd"'+(P?' style="border:0"':'')+'>'+(P?'':'<div class="ct">Dining table options<span class="mut" style="font-weight:500">3 to choose</span></div>')+g('Species','sp',SP,function(o){return [o[0],'$'+o[1].toFixed(2)+' bf'];})+g('Top width','w',WD,function(o){return [o[0]+' in',o[1]+' bf'];})+g('Finish','f',FN,function(o){return [P?o[0].split(' ')[0]:o[0],'$'+o[1].toFixed(2)];})+'</div>';}
+function bomLines(c){var L=[];if(S.sp!=null)L.push(['lum',SP[S.sp][0]+' lumber, 8/4',S.w!=null?c.bf+' bf':'Width next']);if(S.w!=null)L.push(['lab','Labor, shop',c.h+' h']);if(S.f!=null)L.push(['fin',FN[S.f][0]+' kit','1']);if(S.sp!=null)L.push(['hw','Hardware kit, table','1']);return L;}
+function right(P){var tab=S.tab,c=done()?C0():(S.sp!=null&&S.w!=null?calc(S.sp,S.w,0):S.sp!=null?calc(S.sp,0,0):null);
+ var tabs=P?'':'<div class="tabs"><button type="button" class="tab'+(tab==='bom'?' on':'')+'" id="tb-bom">BOM</button><button type="button" class="tab'+(tab==='pr'?' on':'')+'" id="tb-pr">Price</button></div>';
+ var body;
+ if(tab==='bom'){var L=c?bomLines(c):[];body=L.length?'<div class="bl">'+L.map(function(l){return '<div class="row'+(S.last&&l[0]===({'o-sp-1':'lum','o-w-1':'lab','o-f-1':'fin'})[S.last]?' in':'')+'" id="bl-'+l[0]+'"><span>'+l[1]+'</span><span class="mono">'+l[2]+'</span></div>';}).join('')+'</div>':'<div class="empt" style="border:0;background:none;margin:18px 10px"><b>No BOM lines yet</b><span>Lines appear as you choose options.</span></div>';}
+ else if(P){c=C0();body='<div class="pr in"><div class="row"><span>BOM cost, '+c.bf+' bf and '+c.h+' h</span><span></span><span class="mono" id="cost">'+m2(c.cost)+'</span></div><div class="row"><span>Target margin</span><span></span><span class="mono">'+Math.round(MG*100)+'%</span></div></div><div class="pbig"><div class="kv"><small>Price</small><b class="big" id="price">'+d0(c.price)+'</b></div><div class="kv" style="text-align:right"><small>Ready</small><b id="ready">Dec 10</b></div></div>';}
+ else{c=C0();body='<div class="pr in"><div class="row h"><span>Line</span><span>Qty and rate</span><span>Cost</span></div><div class="row"><span>'+SP[S.sp][0]+' lumber</span><span class="mono">'+c.bf+' bf x '+SP[S.sp][1].toFixed(2)+'</span><span class="mono">'+m2(c.lum)+'</span></div><div class="row"><span>'+FN[S.f][0]+'</span><span class="mono">1 kit</span><span class="mono">'+m2(c.fin)+'</span></div><div class="row"><span>Hardware kit</span><span class="mono">1</span><span class="mono">'+m2(c.hw)+'</span></div><div class="row"><span>Labor</span><span class="mono">'+c.h+' h x '+RATE+'</span><span class="mono">'+m2(c.lab)+'</span></div>'+
+  '<div class="row tt"><span>Cost</span><span class="mono mut">Margin '+Math.round(MG*100)+'%</span><span class="mono" id="cost">'+m2(c.cost)+'</span></div></div><div class="pbig"><div class="kv"><small>Price</small><b class="big" id="price">'+d0(c.price)+'</b></div><div class="kv" style="text-align:right"><small>Ready</small><b id="ready">Dec 10</b></div></div>';}
+ var act=(tab==='pr'&&!P)?'<div class="act"><span class="mut" style="font-size:9.4px">Creates SO-1184 and its production order</span><button type="button" class="bt pri" id="mkso">Create sales order</button></div>':'';
+ if(P)return '<div class="cd rgt">'+body+(tab==='pr'?'<div class="act"><button type="button" class="bt pri" id="mkso">Create sales order</button></div>':'')+'</div>';
+ return '<div class="lft"><div class="cd rgt">'+tabs+body+act+(tab==='bom'?'<div class="act" style="justify-content:space-between"><span class="mut" style="font-size:9.4px">'+(done()?'All options set':'Price shows when all options are set')+'</span><span class="mono mut" style="font-size:9.4px">Target margin '+Math.round(MG*100)+'%</span></div>':'')+'</div>'+(done()?plan():S.prod?'':recent())+'</div>';}
+function recent(){return '<div class="cd" style="flex:1 1 0"><div class="ct">Recent quotes<span class="mut" style="font-weight:500">This month</span></div>'+[['Q-1183','Credenza, walnut','Weller residence','Sent'],['Q-1182','Bookcase wall, painted maple','Ardmore Dental','Won'],['Q-1181','Dining table, maple','Ruiz residence','Won'],['Q-1179','Kitchen cabinets, rift oak','Pell Street Lofts','Sent'],['Q-1178','Reception desk, walnut','Corwin Law','Lost'],['Q-1176','Vanity pair, white oak','Hollis residence','Won'],['Q-1175','Bar cabinet, cherry','Marlow residence','Sent'],['Q-1173','Conference table, ash','Brightline Studio','Won']].map(function(q){return '<div class="row" style="grid-template-columns:52px 1fr 104px 46px;font-size:9.8px;min-height:30px;white-space:nowrap"><span class="mono">'+q[0]+'</span><span>'+q[1]+'</span><span class="mut">'+q[2]+'</span><span><span class="ch '+(q[3]==='Won'?'c-ok':q[3]==='Lost'?'c-idle':'c-info')+'">'+q[3]+'</span></span></div>';}).join('')+'</div>';}
+function plan(){var c=C0();return '<div class="cd in" style="flex:1 1 0"><div class="ct">Build plan if ordered today<span class="mut" style="font-weight:500">'+c.h+' h of labor</span></div>'+DATES.map(function(d){return '<div class="row" style="grid-template-columns:1fr 50px 60px;font-size:9.8px"><span>'+d[1]+'</span><span class="mono mut r">'+d[3]+' h</span><span class="mono r">'+d[2]+'</span></div>';}).join('')+'</div>';}
+function wo(P,co){return '<div class="cd wo"><div class="ct">Work orders<span class="mut" style="font-weight:500">By department</span></div>'+DATES.map(function(d){return '<div class="row"><span class="mono">'+(P?d[0].slice(3):d[0])+'</span><span>'+d[1]+'</span>'+(P?'':'<span class="mono mut">'+(co?d[4]:d[3])+' h</span>')+'<span class="mono">'+d[2]+'</span>'+(P?'':'<span><span class="ch c-idle">Planned</span></span>')+'</div>';}).join('')+'</div>';}
+function mbom(P,co){var c=C();return '<div class="cd mb"><div class="ct">BOM, '+(co?'Rev B':'Rev A')+(co?'<span class="ch c-info">Changed by CO-1184-1</span>':'')+'</div><div class="row'+(co?' in':'')+'"><span>'+SP[S.sp][0]+' lumber, 8/4</span><span class="mono" id="mo-bf">'+(co?'<span class="was">'+C0().bf+'</span>':'')+c.bf+' bf</span>'+(P?'':'<span class="mono mut">Mill</span>')+'</div>'+(P?'':'<div class="row"><span>'+FN[S.f][0]+' kit</span><span class="mono">1</span><span class="mono mut">Finish</span></div><div class="row"><span>Hardware kit, table</span><span class="mono">1</span><span class="mono mut">Assemble</span></div>')+'</div>';}
+function render(){var P=ph(),h='',scr=S.scr;
+if(scr==='cfg'){setNav({m:'sal',bc:['Sales','Quotes',S.cust?'Q-1184':'New quote'],t:S.cust?(P?'Q-1184':'Quote Q-1184'):'New quote',chip:S.cust?['c-idle','Draft']:null,scr:'Configurator',pa:P&&S.prod&&done()?'<div class="seg2 pch"><button type="button" class="pc'+(S.tab==='bom'?' on':'')+'" id="tb-bom">BOM</button><button type="button" class="pc'+(S.tab==='pr'?' on':'')+'" id="tb-pr">Price</button></div>':''});
+ var qh='<div class="qh"><div class="sel2"><small>Customer</small><button type="button" class="sbx" id="cust">'+(S.cust?'<span>Hollis residence</span><span class="mut">Kitchen and dining</span>':'<span class="ph0">Choose a customer</span><span class="mut">Hollis residence</span>')+'</button></div><div class="sel2"><small>Product</small><div class="pch">'+['Dining table','Credenza','Bookcase wall'].map(function(p,i){return '<button type="button" class="pc'+(S.prod&&i===0?' on':'')+'" id="p-'+i+'"'+(i&&!P?'':'')+'>'+p+'</button>';}).join('')+'</div></div></div>';
+ if(!P)h=qh+'<div class="spl"><div class="lft">'+opts(P)+(S.prod?'<div class="cd" style="flex:1 1 0"><div class="ct">Quote notes</div><div class="row" style="grid-template-columns:1fr"><span class="mut">Seats eight, breadboard ends</span></div><div class="row" style="grid-template-columns:1fr"><span class="mut">Delivery to the Hollis residence</span></div></div>':'')+'</div>'+right(P)+'</div>';
+ else if(!S.prod)h=qh;
+ else if(S.tab==='pr')h=right(P);
+ else h=opts(P)+(S.sp!=null?right(P):'');}
+else if(scr==='mo'){var co=S.co;setNav({m:'pro',bc:['Production','Orders','MO-3306'],t:P?'MO-3306':'MO-3306 Dining table',chip:['c-info',co?'Rev B':'Released'],scr:'Production order MO-3306',back:P?1:0});
+ h='<div class="src"><span class="mut">From</span><button type="button" class="lnk" id="so">SO-1184</button><span class="mut">Hollis residence, '+SP[S.sp][0].toLowerCase()+', '+WD[co?2:S.w][0]+' in</span></div>'+(P&&co?mbom(P,co)+'<div class="cd"><div class="row" style="grid-template-columns:1fr auto"><span>Work order dates hold</span><span class="mono">Ready Dec 10</span></div></div>':P?wo(P,co):wo(P,co)+mbom(P,co));
+ if(!P)h+='<div class="cd" style="flex:1 1 0"><div class="ct">Activity</div>'+(co?'<div class="row in" style="grid-template-columns:62px 1fr"><span class="mono mut">Nov 24</span><span>CO-1184-1 applied: lumber 56 to 64 bf, build and finish hours updated</span></div>':'')+'<div class="row" style="grid-template-columns:62px 1fr"><span class="mono mut">Nov 23</span><span>Created from SO-1184 with four work orders</span></div><div class="row" style="grid-template-columns:62px 1fr"><span class="mono mut">Nov 23</span><span>Lumber reserved: white oak 8/4, bay L1</span></div></div>';}
+else{var ap=scr==='co',c0=C0(),c1=calc(S.sp,2,S.f);
+ setNav({m:'sal',bc:ap?['Sales','SO-1184','CO-1184-1']:['Sales','Orders','SO-1184'],t:ap?(P?'CO-1184-1':'Change order CO-1184-1'):(P?'SO-1184':'Sales order SO-1184'),chip:ap?['c-ok','Applied']:['c-info','Change requested'],scr:ap?'Change order CO-1184-1':'Sales order SO-1184',back:P?1:0});
+ var line='<div class="cd"><div class="row" style="grid-template-columns:1fr 70px;min-height:34px"><span><b style="font-weight:600">Dining table</b> <span class="mut">'+SP[S.sp][0]+', '+WD[ap?2:S.w][0]+' in, '+FN[S.f][0].toLowerCase()+'</span></span><span class="mono r" id="soline">'+d0(ap?c1.price:c0.price)+'</span></div></div>';
+ if(!ap){h=line+'<div class="cd"><div class="ct">Change order CO-1184-1<span class="ch c-warn">Requested Nov 24</span></div><div class="cob frm"><span class="mut">Customer email: please make the top 84 in so it seats ten.</span><div class="wl"><span>Top width</span><b>'+WD[S.w][0]+' in to 84 in</b></div>'+(P?'':'<div class="wl"><span>Price</span><b>Recalculated on apply</b></div>')+'<div style="display:flex;justify-content:flex-end"><button type="button" class="bt pri" id="apply">Apply change order</button></div></div></div>';
+  if(!P)h+='<div class="two"><div class="cd"><div class="ct">Approval</div><div class="cob"><div class="wl"><span>Approved</span><b>Nov 23</b></div><div class="wl"><span>Deposit</span><b>'+d0(Math.round(c0.price/2))+'</b></div></div></div><div class="cd"><div class="ct">Linked</div><div class="cob"><div class="wl"><span>Production order</span><b>MO-3306</b></div><div class="wl"><span>Status</span><b>Released</b></div></div></div></div><div class="cd" style="flex:1 1 0"><div class="ct">Order history</div><div class="row" style="grid-template-columns:62px 1fr"><span class="mono mut">Nov 24</span><span>Change requested by the customer</span></div><div class="row" style="grid-template-columns:62px 1fr"><span class="mono mut">Nov 23</span><span>Quote Q-1184 accepted, order created</span></div></div>';}
+ else{h='<div class="dl3"><div class="dt3 in"><small>Lumber</small><b id="dbf">+'+(c1.bf-c0.bf)+' bf</b><span id="dlum">+'+m2(c1.lum-c0.lum)+'</span></div><div class="dt3 in"><small>Labor</small><b id="dh">+'+(c1.h-c0.h)+' h</b><span id="dlab">+'+m2(c1.lab-c0.lab)+'</span></div><div class="dt3 pr2 in"><small>Price</small><b id="dpr">+'+d0(c1.price-c0.price)+'</b><span>'+d0(c0.price)+' to '+d0(c1.price)+'</span></div></div>';
+  h+='<div class="cd mb"><div class="ct">What moved</div><div class="row in"><span>MO-3306 lumber</span><span class="mono" id="mvbf"><span class="was">'+c0.bf+'</span>'+c1.bf+' bf</span>'+(P?'':'<span class="mono mut">Rev B</span>')+'</div>'+(P?'':'<div class="row in"><span>MO-3306 build and finish hours</span><span class="mono"><span class="was">'+c0.h+'</span>'+c1.h+' h</span><span class="mono mut">Rev B</span></div><div class="row"><span>'+FN[S.f][0]+', hardware</span><span class="mono mut">No change</span><span></span></div><div class="row"><span>Work order dates</span><span class="mono mut">Hold</span><span></span></div>')+'</div>';
+  if(!P)h+=line+'<div class="cd" style="flex:1 1 0"><div class="ct">Cost</div><div class="cob"><div class="wl"><span>Was</span><b>'+m2(c0.cost)+'</b></div><div class="wl"><span>Now</span><b id="ncost">'+m2(c1.cost)+'</b></div><div class="wl"><span>Margin held at</span><b>'+Math.round(MG*100)+'%</b></div></div></div>';}}
+$('pg').innerHTML=h;}
+function resetState(){S={scr:'cfg',cust:false,prod:false,sp:null,w:null,f:null,tab:'bom',co:false,last:null};render();}
+var CAPAT=function(hh){return ph()?{l:8,t:5}:{l:14,t:visH()-hh-40};};
+var ST=[
+{id:'cust',target:function(){return $('cust');},prompt:'Click the customer field',where:'below',run:function(){S.cust=true;render();},after:['Start a quote from the piece the customer wants','Quote Q-1184 for the Hollis residence.'],pc:'Start a quote for the customer'},
+{id:'prod',target:function(){return $('p-0');},prompt:'Click Dining table',where:'below',run:function(){S.prod=true;render();},after:['Choose the options that change the build','Species, top width and finish, each with its own cost.'],pc:'Choose the options that change the build'},
+{id:'opts',target:function(){return $(nextOpt()||'o-f-1');},get prompt(){return 'Click '+({'o-sp-1':'White oak','o-w-1':'72 in','o-f-1':'Matte lacquer'})[nextOpt()||'o-f-1'];},where:'right',
+ ok:function(){var id=nextOpt();if(id){pick(id);render();}return done();},
+ run:function(q){if(q){S.sp=1;S.w=1;S.f=1;S.last=null;render();return;}var need={'o-sp-1':S.sp==null,'o-w-1':S.w==null,'o-f-1':S.f==null},seq=['o-sp-1','o-w-1','o-f-1'].filter(function(i){return need[i];});
+  seq.forEach(function(id,k){later(function(){var el=$(id);if(el&&mode==='watch'){moveGhost(gpos(el));}},k*650);later(function(){pick(id);render();},k*650+(k?320:0));});},
+ after:['Every choice rewrites the BOM','White oak, 72 in, matte lacquer: lumber, labor, finish and hardware lines.'],pc:'Every choice rewrites the BOM'},
+{id:'tab',target:function(){return $('tb-pr');},prompt:'Click the Price tab',where:'below',run:function(){S.tab='pr';render();},
+ after:function(){var c=C0();return['Cost and price follow the BOM, not a guess','Cost '+m2(c.cost)+', price '+d0(c.price)+', ready Dec 10.'];},pc:'Cost and price follow the BOM'},
+{id:'so',target:function(){return $('mkso');},prompt:'Click Create sales order',where:'above',run:function(){S.scr='mo';render();},after:['The quote becomes an order and a production order','SO-1184 created MO-3306 with work orders for mill, build, finish and assemble.'],pc:'The quote becomes a production order'},
+{id:'link',target:function(){return $('so');},prompt:'Click SO-1184',where:'below',run:function(){S.scr='so';render();},after:['The customer adds length after approval','The top goes from 72 in to 84 in on change order CO-1184-1.'],pc:'The customer adds length after approval'},
+{id:'apply',target:function(){return $('apply');},prompt:'Click Apply change order',where:'above',run:function(){S.co=true;S.scr='co';render();},
+ after:function(){var a=C0(),b=calc(S.sp,2,S.f);return['Only the difference moves, and the shop sees it','Lumber +'+(b.bf-a.bf)+' bf, labor +'+(b.h-a.h)+' h, price +'+d0(b.price-a.price)+'. MO-3306 goes to '+b.bf+' bf.'];},pc:'Only the difference moves'},
+{id:'nav',target:function(){return $(ph()?'bn-pro':'nv-pro');},prompt:'Click Production',where:'right',run:function(){S.scr='mo';render();},after:['Quote, order and production stay in step','MO-3306 is on Rev B with 64 bf of white oak.'],pc:'Quote, order and production in step'}];
+'''
+JS = (JS.replace('__SP__', repr([list(s) for s in SPECIES]).replace("'", '"')).replace('__WD__', repr([list(w) for w in WIDTHS]))
+      .replace('__FN__', repr([list(f) for f in FINISHES]).replace("'", '"')).replace('__HW__', repr(HARDWARE)).replace('__RATE__', repr(RATE)).replace('__MG__', repr(MARGIN)))

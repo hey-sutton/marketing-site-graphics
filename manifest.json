@@ -1,5 +1,5 @@
 {
-  "version": "1.25.0",
+  "version": "1.26.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -89,6 +89,12 @@
       4
     ],
     "recycling": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "furniture-woodworking": [
       1,
       2,
       3,
