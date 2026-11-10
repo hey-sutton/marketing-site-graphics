@@ -26,9 +26,9 @@ CSS = (
  '.plb{font:600 25px Inter,sans-serif;fill:#44403C}.pls{font:500 21px "JetBrains Mono",ui-monospace,monospace;fill:#78716C}.anim .plb,.anim .pls{opacity:0;animation:ptin .3s ease forwards}'
  '.rem{fill:url(#hatch);stroke:#A8A29E;stroke-width:3;stroke-dasharray:10 8;cursor:pointer;transition:fill .3s}.rem.on{fill:#FEF9C3;stroke:#18181B;stroke-dasharray:none;stroke-width:5}.rem.fakehover{fill:#F5F5F4}'
  '.dim{font:500 19px "JetBrains Mono",ui-monospace,monospace;fill:#A1A1AA}'
- '.cols{display:grid;grid-template-columns:1fr 1fr 186px;gap:10px;flex:1 1 0;min-height:0}.cols .cd{min-height:0}'
- '.stk .row{grid-template-columns:1fr 40px 56px;font-size:9.6px;min-height:27px;white-space:nowrap}.stk .row>span:nth-child(n+2){text-align:right}.stk small{display:block;color:#71717A;font-size:8.4px}'
- '.cl .row{grid-template-columns:1fr 54px 26px;font-size:9.6px;min-height:28px;white-space:nowrap}.cl .row>span:nth-child(n+2){text-align:right}'
+ '.cols{display:grid;grid-template-columns:1.15fr 1fr 170px;gap:10px;flex:1 1 0;min-height:0}.cols .cd{min-height:0}'
+ '.stk .row{grid-template-columns:1fr 32px 48px;font-size:9.6px;min-height:27px;white-space:nowrap}.stk .row>span:nth-child(n+2){text-align:right}.stk small{display:block;color:#71717A;font-size:8.4px}'
+ '.cl .row{grid-template-columns:1fr 46px 20px;font-size:9.6px;min-height:28px;white-space:nowrap}.cl .row>span:nth-child(n+2){text-align:right}'
  '.yp{padding:9px 11px;display:flex;flex-direction:column;gap:6px;font-size:9.8px}.yp .wl{display:flex;justify-content:space-between;align-items:baseline}.yp .wl b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10.4px}.yp .big{font-size:20px}.yp .bt{align-self:stretch;text-align:center}'
  '.chips{display:flex;gap:6px;flex:none}.fc{height:26px;padding:0 10px;border:1px solid #E4E4E7;border-radius:999px;background:#fff;font-size:9.8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}.fc.on{background:#18181B;border-color:#18181B;color:#fff}.fc.fakehover{background:#F4F4F5}.fc.on.fakehover{background:#3F3F46}'
  '.tl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:none}.tile{border:1px solid #E4E4E7;border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}.tile small{font-size:8.8px;color:#71717A}.tile b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:15px;font-weight:600}'
@@ -44,7 +44,7 @@ WIN = ''
 JS = r'''
 var FOC='.rail .ni,.bc,.phd>*,.bn .bi,.tb>*,.pg .hero,.pg .cd>*,.pg .cd .row,.chips>*,.pg .tile,.prw>*';
 var PARTS=__PARTS__,REM=__REM__,SW=96,SL=48;
-var STOCK=[['PLY-MPL-34','Maple plywood, 3/4 in',12,2],['PLY-BIR-12','Baltic birch, 1/2 in',18,4],['PLY-WAL-34','Walnut plywood, 3/4 in',6,1],['MDF-34','MDF, 3/4 in',9,0],['HDF-14','Hardboard, 1/4 in',22,0]];
+var STOCK=[['PLY-MPL-34','Maple, 3/4 in',12,2],['PLY-BIR-12','Birch, 1/2 in',18,4],['PLY-WAL-34','Walnut, 3/4 in',6,1],['MDF-34','MDF, 3/4 in',9,0],['HDF-14','HDF, 1/4 in',22,0]];
 var RMS=[['RM-0026','PLY-MPL-34',36,22,'R2-01','J-2402'],['RM-0029','PLY-MPL-34',16,40,'R2-03','J-2409']];
 var NEW=['RM-0031','PLY-MPL-34',REM[2],REM[3],'R2-04','J-2417'];
 var S;
@@ -68,10 +68,10 @@ function stockCard(P){return '<div class="cd stk"><div class="ct">Stock on hand'
  return '<button type="button" class="row'+(i===0&&S.mat?' sel':'')+'" id="st-'+x[0]+'"><span><span class="mono">'+x[0]+'</span><small>'+x[1]+'</small></span><span class="mono'+(i===0&&S.booked?' flash':'')+'" id="'+(i===0?'sh0':'')+'">'+s+'</span><span class="mono" id="'+(i===0?'rm0':'')+'">'+r+'</span></button>';}).join('')+'</div>';}
 function cutCard(P){if(!S.job)return '<div class="cd cl"><div class="ct">Cut list</div><div class="empt" style="border:0;background:none;padding:22px 10px"><b>No cut list yet</b><span>Choose a job to load its cut list.</span></div></div>';
  return '<div class="cd cl"><div class="ct">Cut list'+(S.nest?'<span class="ch c-ok">Nested</span>':'<button type="button" class="bt" id="nest">Nest on sheet</button>')+'</div><div class="row h"><span>Part</span><span>Size, in</span><span>Qty</span></div>'+
- cutlist().map(function(c){return '<div class="row in"><span>'+c[0]+'</span><span class="mono">'+c[1]+'</span><span class="mono">'+c[2]+'</span></div>';}).join('')+(P?'':'<div class="row"><span class="mut">PLY-MPL-34, 3/4 in</span><span class="mono mut">'+PARTS.length+' parts</span><span></span></div>')+'</div>';}
+ cutlist().map(function(c){return '<div class="row in"><span>'+c[0]+'</span><span class="mono">'+c[1]+'</span><span class="mono">'+c[2]+'</span></div>';}).join('')+(P?'':'<div class="row" style="grid-template-columns:1fr auto"><span class="mut">PLY-MPL-34, 3/4 in</span><span class="mono mut">'+PARTS.length+' parts</span></div>')+'</div>';}
 function yieldCard(){if(!S.nest)return '<div class="cd"><div class="ct">Sheet</div><div class="empt" style="border:0;background:none;padding:22px 10px"><b>Nothing nested</b><span>Yield and leftovers show once parts are on a sheet.</span></div></div>';
  if(!S.open)return '<div class="cd"><div class="ct">Sheet 1 of 1<span class="ch c-info">5 cuts</span></div><div class="yp"><div class="wl"><span>Parts placed</span><b>'+PARTS.length+' of '+PARTS.length+'</b></div><div class="wl"><span>Sheet</span><b>96 x 48 in</b></div><div class="wl"><span class="mut">Open the leftover to size it</span></div></div></div>';
- return '<div class="cd in"><div class="ct">Leftover<span class="ch '+(S.booked?'c-ok':'c-info')+'">'+(S.booked?'Booked':'Keep')+'</span></div><div class="yp"><div class="wl"><span>Size</span><b id="rsz">'+REM[2]+' x '+REM[3]+' in</b></div><div class="wl"><span>Area</span><b id="rsf">'+remSqft().toFixed(2)+' sq ft</b></div><div class="wl"><span>Parts</span><b>'+n0(partsArea())+' of '+n0(SW*SL)+' sq in</b></div><div class="wl"><span>Yield</span><b class="big" id="yl">'+yld().toFixed(1)+'%</b></div>'+
+ return '<div class="cd in"><div class="ct">Leftover<span class="ch '+(S.booked?'c-ok':'c-info')+'">'+(S.booked?'Booked':'Keep')+'</span></div><div class="yp"><div class="wl"><span>Size</span><b id="rsz">'+REM[2]+' x '+REM[3]+' in</b></div><div class="wl"><span>Area</span><b id="rsf">'+remSqft().toFixed(2)+' sq ft</b></div><div class="wl"><span>Parts, sq in</span><b>'+n0(partsArea())+' of '+n0(SW*SL)+'</b></div><div class="wl"><span>Yield</span><b class="big" id="yl">'+yld().toFixed(1)+'%</b></div>'+
  (S.booked?'<span class="ch c-ok" id="bk-ok">'+NEW[0]+' on shelf '+NEW[4]+'</span>':'<button type="button" class="bt pri" id="book">Book remnant to stock</button>')+'</div></div>';}
 function render(){var P=ph(),h='',scr=S.scr;
 if(scr!=='inv'){var nm=scr==='plan'?'Cut planner':scr==='list'?'Cut list J-2417':'Sheet layout';
@@ -94,7 +94,7 @@ function resetState(){S={scr:'plan',mat:false,job:false,nest:false,open:false,bo
 function okJ(){var v=String($('ij').value).trim(),b=!(v===''||/^J-?2417$/i.test(v));$('fj').classList.toggle('err',b);return !b;}
 var CAPAT=function(hh){return ph()?{l:8,t:5}:{l:14,t:visH()-hh-40};};
 var ST=[
-{id:'mat',target:function(){return $('st-PLY-MPL-34');},prompt:'Click Maple plywood, 3/4 in',where:'above',run:function(){S.mat=true;render();},after:['Start from the stock you actually have','Maple plywood, 3/4 in: 12 sheets and 2 remnants on hand.'],pc:'Start from the stock you have'},
+{id:'mat',target:function(){return $('st-PLY-MPL-34');},prompt:'Click PLY-MPL-34',where:'above',run:function(){S.mat=true;render();},after:['Start from the stock you actually have','Maple plywood, 3/4 in: '+STOCK[0][2]+' sheets and '+STOCK[0][3]+' remnants on hand.'],pc:'Start from the stock you have'},
 {id:'job',target:function(){return $('smp');},prompt:'Type J-2417 and press Enter, or click Try J-2417',where:'below',ok:okJ,run:function(){S.vj='J-2417';S.job=true;S.mat=true;S.scr='list';render();},after:['Load a job\'s cut list','J-2417: two side panels, two shelves and a back panel.']},
 {id:'nest',target:function(){return $('nest');},prompt:'Click Nest on sheet',where:'above',run:function(q){S.nest=true;S.scr='sheet';S.anim=!q;render();},after:['Parts nest on one sheet','Five parts on one 96 x 48 in sheet, cut in five passes.']},
 {id:'rem',target:function(){return $('rem');},prompt:'Click the leftover',where:'below',run:function(){S.open=true;render();},

@@ -12,6 +12,8 @@ This folder is the source for `graphics/furniture-woodworking/card-1.js` to `car
   * the navigation walk: screen, breadcrumb and active nav item after every step
   * variety (`tools/recycling/variety_check.py`), real typing with Enter on cards 2 and 4, the start screen rule, and a text scan for dashes, "recipe", "Digit", market size words, concept or illustrative tags and CAD product names
   * card 3 prices all 27 option combinations against the formula
+  * at 1500 px, where the template makes the card shorter (aspect 604/523), on a page that sets its own letter spacing, word spacing, font size and uppercase text: the step arrows stay inside the card at every step, the top bar doesn't inherit the page's uppercase, and no table cell is pushed out, overlapped or clipped
+* `build.py` adds three fixes to every card: the step arrows sit 66 px from the window bottom so they stay visible on the shorter wide-screen card, the card resets the text settings it would otherwise inherit from the page, and every `1fr` grid track becomes `minmax(0,1fr)` so a long label can't push the other columns out of a row.
 * One variety rule is reported but not failed: on card 3 the brief puts "Create sales order" at step 5 of 8, before the last three steps.
 
 Run a test with `pip install playwright pillow` first, then `python3 tools/furniture-woodworking/test_card1.py`. Set `PW_CHROME` to use a Chromium binary already on the machine. Screenshots go to `GFX_SHOTS` (default `/tmp/furniture_shots`).
