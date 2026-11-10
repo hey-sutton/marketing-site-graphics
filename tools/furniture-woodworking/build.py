@@ -19,6 +19,17 @@ frame.MODS = [
     ('pur', 'Purchasing', '<path d="M1.8 2.5h2l1.6 7.6h7.1l1.4-5.3H4.6"/><circle cx="6.2" cy="12.6" r="1"/><circle cx="11.6" cy="12.6" r="1"/>'),
     ('rep', 'Reports', '<path d="M2.5 13.5h11M4 11.5V8M7 11.5V4.5M10 11.5V6.5M13 11.5V3"/>')]
 PHONE = True
+# Shared by all four cards, added after staging (Nov 10):
+#  * the card visual is shorter on screens 1440 px and wider (aspect 604/523), so the step arrows sit higher;
+#  * the shadow host inherits text settings from the page (letter spacing, word spacing and so on), so reset them;
+#  * every 1fr track becomes minmax(0,1fr), so a long unwrapped label can never push the other columns out of a row.
+FIX_CSS = ('.stp{bottom:66px}'
+           '.sx-stage{letter-spacing:normal;word-spacing:normal;text-transform:none;font-style:normal;font-variant:normal;text-indent:0}'
+           '.fwin{text-align:left;white-space:normal}.row>span{min-width:0;overflow:hidden;text-overflow:ellipsis}')
+
+
+def tracks(s):
+    return s.replace('1fr', 'minmax(0,1fr)')
 
 
 def main(nums):
@@ -26,7 +37,7 @@ def main(nums):
         m = importlib.import_module('card%d' % n)
         st = frame.studio(**m.STUDIO)
         win = frame.shell('Larchmont Woodworks', 'Cabinets and furniture') + m.WIN
-        size = frame.build(n, m.SUMMARY, m.ARIA, win, m.CSS, m.JS, m.STEPS, st, shell=True, phone=PHONE)
+        size = frame.build(n, m.SUMMARY, m.ARIA, win, tracks(m.CSS) + FIX_CSS, tracks(m.JS), m.STEPS, st, shell=True, phone=PHONE)
         print('graphics/furniture-woodworking/card-%d.js  %.1f KB' % (n, size / 1024))
         assert size < 80 * 1024, 'card %d is over 80 KB' % n
 

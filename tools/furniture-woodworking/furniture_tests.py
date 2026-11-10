@@ -34,6 +34,10 @@ testlib.EXTRA_CLAIMS = re.compile(
     r'(?i:\bsmall\b|mid-size|midsize|\benterprise\b|\blarge\b|\bSMB\b|startup|concept screen|live product demo|illustrative|\brecipe|compliance|compliant|certified)'
     r'|SketchUp|AutoCAD|Cabinet Vision|Mozaik|Microvellum|KCD|SolidWorks|Fusion 360|Digit')
 js, pill = testlib.js, testlib.pill
+# the template's loader makes the card shorter at 1440 px and wider; the test page does the same
+testlib.PAGE = testlib.PAGE.replace('.capabilities_visual-bg{', '@media (min-width:1440px){.capabilities_card-visual{aspect-ratio:604/523}}.capabilities_visual-bg{', 1)
+# a page that sets text styles the card must not inherit (Webflow sites often set these on body)
+HOSTILE = 'body{letter-spacing:.06em;word-spacing:3px;font-size:19px;line-height:1.9;text-transform:uppercase;font-family:Georgia,serif}'
 
 
 def adv(pg):
@@ -109,12 +113,48 @@ def start_rule(pg, f, banned):
         f.check(s not in t, 'start: "%s" is not on the start screen' % s)
 
 
+def wide(n, f):
+    """At 1500 px (card aspect 604/523) on a page with hostile text styles: walk every step and check the step arrows
+    stay inside the card and no row pushes a column out of its own box."""
+    page = testlib.PAGE
+    testlib.PAGE = page.replace('</style>', HOSTILE + '</style>', 1)
+    try:
+        with sync_playwright() as p:
+            b = testlib.browser(p)
+            pg, errs = testlib.open_card(b, n, 1500)
+            pg.locator('#cv').scroll_into_view_if_needed()
+            pg.locator('#cv .mtg [data-m="try"]').click()
+            k, bad_stp, bad_rows = 0, [], []
+            while True:
+                pg.wait_for_timeout(1500)
+                d = js(pg, '''var cv=document.getElementById('cv').getBoundingClientRect(),s=r.querySelector('.stp').getBoundingClientRect(),bad=[];
+r.querySelectorAll('#pg .row').forEach(function(row){var b=row.getBoundingClientRect();if(b.height<2)return;var kids=[].filter.call(row.children,function(c){return c.getBoundingClientRect().width>0;}),why='';kids.forEach(function(c,i){var x=c.getBoundingClientRect();if(x.right>b.right+1||x.left<b.left-1)why='outside';if(c.scrollWidth>c.clientWidth+1&&getComputedStyle(c).overflow==='hidden')why='clipped';var nx=kids[i+1];if(nx&&nx.getBoundingClientRect().left<x.right-1)why='overlap';});if(why)bad.push(why+' '+(row.id||row.textContent).slice(0,30));});
+return {stp:s.bottom<=cv.bottom-2&&s.top>=cv.top,bad:bad,up:getComputedStyle(r.querySelector('.tbar .mode')).textTransform};''')
+                if d['up'] != 'none':
+                    bad_rows.append('step %d: the top bar inherits text-transform %s' % (k, d['up']))
+                if not d['stp']:
+                    bad_stp.append(k)
+                bad_rows += ['step %d: %s' % (k, x) for x in d['bad']]
+                testlib.shot(pg, 'card%d_1500_%d.png' % (n, k))
+                if not pg.locator('#cv .hint').count():
+                    break
+                adv(pg)
+                k += 1
+            f.check(not bad_stp, '1500 px: step arrows inside the card at every step %s' % bad_stp)
+            f.check(not bad_rows, '1500 px with page text styles: no column pushed out, overlapping or clipped %s' % bad_rows[:3])
+            f.check(not errs, '1500 px: no page errors %s' % errs[:2])
+            b.close()
+    finally:
+        testlib.PAGE = page
+
+
 def run_all(n, plan, numbers, extra=None, more=None):
     f = run_card(n, plan, numbers, extra=extra)
     story = variety(n, f)
     nav_walk(n, story, f, 1300, 604, 'desktop')
     nav_walk(n, story, f, 390, 358, 'phone 390')
     nav_walk(n, story, f, 1024, 480, 'phone 480')
+    wide(n, f)
     if more:
         more(f)
     return f
