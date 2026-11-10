@@ -15,6 +15,10 @@ Each step is data, written once: {id, target(), prompt, run(quick), after:[title
 Watch calls run() after moving the cursor to target(); Try it calls run() from the reader's click.
 
 Timing and wording live in the TUNE object at the top of the engine, so the feel is easy to adjust.
+
+Step arrows: fit() calls placeStp(), which keeps the arrows at least 28 design px above the card's visible bottom
+(never lower than 44 px above the window's bottom), so they stay visible on cards shorter than 604 by 540. Don't pin
+them with fixed CSS in a card. testlib.run_card checks this at 604/523, 584/460 and 700/430.
 """
 import json, os, sys
 
