@@ -64,6 +64,18 @@ When the loader version changes, update it on every feature page that carries it
 * No secrets, customer names or internal data. Graphic data is illustrative.
 * Keep ranking copy in native Webflow fields. These graphics are visual only.
 
+## Demo card rules
+
+These hold for every card built on the shared frame (`tools/electronics/frame.py`): Electronics, Apparel, Distribution, Plastics, Furniture and woodworking, Recycling, and any new industry.
+
+* **Step arrows stay inside the card.** The product window is sized from the card's width, so the window's bottom edge can sit well below the card's visible bottom. That happens on cards shorter than 604 by 540: the template's 604/523 shape from 1440 px, and the sticky capability cards on the Industries template.
+  * The frame's `placeStp()`, called from `fit()`, keeps the arrows at least 28 design px above the card's visible bottom, and never lower than 44 px above the window's bottom.
+  * Don't pin the arrows with fixed CSS in a card. Let the frame place them.
+  * In the phone layout (`phone=True`) the arrows sit in their own strip under the window instead.
+  * `testlib.run_card` checks this at 604/523, 584/460 and 700/430 for every card, so a card that breaks it fails its tests.
+* **Window edges.** The window runs past the card's right and bottom edges at 1300, 1024, 768 and 390 px, and the card's bottom right corner is square.
+* **Release tags start with `v`** (for example `v1.26.2`). The loader's `BASE` is built around `@v...`, and the tag must be on the merged `main` commit whose `manifest.json` version matches it.
+
 ## After a release
 
 jsDelivr pulls each file from GitHub the first time anyone requests it, and that first request can be slow or fail. After creating a release, open each industry page once. The loader downloads that page's files, which warms the CDN so the first real visitor doesn't wait.

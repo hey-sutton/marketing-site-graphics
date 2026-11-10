@@ -248,6 +248,16 @@ def run_card(n, plan, numbers, extra=None):
             layout_checks(f, pg, n, '%d px' % vw)
             shot(pg, 'card%d_layout_%d.png' % (n, vw))
             pg.close()
+        # step arrows stay inside shorter cards: the template makes the card 604/523 from 1440 px, and its sticky
+        # capability cards can be wider than 604/540. The frame's placeStp() keeps them in; this guards it.
+        for vw, cw, ar in ((1500, 604, '604/523'), (1300, 584, '584/460'), (1300, 700, '700/430')):
+            pg, errs = open_card(b, n, vw, cw)
+            pg.evaluate("a=>{document.getElementById('cv').style.aspectRatio=a}", ar)
+            pg.locator('#cv').scroll_into_view_if_needed()
+            pg.wait_for_timeout(300)
+            ok = js(pg, "var cv=document.getElementById('cv').getBoundingClientRect(),s=r.querySelector('.stp').getBoundingClientRect();return s.bottom<=cv.bottom-4&&s.top>=cv.top&&s.right<=cv.right")
+            f.check(ok, 'card %s: step arrows inside the card' % ar)
+            pg.close()
         # Studio fits at 340
         pg, errs = open_card(b, n, 372, 340)
         pg.locator('#cv').scroll_into_view_if_needed()
