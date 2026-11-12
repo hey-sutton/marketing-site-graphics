@@ -1,5 +1,5 @@
 {
-  "version": "1.28.0",
+  "version": "1.29.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -107,6 +107,12 @@
       4
     ],
     "automotive": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "textile": [
       1,
       2,
       3,
