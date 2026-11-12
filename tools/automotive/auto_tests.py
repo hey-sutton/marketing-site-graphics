@@ -38,7 +38,7 @@ var cover={};['studio','watch','tryit','pv','nx','replay'].forEach(function(k){v
 var rp=r.querySelector('.tbar .rp');
 return {cv:{l:cv.left,t:cv.top,r:cv.right,b:cv.bottom,w:cv.width},c:c,cover:cover,rpText:rp.innerText.trim(),rpAria:rp.getAttribute('aria-label'),rpTitle:rp.getAttribute('title'),
 inBar:r.getElementById('pv').closest('.tbar')!==null,shell:r.querySelectorAll('[data-shell],.rail,.bn').length,
-hd:!!r.querySelector('.fwin>.hd .hi svg')&&!!r.querySelector('.fwin>.hd .tt')&&!!r.querySelector('.fwin>.hd .sb')};'''
+mc:(function(){var m=r.querySelector('.tbar .mode .mc'),b=m&&m.getBoundingClientRect();return !!b&&b.width>4&&b.height>4&&b.height<30&&/\\d+ of \\d+/.test(m.textContent);})(),hd:!!r.querySelector('.fwin>.hd .hi svg')&&!!r.querySelector('.fwin>.hd .tt')&&!!r.querySelector('.fwin>.hd .sb')};'''
 
 
 def overlap(a, b):
@@ -52,6 +52,7 @@ def control_checks(f, pg, label, cw):
     f.check(d['rpText'] == '' and d['rpAria'] == 'Replay' and d['rpTitle'] == 'Replay', '%s: Replay is an icon with aria-label and title "Replay"' % label)
     f.check(d['shell'] == 0, '%s: no side nav and no profile' % label)
     f.check(d['hd'], '%s: header has the icon, title and subtitle' % label)
+    f.check(d['mc'], '%s: the step counter (n of N) is visible in the pill' % label)
     keys = ['studio', 'watch', 'tryit', 'pv', 'counter', 'nx', 'replay'] if two else ['studio', 'watch', 'tryit', 'counter', 'replay']
     for k in keys:
         b = c[k]
@@ -248,10 +249,10 @@ def run_card(n, plan, numbers, extra=None, start=None):
         f.check(('Your turn1 of %d' % N) in pill(pg) and pg.locator('#cv .fw-ghost.on').count() == 0, 'reduced motion: starts in Try it, no autoplay')
         pg.close()
         b.close()
-    size = os.path.getsize(os.path.join(testlib.REPO, 'graphics', 'automotive', 'card-%d.js' % n))
+    size = os.path.getsize(os.path.join(testlib.REPO, 'graphics', testlib.KEY, 'card-%d.js' % n))
     f.check(40 * 1024 <= size <= 65 * 1024, 'size %.1f KB (40 to 65)' % (size / 1024))
     from PIL import Image
-    bg = os.path.join(testlib.REPO, 'graphics', 'automotive', 'bg-%d.jpg' % n)
+    bg = os.path.join(testlib.REPO, 'graphics', testlib.KEY, 'bg-%d.jpg' % n)
     im = Image.open(bg)
     f.check(im.size == (604, 540) and im.info.get('progressive', im.info.get('progression')) and 35 * 1024 <= os.path.getsize(bg) <= 65 * 1024, 'background bg-%d.jpg: 604 by 540, progressive, %.0f KB' % (n, os.path.getsize(bg) / 1024))
     return f
