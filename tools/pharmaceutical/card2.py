@@ -14,6 +14,7 @@ STUDIO = dict(lede='A typical release board, built on your Sutton data with Stud
 ICON = '<rect x="2" y="3" width="3.4" height="10" rx=".8"/><rect x="6.3" y="3" width="3.4" height="7" rx=".8"/><rect x="10.6" y="3" width="3.4" height="4.5" rx=".8"/>'
 
 CSS = (
+ '.fld input[readonly]{background:#FAFAFA;cursor:default;pointer-events:none}'
  '.g2{display:grid;grid-template-columns:1fr 212px;gap:10px;padding:10px 40px 0 16px}'
  '.lft,.rgt{display:flex;flex-direction:column;gap:10px;min-width:0}'
  '.lns{height:376px;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}'
@@ -41,13 +42,13 @@ WIN = (
  header(ICON, 'Quarantine and release', 'Incoming lots, location QA-01')
  + '<div class="g2"><div class="lft"><div class="lns" id="lns"></div><div class="cd his" id="his"></div></div>'
  '<div class="rgt"><div class="cd rcv"><div class="ct">Receiving</div><div class="frm"><label class="fld" id="fpo"><small>Receive against purchase order</small>'
- '<input id="ipo" value="" placeholder="PO number" autocomplete="off" spellcheck="false"><span class="em" id="pem">No open order found. Try PO-4420</span></label><button type="button" class="bt pri" id="rcb">Receive</button></div>'
- '<div class="smp">Sample<button type="button" class="bt" id="smp" data-sample>PO-4420</button></div></div>'
+ '<input id="ipo" value="PO-4420" readonly tabindex="-1" autocomplete="off" spellcheck="false"></label><button type="button" class="bt pri" id="rcb">Receive</button></div><div class="smp">Alder Ridge Supply, 2 lines, due today</div>'
+ '</div>'
  '<div class="cd ava" id="ava"></div><div class="cd pk" id="pk"></div></div></div>'
 )
 
 JS = r'''
-var FOC='.hd>*,.ln,.his,.rcv .ct,.rcv .frm>*,.rcv .smp,.ava,.pk .ct,.pk .row,.pk .pa,.pk .msg';
+var FOC='.hd>*,.ln,.his,.rcv .ct,.rcv .frm>*,.ava,.pk .ct,.pk .row,.pk .pa,.pk .msg';
 var NEED=[['B-2620',10204],['B-2622',10204]];
 var BASE=[{id:'AP-8790',mat:'Active ingredient',g:18000,act:true,lane:'rel',po:'PO-4391',so:['JL','Oct 2, 09:15']}];
 var RX=[{id:'AP-8842',mat:'Active ingredient',g:30000,act:true,po:'PO-4420',cert:[['Assay','98.0%'],['Expiry','2028-10-31'],['Retest','2027-10-31']]},{id:'EX-3312',mat:'Microcrystalline cellulose',g:150000,act:false,po:'PO-4420'}];
@@ -89,15 +90,11 @@ var r=lot('AP-8842').lane==='rel';p+='<div class="pa">'+(r?'<button type="button
 if(S.blk&&!r)p+='<div class="msg bad in" id="pmsg">Lot is in quarantine</div>';else if(r)p+='<div class="msg ok in" id="pmsg">Released, pick allowed</div>';}
 $('pk').innerHTML=p;
 }
-$('smp').addEventListener('click',function(){$('ipo').value='PO-4420';$('fpo').classList.remove('err');});
-function pval(){return String($('ipo').value).trim().toUpperCase().replace(/\s/g,'');}
-function typeIt(done){var t='PO-4420',i=0;(function k(){$('ipo').value=t.slice(0,i);if(i<t.length){i++;later(k,60);}else done();})();}
-function resetState(){S={got:false,test:false,blk:false,rev:false,lots:BASE.map(function(l){var o={};for(var k in l)o[k]=l[k];return o;}),log:[]};$('ipo').value='';$('fpo').classList.remove('err');render();}
+function resetState(){S={got:false,test:false,blk:false,rev:false,lots:BASE.map(function(l){var o={};for(var k in l)o[k]=l[k];return o;}),log:[]};render();}
 var ST=[
-{id:'rcv',target:function(){return mode==='try'?$('rcb'):$('ipo');},prompt:'Type PO-4420 or pick the sample, then Receive',where:'below',
- ok:function(){var v=pval(),b=!(v==='PO-4420'||v==='PO4420');$('pem').textContent=v?'No open order found. Try PO-4420':'Type an order, for example PO-4420';$('fpo').classList.toggle('err',b);return !b;},
- run:function(quick){var go=function(){$('ipo').value='PO-4420';$('fpo').classList.remove('err');S.got=true;RX.forEach(function(l){var o={};for(var k in l)o[k]=l[k];o.lane='q';S.lots.push(o);});
- log('10:05','SR','Received PO-4420 into QA-01: AP-8842 '+k3(30000)+' kg, EX-3312 '+k3(150000)+' kg');render();};if(mode==='watch'&&!quick)typeIt(go);else go();},
+{id:'rcv',target:function(){return $('rcb');},prompt:'Click Receive for PO-4420',where:'below',
+ run:function(quick){var go=function(){S.got=true;RX.forEach(function(l){var o={};for(var k in l)o[k]=l[k];o.lane='q';S.lots.push(o);});
+ log('10:05','SR','Received PO-4420 into QA-01: AP-8842 '+k3(30000)+' kg, EX-3312 '+k3(150000)+' kg');render();};go();},
  after:function(){return['Received lots wait in quarantine','Two lots in QA-01. Available active ingredient is '+k3(avail())+' kg, a shortage of '+k3(-avail())+' kg.'];}},
 {id:'tst',target:function(){return $('tst');},prompt:'Send both lots to test',where:'below',run:function(){S.test=true;S.lots.forEach(function(l){if(l.lane==='q')l.lane='t';});log('10:12','TB','Sampled both lots, certificate attached to AP-8842');render();},
  after:function(){return['The certificate rides with the lot','AP-8842: assay 98.0%, expiry 2028-10-31, retest 2027-10-31.'];}},

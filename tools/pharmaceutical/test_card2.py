@@ -19,16 +19,9 @@ def avail(pg):
 
 def start(pg, f, when='start'):
     t = js(pg, "return r.querySelector('.g2').innerText")
-    f.check(js(pg, "return r.getElementById('ipo').value") == '' and js(pg, "return r.querySelectorAll('.lk').length") == 0, '%s: empty input, three empty lanes' % when)
+    f.check(js(pg, "var i=r.getElementById('ipo');return i.value+'|'+i.readOnly") == 'PO-4420|true' and js(pg, "return r.querySelectorAll('.lk').length") == 0, '%s: prefilled read only input, three empty lanes' % when)
     f.check(avail(pg) == '||||On hand less committed' and not any(s in t for s in ('kg', 'AP-88', 'EX-33', 'Shortage')), '%s: availability shows its row labels only' % when)
 
-
-def bad_then_type(pg, f):
-    inp = pg.locator('#cv #ipo')
-    inp.click(); inp.press_sequentially('PO-0000'); inp.press('Enter'); pg.wait_for_timeout(300)
-    f.check(js(pg, "return r.getElementById('fpo').classList.contains('err')") and 'Your turn1 of 5' in pill(pg), 'step 1: an unknown order shows an error and does not advance')
-    inp.fill(''); inp.press_sequentially('po-4420')
-    f.check(js(pg, "return r.getElementById('ipo').value") == 'po-4420', 'step 1: typing works in the input')
 
 
 def lane(pg, k):
@@ -72,6 +65,5 @@ PLAN = [('Received lots wait in quarantine', 'Shortage of 2.408 kg'),
         ('A release needs a named sign off', '10:42'),
         ('Released stock counts at once', '27.592 kg')]
 f = run_card(2, PLAN, ['48.000 kg', '20.408 kg', '27.592 kg', 'Shortage cleared'], start=start,
-             extra={'before': {0: bad_then_type}, 'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
-enter_submits(f, 2, '#ipo', 'PO-4420', 'Your turn2 of 5')
+             extra={'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
 finish(f)

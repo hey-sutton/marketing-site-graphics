@@ -14,6 +14,7 @@ STUDIO = dict(lede='A typical operator screen, built on your Sutton data with St
 ICON = '<rect x="3" y="1.8" width="10" height="12.4" rx="1.4"/><path d="M5.5 5h5M5.5 7.6h5M5.5 10.2h3"/>'
 
 CSS = (
+ '.fld input[readonly]{background:#FAFAFA;cursor:default;pointer-events:none}'
  '.g4{display:grid;grid-template-columns:196px 1fr;gap:10px;padding:10px 40px 0 16px}'
  '.sr2{display:flex;flex-direction:column;gap:6px;min-width:0}'
  '.mo{height:118px;flex:none;margin-bottom:4px}.mo .frm{display:flex;align-items:flex-end;gap:6px;padding:8px 10px 0}.mo .fld{flex:1}.mo .smp{display:flex;align-items:center;gap:6px;padding:6px 10px 0;font-size:8.8px;color:#71717A}.mo .smp .bt{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9px;padding:3px 7px}'
@@ -34,13 +35,13 @@ CSS = (
 WIN = (
  header(ICON, 'Production record', 'Operator station, encapsulation room 2')
  + '<div class="g4"><div class="sr2"><div class="cd mo"><div class="ct">Work order</div><div class="frm"><label class="fld" id="fmo"><small>Manufacturing order</small>'
- '<input id="imo" value="" placeholder="MO number" autocomplete="off" spellcheck="false"><span class="em" id="mem">No order found. Try MO-7210</span></label><button type="button" class="bt pri" id="mob">Open</button></div>'
- '<div class="smp">Sample<button type="button" class="bt" id="smp" data-sample>MO-7210</button></div></div><div id="rl2" class="sr2"></div></div>'
+ '<input id="imo" value="MO-7210" readonly tabindex="-1" autocomplete="off" spellcheck="false"></label><button type="button" class="bt pri" id="mob">Open</button></div><div class="smp">Encapsulation room 2, day shift</div>'
+ '</div><div id="rl2" class="sr2"></div></div>'
  '<div class="cd sht" id="sht"></div></div>'
 )
 
 JS = r'''
-var FOC='.hd>*,.mo .ct,.mo .frm>*,.mo .smp,.tl2,.sht .ct,.ph,.rl,.pf,.ft3';
+var FOC='.hd>*,.mo .ct,.mo .frm>*,.tl2,.sht .ct,.ph,.rl,.pf,.ft3';
 var PLAN=200000,PER=100,ISSUED=2000;
 var WEIGH=[['07:52','AP-8842','Active ingredient',10204],['07:55','EX-4410','Magnesium stearate',800],['07:58','EX-3190','Microcrystalline cellulose',68996]];
 var FILLED=198400,REJ=1600,CHK={avg:399.6,n:20,lo:380,hi:420};
@@ -75,16 +76,12 @@ for(var k=L.length;k<9;k++)h+='<div class="rl bl"><span></span><span></span><spa
 h+='<div class="pf">'+(S.closed?'<span class="ch c-warn" id="pfs">Record complete, waiting for release</span><span class="mut" id="yld">Yield '+yieldPct()+'%</span>':S.mo?'<span class="mut">'+S.done+' of 5 steps logged</span>':'<span class="mut">Lines fill in as each step is logged</span>')+'</div></div><div class="ft3">'+(S.mo?'Every line keeps its time, lot and initials':'Pick an order to start its record')+'</div>';
 $('sht').innerHTML=h;
 }
-$('smp').addEventListener('click',function(){$('imo').value='MO-7210';$('fmo').classList.remove('err');});
-function mval(){return String($('imo').value).trim().toUpperCase().replace(/\s/g,'');}
-function typeIt(done){var t='MO-7210',i=0;(function k(){$('imo').value=t.slice(0,i);if(i<t.length){i++;later(k,60);}else done();})();}
-function resetState(){S={mo:false,done:0,closed:false};$('imo').value='';$('fmo').classList.remove('err');render();}
+function resetState(){S={mo:false,done:0,closed:false};render();}
 function capN(){var i=cap.querySelector('.m i');return i?+i.textContent:1;}
 var CAPAT=function(hh){var w=cap.offsetWidth;return capN()<=4?{l:visW()-w-14,t:visH()-hh-58}:{l:14,t:visH()-hh-14};};
 var ST=[
-{id:'mo',target:function(){return mode==='try'?$('mob'):$('imo');},prompt:'Type MO-7210 or pick the sample, then Open',where:'below',
- ok:function(){var v=mval(),b=!(v==='MO-7210'||v==='MO7210');$('mem').textContent=v?'No order found. Try MO-7210':'Type an order, for example MO-7210';$('fmo').classList.toggle('err',b);return !b;},
- run:function(quick){var go=function(){$('imo').value='MO-7210';$('fmo').classList.remove('err');S.mo=true;render();};if(mode==='watch'&&!quick)typeIt(go);else go();},
+{id:'mo',target:function(){return $('mob');},prompt:'Click Open for MO-7210',where:'below',
+ run:function(quick){var go=function(){S.mo=true;render();};go();},
  after:function(){return['The order brings its steps and a blank record','MO-7210 makes B-2620: '+n0(PLAN)+' capsules, '+n0(PLAN/PER)+' bottles planned.'];}},
 {id:'w',target:function(){return $('a-w');},prompt:'Scan the three lot labels',where:'right',run:function(){S.done=1;render();},
  after:function(){return['Each scan writes a line with lot, time and initials','Three lots weighed by MK: '+k3(wsum())+' kg into the blend.'];}},

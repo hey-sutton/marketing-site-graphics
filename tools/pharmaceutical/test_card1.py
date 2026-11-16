@@ -26,16 +26,9 @@ assert 10204 + 68996 + 800 == 80000                 # B-2611 weighed inputs 80.0
 
 def start(pg, f, when='start'):
     t = js(pg, "return r.querySelector('.g1').innerText")
-    f.check(js(pg, "return r.getElementById('ilt').value") == '' and js(pg, "return r.querySelectorAll('.bls .row,.dos .tab,.lot .kv').length") == 0, '%s: empty input, list and dossier show a prompt only' % when)
+    f.check(js(pg, "var i=r.getElementById('ilt');return i.value+'|'+i.readOnly") == 'EX-3307|true' and js(pg, "return r.querySelectorAll('.bls .row,.dos .tab,.lot .kv').length") == 0, '%s: prefilled read only input, list and dossier show a prompt only' % when)
     f.check(not any(s in t for s in ('150.000', 'B-26', 'Alder', 'Kestrel', 'kg')), '%s: nothing derived from the lot shows' % when)
 
-
-def bad_then_type(pg, f):
-    inp = pg.locator('#cv #ilt')
-    inp.click(); inp.press_sequentially('EX-0000'); inp.press('Enter'); pg.wait_for_timeout(300)
-    f.check(js(pg, "return r.getElementById('flt').classList.contains('err')") and 'Your turn1 of 5' in pill(pg), 'step 1: an unknown lot shows an error and does not advance')
-    inp.fill(''); inp.press_sequentially('ex-3307')
-    f.check(js(pg, "return r.getElementById('ilt').value") == 'ex-3307', 'step 1: typing works in the input')
 
 
 def s1(pg, f):
@@ -77,6 +70,5 @@ PLAN = [('A supplier notice names one lot', '150.000 kg'),
         ('Follow the bottles to customers', '1,800'),
         ('One click holds what is still on site', '1,200 bottles held')]
 f = run_card(1, PLAN, ['2 batches, 2 customers, 1,200 bottles held.', '46.506 kg'], start=start,
-             extra={'before': {0: bad_then_type}, 'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
-enter_submits(f, 1, '#ilt', 'EX-3307', 'Your turn2 of 5')
+             extra={'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
 finish(f)

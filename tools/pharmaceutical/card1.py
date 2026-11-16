@@ -13,6 +13,7 @@ STUDIO = dict(lede='A typical lot trace screen, built on your Sutton data with S
 ICON = '<circle cx="5" cy="5" r="2.6"/><circle cx="11.5" cy="11.5" r="2.6"/><path d="M7 7l2.6 2.6"/>'
 
 CSS = (
+ '.fld input[readonly]{background:#FAFAFA;cursor:default;pointer-events:none}'
  '.g1{display:grid;grid-template-columns:236px 1fr;grid-template-rows:46px 484px;gap:10px;padding:10px 40px 0 16px}'
  '.srch{grid-column:1/3;display:flex;align-items:center;gap:12px;padding:0 12px}.srch .frm{display:flex;align-items:center;gap:8px;flex:none}'
  '.srch .fld{flex-direction:row;align-items:center;gap:8px;position:relative}.srch .fld small{white-space:nowrap}.srch .fld input{width:150px}.srch .fld .em{position:absolute;left:0;top:30px;white-space:nowrap}'
@@ -42,8 +43,8 @@ CSS = (
 WIN = (
  header(ICON, 'Lot trace', 'Supplier lots to batches, CP-050 capsules 50 mg')
  + '<div class="g1"><div class="cd srch" id="srch"><div class="frm"><label class="fld" id="flt"><small>Supplier lot or batch number</small>'
- '<input id="ilt" value="" placeholder="For example EX-3307" autocomplete="off" spellcheck="false"><span class="em" id="lem">No lot found. Try EX-3307</span></label>'
- '<button type="button" class="bt pri" id="trb">Trace</button></div><div class="smp">Sample<button type="button" class="bt" id="smp" data-sample>EX-3307</button></div>'
+ '<input id="ilt" value="EX-3307" readonly tabindex="-1" autocomplete="off" spellcheck="false"></label>'
+ '<button type="button" class="bt pri" id="trb">Trace</button></div>'
  '<span class="nt">Lots and batches</span></div>'
  '<div class="lc"><div class="cd lot" id="lot"></div><div class="cd bls" id="bls"></div></div><div class="cd dos" id="dos"></div></div>'
 )
@@ -99,16 +100,12 @@ SITE.map(function(s){return '<div class="row in"><span><span class="mono">'+s[0]
 d+='</div>';}
 $('dos').innerHTML=d;
 }
-$('smp').addEventListener('click',function(){$('ilt').value=LOT.id;$('flt').classList.remove('err');});
-function lval(){return String($('ilt').value).trim().toUpperCase().replace(/\s/g,'');}
-function typeIt(done){var t=LOT.id,i=0;(function k(){$('ilt').value=t.slice(0,i);if(i<t.length){i++;later(k,60);}else done();})();}
-function resetState(){S={lot:false,wu:false,bat:null,tab:'in',hold:false};$('ilt').value='';$('flt').classList.remove('err');render();}
+function resetState(){S={lot:false,wu:false,bat:null,tab:'in',hold:false};render();}
 function capN(){var i=cap.querySelector('.m i');return i?+i.textContent:1;}
 var CAPAT=function(hh){var w=cap.offsetWidth;return capN()<=2?{l:visW()-w-14,t:visH()-hh-58}:{l:14,t:visH()-hh-14};};
 var ST=[
-{id:'lot',target:function(){return mode==='try'?$('trb'):$('ilt');},prompt:'Type EX-3307 or pick the sample, then Trace',where:'below',
- ok:function(){var v=lval(),b=!(v==='EX-3307'||v==='EX3307');$('lem').textContent=v?'No lot found. Try EX-3307':'Type a lot, for example EX-3307';$('flt').classList.toggle('err',b);return !b;},
- run:function(quick){var go=function(){$('ilt').value=LOT.id;$('flt').classList.remove('err');S.lot=true;render();};if(mode==='watch'&&!quick)typeIt(go);else go();},
+{id:'lot',target:function(){return $('trb');},prompt:'Click Trace to look up EX-3307',where:'below',
+ run:function(quick){var go=function(){S.lot=true;render();};go();},
  after:function(){return['A supplier notice names one lot','EX-3307, microcrystalline cellulose from Alder Ridge Supply. '+k3(LOT.rec)+' kg received.'];}},
 {id:'wu',target:function(){return $('wu');},prompt:'Find every batch that used it',where:'below',run:function(){S.wu=true;render();},
  after:function(){return['Every batch that used the lot, with the kilograms','B-2611 took '+k3(BAT[0].g)+' kg and B-2614 '+k3(BAT[1].g)+' kg. '+k3(LOT.rec-used())+' kg still on hand.'];}},
