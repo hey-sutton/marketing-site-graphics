@@ -17,17 +17,10 @@ assert 380 <= 399.6 <= 420
 
 def start(pg, f, when='start'):
     t = js(pg, "return r.querySelector('.g4').innerText")
-    f.check(js(pg, "return r.getElementById('imo').value") == '' and js(pg, "return r.querySelectorAll('.tl2').length") == 5, '%s: empty input, the five step names' % when)
+    f.check(js(pg, "var i=r.getElementById('imo');return i.value+'|'+i.readOnly") == 'MO-7210|true' and js(pg, "return r.querySelectorAll('.tl2').length") == 5, '%s: prefilled read only input, the five step names' % when)
     f.check(all(n in t for n in ('Weigh out', 'Blend', 'Encapsulate', 'In-process check', 'Package')), '%s: step rail lists the five steps' % when)
     f.check(js(pg, "return r.querySelectorAll('.rl:not(.h):not(.bl)').length") == 0 and not any(s in t for s in ('B-2620', 'kg', '200,000', 'MK', 'RD')), '%s: the record sheet is blank' % when)
 
-
-def bad_then_type(pg, f):
-    inp = pg.locator('#cv #imo')
-    inp.click(); inp.press_sequentially('MO-0000'); inp.press('Enter'); pg.wait_for_timeout(300)
-    f.check(js(pg, "return r.getElementById('fmo').classList.contains('err')") and 'Your turn1 of 5' in pill(pg), 'step 1: an unknown order shows an error and does not advance')
-    inp.fill(''); inp.press_sequentially('mo-7210')
-    f.check(js(pg, "return r.getElementById('imo').value") == 'mo-7210', 'step 1: typing works in the input')
 
 
 def lines(pg):
@@ -68,6 +61,5 @@ PLAN = [('The order brings its steps and a blank record', 'B-2620'),
         ('The check records its result against the limit', '399.6 mg'),
         ('Finished bottles post to quarantine', 'Record complete, waiting for release')]
 f = run_card(4, PLAN, ['1,984 bottles to QA-01', '16 returned to stock', 'Yield 99.2%'], start=start,
-             extra={'before': {0: bad_then_type}, 'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
-enter_submits(f, 4, '#imo', 'MO-7210', 'Your turn2 of 5')
+             extra={'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
 finish(f)

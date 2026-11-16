@@ -15,6 +15,7 @@ STUDIO = dict(lede='A typical formula workbench, built on your Sutton data with 
 ICON = '<path d="M6 2h4M6.8 2v4.2L3 12.6A1 1 0 0 0 3.9 14h8.2a1 1 0 0 0 .9-1.4L9.2 6.2V2"/><path d="M4.6 10h6.8"/>'
 
 CSS = (
+ '.fld input[readonly]{background:#FAFAFA;cursor:default;pointer-events:none}'
  '.g3{display:grid;grid-template-columns:392px 1fr;grid-template-rows:118px 412px;gap:10px;padding:10px 40px 0 16px}'
  '.top{grid-column:1/3;display:grid;grid-template-columns:186px 1fr;gap:10px}'
  '.fl{display:flex;flex-direction:column}.fl button.row{grid-template-columns:1fr auto;min-height:44px;font-size:9.8px}.fl .row b{display:block;font-size:10.4px}.fl .row small{color:#71717A;font-size:8.6px}.fl .ft2{margin-top:auto;padding:0 11px 8px;font-size:8.8px;color:#A1A1AA}'
@@ -60,8 +61,8 @@ function render(){
 var f='<div class="ct"><span>Select a formula</span>'+(S.sel?'<span class="ch c-ok">Approved</span>':'')+'</div><button type="button" class="row'+(S.sel?' sel':'')+'" id="f-cp"><span><b class="mono">CP-050</b><small>Capsule 50 mg, bottles of 100</small></span><span class="ch '+(S.sel?'c-info':'c-idle')+'">v4</span></button><div class="ft2">'+(S.sel?'v4 current, v3 kept for comparison':'One formula on file for capsules')+'</div>';
 $('fl').innerHTML=f;
 var c='';if(!S.sel)c='<div class="empt" style="grid-column:1/3"><b>No formula open</b><span>Select a formula to scale it to a batch and convert its units.</span></div>';
-else{c='<div class="lf2"><div class="ct">Batch size</div><div class="frm"><label class="fld" id="fbs"><small>Capsules per batch</small><input id="ibs" value="'+S.v+'" inputmode="numeric" autocomplete="off" spellcheck="false"><span class="em" id="bem">Use 10,000 to 1,000,000, in hundreds</span></label><button type="button" class="bt pri" id="scb">Scale</button></div>'+
-'<div class="smp">Sample<button type="button" class="bt" id="smp" data-sample>200,000</button></div></div><div class="cv2"><div class="ct">Unit converter</div>';
+else{c='<div class="lf2"><div class="ct">Batch size</div><div class="frm"><label class="fld" id="fbs"><small>Capsules per batch</small><input id="ibs" value="'+n0(S.n)+'" readonly tabindex="-1"></label><button type="button" class="bt pri" id="scb">Scale</button></div>'+
+'<div class="smp">Standard batch for CP-050 v4</div></div><div class="cv2"><div class="ct">Unit converter</div>';
 if(!S.sc)c+='<div class="empt"><b>Nothing converted yet</b><span>Scale to a batch to convert mg per capsule into kg per batch.</span></div>';
 else{var q=qty(4);c+='<div class="eq in" id="eq1"><span id="eqa"><b>50 mg</b> × '+n0(S.n)+' = <b>'+k3(kg(50))+' kg</b></span><br>'+(S.asy?'<span class="in" id="eq2">'+k3(kg(50))+' kg ÷ '+(ASSAY*100).toFixed(1)+'% = <b>'+k3(q.act)+' kg</b></span>':'<span>'+FILL+' mg × '+n0(S.n)+' = '+k3(kg(FILL))+' kg</span>')+'<br><span class="mut">1,000,000 mg make 1 kg</span></div>';}
 c+='</div>';}
@@ -89,19 +90,14 @@ t+='<div class="cl in">'+L.map(function(x){return '<div><span>'+x[0].replace('Mi
 '<div class="tbx in"><b id="ctot">$'+m2(T)+'</b><span id="cpb">$'+m2(pb)+' per bottle</span><span class="d" id="cdf">'+(T-T3>=0?'+':'')+'$'+m2(r2(T-T3))+' against v3</span></div><div class="nt2">Costed on exact quantities</div>';}
 $('cst').innerHTML=t;
 }
-$('sc').addEventListener('click',function(e){if(e.target.id==='smp'){$('ibs').value='200,000';S.v='200,000';$('fbs').classList.remove('err');}});
-$('sc').addEventListener('input',function(e){if(e.target.id==='ibs')S.v=e.target.value;});
-function bval(){var t=String($('ibs').value).replace(/[,\s]/g,'');if(!/^\d+$/.test(t))return 0;var n=+t;return n>=10000&&n<=1000000&&n%100===0?n:0;}
-function typeIt(done){var t='200,000',i=0;(function k(){$('ibs').value=t.slice(0,i);if(i<t.length){i++;later(k,55);}else done();})();}
-function resetState(){S={sel:false,sc:false,asy:false,cmp:false,cost:false,n:200000,v:''};render();}
+function resetState(){S={sel:false,sc:false,asy:false,cmp:false,cost:false,n:200000};render();}
 function capN(){var i=cap.querySelector('.m i');return i?+i.textContent:1;}
 var CAPAT=function(hh){var w=cap.offsetWidth,k=capN();return k===2?{l:visW()-w-14,t:196}:k<=3?{l:visW()-w-14,t:visH()-hh-58}:{l:14,t:visH()-hh-14};};
 var ST=[
-{id:'sel',target:function(){return $('f-cp');},prompt:'Select formula CP-050',where:'below',run:function(){S.sel=true;S.v='200,000';render();},
+{id:'sel',target:function(){return $('f-cp');},prompt:'Select formula CP-050',where:'below',run:function(){S.sel=true;render();},
  after:function(){return['Formula v4 opens in milligrams per capsule','Active 50 mg, lubricant 4 mg, cellulose the balance, '+FILL+' mg fill.'];}},
-{id:'sc',target:function(){return mode==='try'?$('scb'):$('ibs');},prompt:'Type a batch size, or keep 200,000, then Scale',where:'below',
- ok:function(){var n=bval();$('fbs').classList.toggle('err',!n);return !!n;},
- run:function(quick){var go=function(){S.n=bval()||200000;S.v=n0(S.n);S.sc=true;render();};if(mode==='watch'&&!quick){$('ibs').value='';typeIt(go);}else go();},
+{id:'sc',target:function(){return $('scb');},prompt:'Click Scale for 200,000 capsules',where:'below',
+ run:function(){S.sc=true;render();},
  after:function(){var q=qty(4);return['Milligrams per capsule become kilograms per batch','50 mg × '+n0(S.n)+' = '+k3(kg(50))+' kg active, '+k3(q.mgs)+' kg lubricant, '+k3(q.mcc)+' kg cellulose.'];}},
 {id:'asy',target:function(){return $('asb');},prompt:'Apply the 98.0% assay from the certificate',where:'above',run:function(){S.asy=true;render();},
  after:function(){var q=qty(4);return['The active is adjusted for the assay',k3(kg(50))+' ÷ 0.98 = '+k3(q.act)+' kg active. Cellulose drops to '+k3(q.mcc)+' kg.'];}},

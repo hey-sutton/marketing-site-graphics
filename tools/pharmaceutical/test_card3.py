@@ -36,17 +36,10 @@ def s1(pg, f):
     f.check(ids(pg, 'mg-act', 'mg-mgs', 'mg-mcc', 'kg-act') == '50.00|4.00|346.00|', 'step 1: v4 opens in mg per capsule, kg column empty')
 
 
-def bad_size(pg, f):
-    inp = pg.locator('#cv #ibs')
-    inp.fill(''); inp.press_sequentially('12,345'); pg.locator('#cv #scb').click(); pg.wait_for_timeout(300)
-    f.check(js(pg, "return r.getElementById('fbs').classList.contains('err')") and 'Your turn2 of 5' in pill(pg), 'step 2: an invalid batch size shows an error and does not advance')
-    inp.fill(''); inp.press_sequentially('200,000')
-    f.check(js(pg, "return r.getElementById('ibs').value") == '200,000', 'step 2: typing works in the batch size input')
-
 
 def s2(pg, f):
     f.check(ids(pg, 'kg-act', 'kg-mgs', 'kg-mcc', 'kg-fill') == '10.000|0.800|69.200|80.000', 'step 2: 10.000, 0.800, 69.200, fill 80.000 kg')
-    f.check(ids(pg, 'eqa') == '50 mg × 200,000 = 10.000 kg', 'step 2: converter shows 50 mg × 200,000 = 10.000 kg')
+    f.check(ids(pg, 'eqa') == '50 mg × 200,000 = 10.000 kg' and js(pg, "var i=r.getElementById('ibs');return i.value+'|'+i.readOnly") == '200,000|true', 'step 2: batch size prefilled 200,000, converter shows 50 mg × 200,000 = 10.000 kg')
     f.check(ids(pg, 'pk-Cap', 'pk-Bot', 'pk-Lab') == '200,000|2,000|2,000', 'step 2: shells 200,000, bottles and labels 2,000')
 
 
@@ -73,23 +66,6 @@ PLAN = [('Formula v4 opens in milligrams per capsule', '346.00'),
         ('Two versions, line by line', '69.396'),
         ('Cost rolls up to the bottle', '$8,253.63')]
 f = run_card(3, PLAN, ['$8,253.63', '$4.13 per bottle', '+$1.00 against v3', '10.204', '68.996'], start=start,
-             extra={'before': {1: bad_size}, 'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
+             extra={'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
 
-
-def enter3(f):
-    from playwright.sync_api import sync_playwright
-    from ph_tests import testlib
-    with sync_playwright() as p:
-        b = testlib.browser(p)
-        pg, errs = testlib.open_card(b, 3, 1300)
-        pg.locator('#cv').scroll_into_view_if_needed()
-        pg.locator('#cv .mtg [data-m="try"]').click(); pg.wait_for_timeout(400)
-        pg.locator('#cv #f-cp').click(); pg.wait_for_timeout(500)
-        inp = pg.locator('#cv #ibs'); inp.fill(''); inp.press_sequentially('100,000'); inp.press('Enter'); pg.wait_for_timeout(500)
-        f.check('Your turn3 of 5' in pill(pg), 'Enter submits the typed batch size')
-        f.check(ids(pg, 'kg-act', 'kg-mcc', 'pk-Bot') == '5.000|34.600|1,000', 'another batch size scales correctly (100,000: 5.000, 34.600 kg, 1,000 bottles)')
-        b.close()
-
-
-enter3(f)
 finish(f)
