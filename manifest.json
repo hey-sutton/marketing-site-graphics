@@ -1,5 +1,5 @@
 {
-  "version": "1.32.0",
+  "version": "1.33.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -131,6 +131,12 @@
       4
     ],
     "bakery": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "food-co-packing": [
       1,
       2,
       3,
