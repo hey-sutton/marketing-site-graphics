@@ -1,111 +1,118 @@
 """Coffee roasting card 4: Packing, Labels & Shipping.
-Layout: stage chain. A horizontal chain of five boxes (Roasted, Packed, Labeled, Allocated, Shipped) with running totals,
-and below it the pack form with its reconciliation, the label preview, the open wholesale orders and the carrier rates.
-Pack roasted lot RL-1118-2 (36.000 kg) into 48 bags of 12 oz and 8 of 5 lb (34.473 kg packed, 1.527 kg left in the bin),
-print the label with lot and roast date, see the three wholesale orders by bag size, compare two carrier rates from the
-sales order, and book one so tracking lands on the order. Every weight is computed in milligrams."""
+Layout: stage chain. A chain of five boxes (Roasted, Packed, Labeled, Allocated, Shipped) with running totals across the
+top; under it the pack breakdown, the label, open wholesale orders by customer and bag size, and the sales order with
+carrier rates and tracking.
+A roasted lot packs into 12 oz and 5 lb bags whose weights plus the cupping retain reconcile to the roasted kg; labels
+carry the lot and roast date; open orders draw on the packed bags; rates and the booking come from the same sales order.
+Weights are kept in grams and money in cents, so every number is exact. 12 oz bags are filled to 340 g and 5 lb bags to
+2,268 g. Carrier names are invented."""
 from frame_auto import header
 
-SUMMARY = 'Packing, Labels & Shipping (pack a roasted lot into 12 ounce and 5 pound bags that reconcile to the roasted weight, print a label with lot and roast date, see wholesale orders by bag size, compare carrier rates, book the shipment with tracking)'
-ARIA = 'Interactive product screen: roasted lot RL-1118-2 of 36.000 kg packs into 48 bags of 12 oz and 8 bags of 5 lb with 1.527 kg left, labels carry the lot and roast date, three wholesale orders take every bag, and booking Northline Freight writes tracking to SO-6101'
+SUMMARY = 'Packing, Labels & Shipping (pack a roasted lot into 12 oz and 5 lb bags, print a label with lot and roast date, see open wholesale orders by customer and bag size, compare carrier rates on the sales order, book and see tracking)'
+ARIA = 'Interactive product screen: roasted lot RL-8820, 43.000 kg, packs into 59 bags of 12 oz and 10 bags of 5 lb with 0.260 kg kept for cupping; 69 labels print with lot and roast date, three wholesale orders take 60 bags, sales order SO-7716 compares two carrier rates and booking writes tracking to the order'
 STEPS = 5
-STUDIO = dict(lede='A typical packing and shipping flow, built on your Sutton data with Studio. Want it different? Describe the change.',
-              examples=['Add a 2 lb bag size', 'Print a pallet label too', 'Pick the cheapest carrier', 'Email tracking to the buyer'],
-              built_on='Roasted lots, sales orders and shipments', change='Bag sizes, labels and carriers')
+STUDIO = dict(lede='A typical pack and ship screen, built on your Sutton data with Studio. Want it different? Describe the change.',
+              examples=['Add a best by date to labels', 'Split a pallet by customer', 'Ship subscriptions in waves', 'Pick the cheapest rate'],
+              built_on='Roasted lots, bags, sales orders and carriers', change='Bag sizes, label fields and rules')
 
-ICON = '<path d="M3 5.5 8 3l5 2.5v5L8 13l-5-2.5z"/><path d="M3 5.5 8 8l5-2.5M8 8v5"/>'
+ICON = '<path d="M2 5.5l6-3 6 3v5l-6 3-6-3z"/><path d="M2 5.5l6 3 6-3M8 8.5v5M5 4l6 3"/>'
 
 CSS = (
- '.q4{padding:10px 40px 0 16px;display:flex;flex-direction:column;gap:10px}'
- '.qch4{height:96px;flex:none;display:grid;grid-template-columns:repeat(5,1fr);gap:14px;position:relative}'
- '.qsg{position:relative;border:1px solid #E4E4E7;border-radius:8px;background:#fff;padding:8px 9px;display:flex;flex-direction:column;gap:2px;transition:border-color .4s,background-color .4s}'
- '.qsg:not(:last-child)::after{content:"";position:absolute;right:-12px;top:42px;width:10px;height:2px;background:#A1A1AA}.qsg:not(:last-child)::before{content:"";position:absolute;right:-13px;top:39px;border:4px solid transparent;border-left-color:#A1A1AA}'
- '.qsg .qsn{font-size:9px;color:#71717A;font-weight:500;display:flex;justify-content:space-between}.qsg .qsv{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:17px;font-weight:600;height:22px;color:#18181B}.qsg .qss{font-size:8.6px;color:#52525B;line-height:1.3}'
- '.qsg.qon{border-color:#18181B}.qsg.qok{border-color:#BBF7D0;background:#F0FDF4}.qsg .qsv:empty::before{content:"";display:inline-block;width:30px;height:15px;border-radius:4px;background:#F4F4F5;vertical-align:middle}'
- '.q4m{display:grid;grid-template-columns:360px 290px;gap:10px;height:226px;flex:none}.q4b{display:grid;grid-template-columns:360px 290px;gap:10px;height:188px;flex:none}.qod{display:flex;flex-direction:column}.qft9{margin-top:auto;padding:6px 11px;border-top:1px solid #F0F0F1;font-size:8.8px;color:#71717A}'
- '.qpk .qpf{display:flex;align-items:center;gap:7px;padding:8px 11px 0;flex-wrap:wrap}.qpk .fld{flex-direction:row;align-items:center;gap:5px;position:relative}.qpk .fld small{font-size:9.4px;color:#18181B;font-weight:600}.qpk .fld input{width:46px;text-align:right;font-size:10px;padding:4px 6px}'
- '.qpk .qsp{display:inline-flex;align-items:center;gap:5px;font-size:9px;color:#71717A}.qpk .qsp .bt{font-size:9px;padding:3px 7px}.qpk .qerr{display:none;color:#B91C1C;font-size:8.8px;padding:3px 11px 0}.qpk.err .qerr{display:block}.qpk.err input{border-color:#F87171;background:#FEF2F2}'
- '.qrc{padding:6px 11px 0}.qrc .row{grid-template-columns:1fr 92px 76px;min-height:23px;padding:0 4px;font-size:9.4px}.qrc .row>span:not(:first-child){text-align:right}.qrc .row.qt{font-weight:600;background:#FAFAFA}.qrc .row.qlft{color:#92400E}'
- '.qpk .empt,.qlb .empt,.qod .empt,.qcr .empt{margin:8px 10px;height:calc(100% - 48px);padding:8px}'
- '.qlbl{margin:10px auto 0;width:220px;border:1px solid #D4D4D8;border-radius:8px;padding:9px 11px;background:#FFFDF8;display:flex;flex-direction:column;gap:3px;font-size:9.2px;color:#3F3F46;box-shadow:0 2px 6px rgba(0,0,0,.05)}'
- '.qlbl .qln{font-size:12px;font-weight:700;color:#18181B}.qlbl .qlr{display:flex;justify-content:space-between}.qlbl .qlr b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9.4px;color:#18181B}'
- '.qlbl .qbc{height:20px;margin-top:4px;background:repeating-linear-gradient(90deg,#18181B 0 1px,transparent 1px 3px,#18181B 3px 5px,transparent 5px 6px,#18181B 6px 7px,transparent 7px 9px)}.qlb .qlc{text-align:center;font-size:8.8px;color:#71717A;margin-top:6px}'
- '.qod .row{grid-template-columns:62px 1fr 42px 36px 62px;min-height:24px;font-size:9.2px;gap:6px}.qod .row>span:nth-child(3),.qod .row>span:nth-child(4){text-align:right}.qod .row.qt{font-weight:600;background:#FAFAFA}.qod .row .qtk{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:8.4px;color:#166534}'
- '.qrt{padding:6px 11px 0;display:flex;flex-direction:column;gap:6px}.qrr{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;border:1px solid #E4E4E7;border-radius:7px;padding:6px 8px;font-size:9.2px}.qrr b{font-weight:600;display:block}.qrr .mono{font-weight:600;font-size:10px}.qrr.qbk{border-color:#BBF7D0;background:#F0FDF4}'
- '.qrt .qnt{font-size:8.8px;color:#71717A}.qrt .qtr{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9.4px;color:#166534}'
+ '.k4{padding:10px 40px 0 16px;display:flex;flex-direction:column;gap:10px}'
+ '.k4s{height:44px;flex:none;display:flex;align-items:center;gap:8px;padding:0 10px}.k4s .fld{flex-direction:row;align-items:center;gap:8px;position:relative}.k4s .fld small{font-size:10px;color:#18181B;font-weight:600;white-space:nowrap}'
+ '#pin{width:130px;font-size:10.4px;padding:6px 8px}.k4s .fld .em{position:absolute;left:0;top:30px;white-space:nowrap;background:#fff;padding:1px 4px;z-index:3}'
+ '.psm{display:inline-flex;align-items:center;gap:5px;font-size:9.4px;color:#71717A}.psm .bt{font-size:9.6px;padding:4px 8px}.k4s .pnote{margin-left:auto;font-size:9px;color:#71717A}'
+ '.chn{height:96px;flex:none;display:grid;grid-template-columns:repeat(5,1fr);gap:14px;padding:0 2px}'
+ '.sb2{position:relative;border:1px solid #E4E4E7;border-radius:8px;background:#fff;padding:8px 9px;display:flex;flex-direction:column;gap:3px;transition:border-color .3s,background-color .3s}'
+ '.sb2:not(:last-child)::after{content:"";position:absolute;right:-13px;top:50%;width:12px;height:2px;background:#D4D4D8}.sb2:not(:last-child)::before{content:"";position:absolute;right:-14px;top:calc(50% - 3px);border:4px solid transparent;border-left-color:#A1A1AA;border-right:0}'
+ '.sb2 small{font-size:8.8px;color:#71717A;font-weight:500}.sb2 b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:15px;font-weight:600;letter-spacing:-.02em}.sb2 span{font-size:8.6px;color:#71717A;line-height:1.3}'
+ '.sb2.on{border-color:#18181B;box-shadow:0 0 0 1px #18181B}.sb2.dn{background:#F0FDF4;border-color:#BBF7D0}.sb2 .wt{color:#A1A1AA;font-size:10px;font-family:inherit;font-weight:500}'
+ '.k4m{display:grid;grid-template-columns:320px 330px;gap:10px;height:376px;flex:none}.k4l,.k4r{display:flex;flex-direction:column;gap:8px;min-width:0}'
+ '.ppk{height:162px;flex:none}.plb{flex:1 1 auto}.pod{height:194px;flex:none}.pso{flex:1 1 auto}'
+ '.ppk .empt,.plb .empt,.pod .empt,.pso .empt{margin:8px 10px;height:calc(100% - 46px);padding:8px}.plb .empt,.pso>.empt{padding-top:40px}'
+ '.ppk .row{grid-template-columns:1fr 54px 70px;min-height:26px;font-size:9.4px}.ppk .row.h{min-height:22px}.ppk .row>span:not(:first-child){text-align:right;font-family:"JetBrains Mono",ui-monospace,monospace}.ppk .row.tot{background:#F0FDF4;font-weight:600}'
+ '.lbw{display:grid;grid-template-columns:1fr 92px;gap:10px;padding:8px 11px}.lab{border:1px solid #D4D4D8;border-radius:7px;padding:8px 10px;display:flex;flex-direction:column;gap:3px;background:#FFFDF7}'
+ '.lab .lt{font-size:11.6px;font-weight:600}.lab .ls{font-size:8.8px;color:#52525B}.lab .lk{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:8.8px;margin-top:3px}.lab .lk b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9.4px}'
+ '.bc{height:22px;margin-top:4px;background:repeating-linear-gradient(90deg,#18181B 0 1px,transparent 1px 3px,#18181B 3px 5px,transparent 5px 6px,#18181B 6px 7px,transparent 7px 10px)}'
+ '.lbs{display:flex;flex-direction:column;gap:6px;font-size:8.8px;color:#71717A}.lbs .bt{font-size:9.4px}.lbs b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px;color:#18181B}'
+ '.pod .row{grid-template-columns:1fr 50px 44px 60px;min-height:27px;font-size:9.2px}.pod .row.h{min-height:22px}.pod .row>span:not(:first-child){text-align:right;font-family:"JetBrains Mono",ui-monospace,monospace}.pod .row.tot{background:#FAFAFA;font-weight:600}.pod .row.on{background:#FFFBEB}.pod .row.lf{color:#71717A}'
+ '.pso .row{grid-template-columns:1fr 48px 60px 52px;min-height:30px;font-size:9.2px}.pso .row>span:nth-child(2),.pso .row>span:nth-child(3){text-align:right;font-family:"JetBrains Mono",ui-monospace,monospace}.pso .row>span:last-child{text-align:right}.pso .bt{font-size:9px;padding:3px 8px}.pso .row.bk{background:#F0FDF4}'
+ '.soh{display:flex;justify-content:space-between;padding:6px 11px;font-size:9px;color:#71717A;border-bottom:1px solid #F0F0F1}.soh b{color:#18181B;font-family:"JetBrains Mono",ui-monospace,monospace}'
+ '.trk{margin:6px 11px 4px;padding:6px 9px;border-radius:7px;background:#F0FDF4;border:1px solid #BBF7D0;font-size:9px;color:#166534;display:flex;justify-content:space-between}.trk b{font-family:"JetBrains Mono",ui-monospace,monospace}'
 )
 
 WIN = (
- header(ICON, 'Pack and ship', 'Roasted lot RL-1118-2, Harbor House blend', '<span class="ch c-idle" id="qst">Not packed</span>')
- + '<div class="q4"><div class="qch4" id="qchn"></div>'
- '<div class="q4m"><div class="cd qpk" id="qpk"><div class="ct"><span>Pack</span><span class="ch c-info">36.000 kg roasted</span></div>'
- '<div class="qpf frm" id="qpff"><label class="fld"><small>12 oz bags</small><input id="qn12" value="" inputmode="numeric" placeholder="0" autocomplete="off" aria-label="Number of 12 ounce bags"></label>'
- '<label class="fld"><small>5 lb bags</small><input id="qn5" value="" inputmode="numeric" placeholder="0" autocomplete="off" aria-label="Number of 5 pound bags"></label><button type="button" class="bt pri" id="qpb">Pack</button>'
- '<span class="qsp">Sample<button type="button" class="bt" id="qsm" data-sample>Open orders</button></span></div><span class="qerr" id="qpe">Enter whole bags that fit in 36.000 kg</span><div id="qrcb"></div></div>'
- '<div class="cd qlb" id="qlb"></div></div>'
- '<div class="q4b"><div class="cd qod" id="qod"></div><div class="cd qcr" id="qcr"></div></div></div>'
+ header(ICON, 'Pack and ship', 'Roasted lots to bags, labels and shipments', '<span class="ch c-idle" id="pst">No lot open</span>')
+ + '<div class="k4"><div class="cd k4s frm" id="psf"><label class="fld" id="pfl"><small>Roasted lot</small><input id="pin" value="" placeholder="Lot number" autocomplete="off" spellcheck="false" aria-label="Roasted lot number"><span class="em" id="pem">No roasted lot found. Try RL-8820</span></label>'
+ '<button type="button" class="bt pri" id="pkb">Pack lot</button><span class="psm">Sample<button type="button" class="bt" id="psp" data-sample>RL-8820</button></span><span class="pnote">Packing line 2</span></div>'
+ '<div class="chn" id="chn"></div>'
+ '<div class="k4m"><div class="k4l"><div class="cd ppk" id="ppk"></div><div class="cd plb" id="plb"></div></div><div class="k4r"><div class="cd pod" id="pod"></div><div class="cd pso" id="pso"></div></div></div></div>'
 )
 
 JS = r'''
-var FOC='.hd>*,.qch4,.qpk,.qlb,.qod,.qcr';
-var LOTMG=36000000,OZ12=340194,LB5=2267960;
-var LOT={id:'RL-1118-2',blend:'Harbor House blend',roast:'Nov 18, 2026',best:'Feb 16, 2027'};
-var ORDS=[{id:'SO-6101',c:'Harbor Lane Cafe',n12:24,n5:4},{id:'SO-6102',c:'Copperleaf Bakery',n12:16,n5:2},{id:'SO-6103',c:'Fieldstone Office Coffee',n12:8,n5:2}];
-var RATES=[{c:'Northline Freight',s:'Ground, 2 days',p:1840,tk:'NLF 7714 2093 18'},{c:'Parcel Express',s:'Next day',p:3175,tk:'PXP 55 0918 4402'}];
+var FOC='.hd>*,.k4s>*,.chn,.ppk,.plb,.pod,.pso';
+var LOT={id:'RL-8820',p:'Foundry espresso',rd:'Nov 17',lv:'Medium roast',g:43000};
+/* bag sizes: label, fill grams, bags packed */
+var BAGS=[['12 oz',340,59],['5 lb',2268,10]],RET=260;
+/* open wholesale orders: sales order, customer, 12 oz bags, 5 lb bags */
+var ORD=[['SO-7716','Larkspur Cafe Group',24,4],['SO-7721','Juniper Street Coffee',12,2],['SO-7730','Copperline Market',18,0]];
+var CART=2,CARTG=900;
+var RATES=[['Northwind Freight','Ground, 2 days',3840,'NW 4418 2093 77'],['Cascade Parcel','Express, next day',6125,'CP 7730 1186 04']];
 var S;
-function kgm(mg){var g=Math.round(mg/1000);return (g/1000).toLocaleString('en-US',{minimumFractionDigits:3,maximumFractionDigits:3});}
-function mg(n12,n5){return n12*OZ12+n5*LB5;}
-function packed(){return mg(S.n12,S.n5);}
-function bagsT(){return S.n12+S.n5;}
-function ordT(k){return ORDS.reduce(function(s,o){return s+o[k];},0);}
+function kg3(g){return (g/1000).toLocaleString('en-US',{minimumFractionDigits:3,maximumFractionDigits:3});}
+function kg1(g){return (g/1000).toFixed(1);}
 function usd(c){return '$'+(c/100).toFixed(2);}
-function box(i,name,v,sub,on,ok){return '<div class="qsg'+(ok?' qok':on?' qon':'')+'" id="qg'+i+'"><span class="qsn"><span>'+name+'</span><span>'+(i+1)+'</span></span><span class="qsv" id="qv'+i+'">'+v+'</span><span class="qss" id="qs'+i+'">'+sub+'</span></div>';}
+function bagsN(){return BAGS.reduce(function(s,b){return s+b[2];},0);}
+function packedG(){return BAGS.reduce(function(s,b){return s+b[1]*b[2];},0);}
+function ordT(i){return ORD.reduce(function(s,o){return s+o[i+2];},0);}
+function allocN(){return ordT(0)+ordT(1);}
+function soG(){var o=ORD[0];return o[2]*BAGS[0][1]+o[3]*BAGS[1][1]+CART*CARTG;}
+function soBags(){return ORD[0][2]+ORD[0][3];}
 function render(){
-var al=S.ord?Math.min(bagsT(),ordT('n12')+ordT('n5')):0,sh=S.book?ORDS[0].n12+ORDS[0].n5:0;
-$('qchn').innerHTML=box(0,'Roasted',kgm(LOTMG),'kg, '+LOT.id,!S.pk,true)
-+box(1,'Packed',S.pk?String(bagsT()):'',S.pk?kgm(packed())+' kg in bags':'Waiting',S.pk&&!S.lab,S.pk)
-+box(2,'Labeled',S.lab?String(bagsT()):'',S.lab?'Lot and roast date':'Waiting',S.lab&&!S.ord,S.lab)
-+box(3,'Allocated',S.ord?String(al):'',S.ord?al+' of '+bagsT()+' bags, '+ORDS.length+' orders':'Waiting',S.ord&&!S.book,S.ord)
-+box(4,'Shipped',S.book?String(sh):'',S.book?'1 of '+ORDS.length+' orders':'Waiting',false,S.book);
-var r=$('qrcb');
-if(!S.pk)r.innerHTML='<div class="empt" style="margin:8px 10px;height:128px"><b>Nothing packed yet</b><span>Enter bag counts and the packed weight reconciles to the roasted lot.</span></div>';
-else r.innerHTML='<div class="qrc"><div class="row h"><span>Line</span><span>Weight each</span><span>kg</span></div>'
-+'<div class="row"><span>'+S.n12+' bags of 12 oz</span><span class="mono">340.194 g</span><span class="mono" id="qk12">'+kgm(S.n12*OZ12)+'</span></div>'
-+'<div class="row"><span>'+S.n5+' bags of 5 lb</span><span class="mono">2,267.960 g</span><span class="mono" id="qk5">'+kgm(S.n5*LB5)+'</span></div>'
-+'<div class="row qt"><span>Packed</span><span></span><span class="mono" id="qkp">'+kgm(packed())+'</span></div>'
-+'<div class="row qlft"><span>Left in the bin</span><span></span><span class="mono" id="qkl">'+kgm(LOTMG-packed())+'</span></div>'
-+'<div class="row qt"><span>Roasted lot</span><span></span><span class="mono" id="qkr">'+kgm(LOTMG)+'</span></div></div>';
-var l=$('qlb');
-if(!S.lab)l.innerHTML='<div class="ct"><span>Label</span>'+(S.pk?'<button type="button" class="bt pri" id="qlp">Print labels</button>':'')+'</div><div class="empt"><b>No labels printed</b><span>Each bag gets the blend, lot number and roast date.</span></div>';
-else l.innerHTML='<div class="ct"><span>Label</span><span class="ch c-ok" id="qlc">'+bagsT()+' printed</span></div><div class="qlbl" id="qlbl"><span class="qln">'+LOT.blend+'</span><span class="qlr"><span>Lot</span><b id="qll">'+LOT.id+'</b></span><span class="qlr"><span>Roasted</span><b id="qlr">'+LOT.roast+'</b></span><span class="qlr"><span>Best by</span><b>'+LOT.best+'</b></span><span class="qlr"><span>Net weight</span><b>12 oz (340 g)</b></span><span class="qbc"></span></div><div class="qlc">'+S.n12+' of 12 oz and '+S.n5+' of 5 lb, same lot and date</div>';
-var o=$('qod');
-if(!S.ord)o.innerHTML='<div class="ct"><span>Open wholesale orders</span>'+(S.lab?'<button type="button" class="bt pri" id="qos">Show orders</button>':'')+'</div><div class="empt"><b>No orders shown</b><span>Wholesale orders by customer and bag size.</span></div><div class="qft9">Wholesale orders due to ship November 19.</div>';
-else o.innerHTML='<div class="ct"><span>Open wholesale orders</span><span class="ch c-ok">All bags allocated</span></div><div class="row h"><span>Order</span><span>Customer</span><span>12 oz</span><span>5 lb</span><span>Status</span></div>'
-+ORDS.map(function(x,i){var b=S.book&&i===0;return '<div class="row" id="qor'+i+'"><span class="mono">'+x.id+'</span><span>'+x.c+'</span><span class="mono">'+x.n12+'</span><span class="mono">'+x.n5+'</span><span>'+(b?'<span class="qtk" id="qtk">'+RATES[S.rate].tk+'</span>':'<span class="ch c-idle">Allocated</span>')+'</span></div>';}).join('')
-+'<div class="row qt"><span>Total</span><span></span><span class="mono" id="qo12">'+ordT('n12')+'</span><span class="mono" id="qo5">'+ordT('n5')+'</span><span></span></div><div class="qft9">Wholesale orders due to ship November 19.</div>';
-var c=$('qcr'),w=mg(ORDS[0].n12,ORDS[0].n5);
-if(!S.rt)c.innerHTML='<div class="ct"><span>Carrier rates</span>'+(S.ord?'<button type="button" class="bt pri" id="qcm">Compare rates</button>':'')+'</div><div class="empt"><b>No rates yet</b><span>Rates come from the sales order weight and address.</span></div>';
-else c.innerHTML='<div class="ct"><span>Rates for '+ORDS[0].id+'</span><span class="mut" style="font-weight:400" id="qwt">'+kgm(w)+' kg</span></div><div class="qrt">'
-+RATES.map(function(x,i){var bk=S.book&&S.rate===i;return '<div class="qrr'+(bk?' qbk':'')+'"><span><b>'+x.c+'</b><span class="mut">'+x.s+'</span></span><span class="mono" id="qrp'+i+'">'+usd(x.p)+'</span>'+(S.book?(bk?'<span class="ch c-ok">Booked</span>':'<span></span>'):'<button type="button" class="bt'+(i===0?' pri':'')+'" id="qbk'+i+'">Book</button>')+'</div>';}).join('')
-+(S.book?'<span class="qtr">Tracking '+RATES[S.rate].tk+' on '+ORDS[0].id+'</span>':'<span class="qnt">Saves '+usd(RATES[1].p-RATES[0].p)+' against next day.</span>')+'</div>';
-var st=$('qst');st.textContent=S.book?ORDS[0].id+' shipped':S.ord?'Allocated':S.lab?'Labeled':S.pk?'Packed':'Not packed';st.className='ch '+(S.book?'c-ok':S.pk?'c-info':'c-idle');}
-function iv(id){var v=String($(id).value).trim();return /^\d+$/.test(v)?parseInt(v,10):NaN;}
-function typeIn(id,t,done){var i=0;(function k(){$(id).value=t.slice(0,i);if(i<t.length){i++;later(k,90);}else done();})();}
-winEl.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('#qsm');if(!t)return;$('qn12').value=String(ordT('n12'));$('qn5').value=String(ordT('n5'));$('qpk').classList.remove('err');});
-function resetState(){S={pk:false,lab:false,ord:false,rt:false,book:false,n12:0,n5:0,rate:0};$('qn12').value='';$('qn5').value='';$('qpk').classList.remove('err');render();}
-var CAPAT=function(hh){return cur<=1?{l:380,t:visH()-hh-14}:{l:14,t:visH()-hh-14};};
+var on=S.bk?3:S.od?2:S.lb?1:S.pk?0:-2;
+var box=function(i,t,big,sub){var dn=i<=on;return '<div class="sb2'+(dn?' dn':'')+(i===on+1&&S.pk?' on':'')+'" id="sb'+i+'"><small>'+t+'</small>'+(big?'<b id="sv'+i+'">'+big+'</b><span id="ss'+i+'">'+sub+'</span>':'<b class="wt">Not started</b><span>&nbsp;</span>')+'</div>';};
+$('chn').innerHTML=box(-1,'Roasted',S.pk?kg3(LOT.g)+' kg':'',S.pk?LOT.id+', '+LOT.rd:'')
++box(0,'Packed',S.pk?bagsN()+' bags':'',S.pk?kg3(packedG())+' kg in bags':'')
++box(1,'Labeled',S.lb?bagsN()+' labels':'',S.lb?'Lot and roast date on each':'')
++box(2,'Allocated',S.od?allocN()+' bags':'',S.od?ORD.length+' wholesale orders':'')
++box(3,'Shipped',S.bk?soBags()+' bags':'',S.bk?'1 order, tracking on it':'');
+var P=$('ppk');
+if(!S.pk)P.innerHTML='<div class="ct"><span>Pack</span></div><div class="empt"><b>Nothing packed</b><span>Pack a roasted lot into bag sizes.</span></div>';
+else P.innerHTML='<div class="ct"><span>Pack '+LOT.id+', '+LOT.p+'</span><span class="ch c-ok">Reconciled</span></div><div class="row h"><span>Bag size</span><span>Bags</span><span>kg</span></div>'+BAGS.map(function(b,i){return '<div class="row"><span>'+b[0]+', '+n0(b[1])+' g fill</span><span id="pb'+i+'">'+b[2]+'</span><span id="pg'+i+'">'+kg3(b[1]*b[2])+'</span></div>';}).join('')
++'<div class="row"><span>Kept for cupping</span><span></span><span id="prt">'+kg3(RET)+'</span></div><div class="row tot"><span>Total, equals roasted</span><span id="pbn">'+bagsN()+'</span><span id="ptt">'+kg3(packedG()+RET)+'</span></div>';
+var L=$('plb');
+if(!S.pk)L.innerHTML='<div class="ct"><span>Label</span></div><div class="empt"><b>No label yet</b><span>Labels show the lot number and roast date.</span></div>';
+else L.innerHTML='<div class="ct"><span>Label</span>'+(S.lb?'<span class="ch c-ok">Printed</span>':'<span class="ch c-idle">Preview</span>')+'</div><div class="lbw"><div class="lab"><span class="lt">'+LOT.p+'</span><span class="ls">'+LOT.lv+', 12 oz (340 g)</span><span class="lk"><span>Lot</span><b id="plt">'+LOT.id+'</b><span>Roasted</span><b id="prd">'+LOT.rd+', 2026</b></span><span class="bc"></span></div>'
++'<div class="lbs">'+(S.lb?'<span>Printed</span><b id="pln">'+bagsN()+'</b><span>'+BAGS.map(function(b){return b[2]+' for '+b[0];}).join(', ')+'</span>':'<span>One label per bag, '+bagsN()+' in all</span><button type="button" class="bt pri" id="plb1">Print labels</button>')+'</div></div>';
+var O=$('pod');
+if(!S.lb)O.innerHTML='<div class="ct"><span>Open wholesale orders</span></div><div class="empt"><b>No orders shown</b><span>Open orders by customer and bag size draw on packed stock.</span></div>';
+else if(!S.od)O.innerHTML='<div class="ct"><span>Open wholesale orders</span><button type="button" class="bt pri" id="pob">Show open orders</button></div><div class="empt"><b>'+ORD.length+' orders waiting</b><span>Match them to the packed bags by size.</span></div>';
+else O.innerHTML='<div class="ct"><span>Open wholesale orders</span><span class="ch c-info">'+ORD.length+' orders</span></div><div class="row h"><span>Customer</span><span>12 oz</span><span>5 lb</span><span>Order</span></div>'
++ORD.map(function(o,i){return '<div class="row'+(i===0&&S.rt?' on':'')+'"><span>'+o[1]+'</span><span id="po'+i+'a">'+o[2]+'</span><span id="po'+i+'b">'+o[3]+'</span><span>'+o[0]+'</span></div>';}).join('')
++'<div class="row tot"><span>Wholesale</span><span id="pota">'+ordT(0)+'</span><span id="potb">'+ordT(1)+'</span><span></span></div><div class="row lf"><span>Left for retail, subscriptions</span><span id="pla">'+(BAGS[0][2]-ordT(0))+'</span><span id="plb2">'+(BAGS[1][2]-ordT(1))+'</span><span></span></div>';
+var R=$('pso'),o=ORD[0];
+if(!S.od)R.innerHTML='<div class="ct"><span>Sales order</span></div><div class="empt"><b>No order open</b><span>Rates and labels come from the sales order.</span></div>';
+else R.innerHTML='<div class="ct"><span>'+o[0]+', '+o[1]+'</span>'+(S.bk?'<span class="ch c-ok">Shipped</span>':S.rt?'<span class="ch c-warn">Pick a rate</span>':'<button type="button" class="bt pri" id="prb">Compare rates</button>')+'</div>'
++'<div class="soh"><span>'+o[2]+' x 12 oz, '+o[3]+' x 5 lb</span><span><b id="pcw">'+CART+' cartons, '+kg1(soG())+' kg</b></span></div>'
++(S.bk?'<div class="trk"><span>Tracking on '+o[0]+'</span><b id="ptk">'+RATES[0][3]+'</b></div>':'')+(S.rt?RATES.map(function(r,i){var bk=S.bk&&i===0;return '<div class="row'+(bk?' bk':'')+'"><span><b>'+r[0]+'</b><br><span class="mut">'+r[1]+'</span></span><span></span><span id="pr'+i+'">'+usd(r[2])+'</span><span>'+(S.bk?(bk?'<span class="ch c-ok">Booked</span>':''):i===0?'<button type="button" class="bt pri" id="pbk">Book</button>':'<button type="button" class="bt" id="pbk2">Book</button>')+'</span></div>';}).join(''):'<div class="empt" style="height:70px"><b>No rates yet</b><span>Rates come back for this order\'s weight.</span></div>')
+;
+var st=$('pst');st.textContent=S.bk?'Shipment booked':S.od?'Orders matched':S.lb?'Labels printed':S.pk?'Lot packed':'No lot open';st.className='ch '+(S.bk?'c-ok':S.pk?'c-info':'c-idle');}
+function val(){return String($('pin').value).trim().toLowerCase().replace(/\s+/g,'');}
+$('psp').addEventListener('click',function(){$('pin').value=LOT.id;$('pfl').classList.remove('err');});
+function typeIn(id,t,done){var i=0;(function k(){$(id).value=t.slice(0,i);if(i<t.length){i++;later(k,60);}else done();})();}
+function resetState(){S={pk:false,lb:false,od:false,rt:false,bk:false};$('pin').value='';$('pfl').classList.remove('err');render();}
+var CAPAT=function(hh){return cur>=2?{l:14,t:visH()-hh-14}:{l:350,t:visH()-hh-14};};
 var ST=[
-{id:'pack',target:function(){return mode==='try'?$('qpb'):$('qn12');},prompt:'Enter 48 and 8, or pick Open orders, then Pack',where:'below',
- ok:function(){var a=iv('qn12'),b=iv('qn5'),bad=!(a>=0&&b>=0&&a+b>0&&mg(a,b)<=LOTMG);$('qpk').classList.toggle('err',bad);return !bad;},
- run:function(quick){var go=function(){var a=iv('qn12'),b=iv('qn5');if(mode==='watch'||!(a+b>0)){a=48;b=8;}$('qn12').value=a;$('qn5').value=b;S.n12=a;S.n5=b;S.pk=true;render();};
- if(mode==='watch'&&!quick)typeIn('qn12','48',function(){typeIn('qn5','8',go);});else{if(!$('qn12').value){$('qn12').value='48';$('qn5').value='8';}go();}},
- after:function(){return['Pack a roasted lot into 12 ounce and 5 pound bags',S.n12+' × 12 oz is '+kgm(S.n12*OZ12)+' kg, '+S.n5+' × 5 lb is '+kgm(S.n5*LB5)+' kg. '+kgm(packed())+' kg packed, '+kgm(LOTMG-packed())+' kg left of '+kgm(LOTMG)+'.'];}},
-{id:'lab',target:function(){return $('qlp');},prompt:'Click Print labels',where:'below',run:function(){S.lab=true;render();},
- after:function(){return['Print a label with the lot number and roast date',bagsT()+' labels for '+LOT.id+', roasted '+LOT.roast+', best by '+LOT.best+'.'];}},
-{id:'ord',target:function(){return $('qos');},prompt:'Click Show orders',where:'above',run:function(){S.ord=true;render();},
- after:function(){return['See open wholesale orders by customer and bag size',ORDS.length+' orders take '+ordT('n12')+' × 12 oz and '+ordT('n5')+' × 5 lb, every bag packed.'];}},
-{id:'rt',target:function(){return $('qcm');},prompt:'Click Compare rates',where:'above',run:function(){S.rt=true;render();},
- after:function(){return['Compare carrier rates from the sales order',ORDS[0].id+', '+kgm(mg(ORDS[0].n12,ORDS[0].n5))+' kg: '+RATES.map(function(x){return x.c+' '+usd(x.p);}).join(', ')+'.'];}},
-{id:'book',target:function(){return $('qbk0');},prompt:'Book Northline Freight',where:'above',run:function(){S.rate=0;S.book=true;render();},
- after:function(){return['Book the shipment and see tracking on the order',RATES[0].c+' booked for '+usd(RATES[0].p)+'. Tracking '+RATES[0].tk+' is on '+ORDS[0].id+'.'];}}];
+{id:'pack',target:function(){return mode==='try'?$('pkb'):$('pin');},prompt:'Type RL-8820 or pick the sample, then Pack lot',where:'below',
+ ok:function(){var v=val(),b=!(v==='rl-8820'||v==='rl8820'||v==='8820');$('pem').textContent=v?'No roasted lot found. Try RL-8820':'Enter a lot, for example RL-8820';$('pfl').classList.toggle('err',b);return !b;},
+ run:function(quick){var go=function(){$('pin').value=LOT.id;$('pfl').classList.remove('err');S.pk=true;render();};if(mode==='watch'&&!quick){S.pk=true;typeIn('pin',LOT.id,go);}else go();},
+ after:function(){return['Packed into two bag sizes',LOT.id+', '+kg3(LOT.g)+' kg roasted: '+BAGS.map(function(b){return b[2]+' bags of '+b[0];}).join(' and ')+' hold '+kg3(packedG())+' kg, with '+kg3(RET)+' kg kept for cupping.'];}},
+{id:'label',target:function(){return $('plb1');},prompt:'Print the labels',where:'above',run:function(){S.lb=true;render();},
+ after:function(){return['Labels carry lot and roast date',bagsN()+' labels print with lot '+LOT.id+' and roast date '+LOT.rd+', one for every bag.'];}},
+{id:'orders',target:function(){return $('pob');},prompt:'Show the open wholesale orders',where:'below',run:function(){S.od=true;render();},
+ after:function(){return['Open orders by customer and size',ORD.length+' wholesale orders take '+ordT(0)+' bags of 12 oz and '+ordT(1)+' of 5 lb. '+(BAGS[0][2]-ordT(0))+' and '+(BAGS[1][2]-ordT(1))+' stay for retail and subscriptions.'];}},
+{id:'rates',target:function(){return $('prb');},prompt:'Compare carrier rates for SO-7716',where:'below',run:function(){S.rt=true;render();},
+ after:function(){return['Rates from the sales order',ORD[0][0]+' ships '+CART+' cartons, '+kg1(soG())+' kg: '+RATES[0][0]+' '+usd(RATES[0][2])+' in 2 days, '+RATES[1][0]+' '+usd(RATES[1][2])+' next day.'];}},
+{id:'book',target:function(){return $('pbk');},prompt:'Book Northwind Freight',where:'above',run:function(){S.bk=true;render();},
+ after:function(){return['Tracking lands on the order','Booked with '+RATES[0][0]+'. Tracking '+RATES[0][3]+' is on '+ORD[0][0]+', and '+soBags()+' bags show as shipped.'];}}];
 '''

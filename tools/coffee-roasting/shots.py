@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Quick look: step one card through Try it and save a screenshot per step.
-Run: python3 tools/coffee-roasting/shots.py N [card widths...]. Screenshots go to GFX_SHOTS (default /tmp/coffee_shots)."""
+Run: python3 tools/coffee-roasting/shots.py N [card widths...]. Screenshots go to GFX_SHOTS (default /tmp/cr_shots)."""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from cr_tests import testlib

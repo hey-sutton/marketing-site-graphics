@@ -1,76 +1,67 @@
 #!/usr/bin/env python3
-"""Card 4 (pack, label and ship stage chain): the brief's numbers in Python, then the full click through.
+"""Card 4 (stage chain: packing, labels and shipping): the numbers in Python, then the full click through.
 Run: python3 tools/coffee-roasting/test_card4.py"""
-import datetime, os, sys
-from decimal import Decimal as D, ROUND_HALF_UP
+import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from cr_tests import run_card, finish, js, pill, testlib, ids, enter_submits
+from cr_tests import run_card, finish, js, pill, testlib, ids, enter_submits, keyboard_walk
 
-
-def kg(g):
-    return str((D(g) / 1000).quantize(D('0.001'), ROUND_HALF_UP))
-
-
-# ---- the brief's numbers, derived independently of the card ----
-OZ12, LB5, LOT = 12 * D('28.3495'), 5 * D('453.592'), D(36000)
-a, b = 48 * OZ12, 8 * LB5
-assert kg(a) == '16.329' and kg(b) == '18.144' and kg(a + b) == '34.473' and kg(LOT - a - b) == '1.527'
-assert D(kg(a)) + D(kg(b)) == D(kg(a + b)) and D(kg(a + b)) + D(kg(LOT - a - b)) == D('36.000')   # reconciles on screen too
-assert a + b + (LOT - a - b) == LOT
-ORDERS = [('SO-6101', 24, 4), ('SO-6102', 16, 2), ('SO-6103', 8, 2)]
-assert sum(o[1] for o in ORDERS) == 48 and sum(o[2] for o in ORDERS) == 8 and 48 + 8 == 56
-assert kg(24 * OZ12 + 4 * LB5) == '17.236'
-assert D('31.75') - D('18.40') == D('13.35')
-assert (datetime.date(2026, 11, 18) + datetime.timedelta(days=90)) == datetime.date(2027, 2, 16)
+# ---- the numbers, derived independently of the card (grams, cents) ----
+LOT = 43000
+B12, B5, N12, N5, RET = 340, 2268, 59, 10, 260
+assert N12 * B12 == 20060 and N5 * B5 == 22680
+assert N12 * B12 + N5 * B5 == 42740 and N12 * B12 + N5 * B5 + RET == LOT                # bags plus retain reconcile to 43.000 kg
+assert N12 + N5 == 69                                                                     # 69 bags, 69 labels
+ORD = [(24, 4), (12, 2), (18, 0)]
+assert sum(o[0] for o in ORD) == 54 and sum(o[1] for o in ORD) == 6 and 54 + 6 == 60       # wholesale allocated
+assert N12 - 54 == 5 and N5 - 6 == 4                                                      # left for retail and subscriptions
+SO = 24 * B12 + 4 * B5 + 2 * 900
+assert SO == 19032 and round(SO / 1000, 1) == 19.0 and 24 + 4 == 28                       # 2 cartons, 19.0 kg, 28 bags shipped
 
 
 def start(pg, f, when='start'):
-    t = js(pg, "return r.querySelector('.q4').innerText")
-    f.check(js(pg, "return r.getElementById('qn12').value+'|'+r.getElementById('qn5').value") == '|', '%s: bag inputs empty' % when)
-    f.check(js(pg, "return [1,2,3,4].every(function(i){return r.getElementById('qv'+i).textContent===''})"), '%s: the chain shows only the roasted lot' % when)
-    f.check(not any(s in t for s in ('34.473', 'SO-6101', 'Nov 18, 2026', '$18.40', 'NLF')), '%s: nothing packed, labeled or shipped shows' % when)
+    t = js(pg, "return r.querySelector('.k4').innerText")
+    f.check(js(pg, "return r.getElementById('pin').value") == '', '%s: the lot input is empty' % when)
+    f.check(js(pg, "return r.querySelectorAll('#sv0,#sv1,.ppk .row,.lab,.pod .row,.pso .row').length") == 0, '%s: no totals, bags, labels or orders' % when)
+    f.check(not any(s in t for s in ('43.000', '69', 'labels print', 'SO-77')), '%s: nothing derived from the lot shows' % when)
 
 
 def bad_then_type(pg, f):
-    pg.locator('#cv #qn12').fill('200'); pg.locator('#cv #qn5').fill('10')
-    pg.locator('#cv #qpb').click(); pg.wait_for_timeout(300)
-    f.check(js(pg, "return r.getElementById('qpk').classList.contains('err')") and 'Your turn1 of 5' in pill(pg), 'step 1: more bags than the lot holds shows an error')
-    for sel, v in (('#qn12', '48'), ('#qn5', '8')):
-        inp = pg.locator('#cv ' + sel); inp.fill(''); inp.press_sequentially(v)
+    inp = pg.locator('#cv #pin')
+    inp.click(); inp.press_sequentially('RL-1'); inp.press('Enter'); pg.wait_for_timeout(300)
+    f.check(js(pg, "return r.getElementById('pfl').classList.contains('err')"), 'step 1: an unknown lot shows an inline error')
+    f.check('Your turn1 of 5' in pill(pg), 'step 1: an unknown lot does not advance')
+    inp.fill(''); inp.press_sequentially('rl-8820')
 
 
 def s1(pg, f):
-    f.check(ids(pg, 'qk12', 'qk5', 'qkp', 'qkl', 'qkr') == '16.329|18.144|34.473|1.527|36.000', 'step 1: 16.329 + 18.144 = 34.473 packed, 1.527 left, 36.000 roasted')
-    f.check(ids(pg, 'qv1') == '56', 'step 1: chain Packed 56 bags')
+    f.check(ids(pg, 'pb0', 'pg0', 'pb1', 'pg1', 'prt', 'pbn', 'ptt') == '59|20.060|10|22.680|0.260|69|43.000', 'step 1: 59 x 12 oz + 10 x 5 lb + 0.260 retain = 43.000 kg')
+    f.check(ids(pg, 'sv-1', 'sv0', 'ss0') == '43.000 kg|69 bags|42.740 kg in bags', 'step 1: chain Roasted 43.000 kg, Packed 69 bags, 42.740 kg')
 
 
 def s2(pg, f):
-    f.check(ids(pg, 'qll', 'qlr', 'qlc') == 'RL-1118-2|Nov 18, 2026|56 printed', 'step 2: label with lot RL-1118-2 and roast date Nov 18, 2026')
+    f.check(ids(pg, 'plt', 'prd', 'pln', 'sv1') == 'RL-8820|Nov 17, 2026|69|69 labels', 'step 2: label with lot RL-8820 and roast date, 69 printed')
 
 
 def s3(pg, f):
-    f.check(ids(pg, 'qo12', 'qo5', 'qs3') == '48|8|56 of 56 bags, 3 orders', 'step 3: 3 orders take 48 x 12 oz and 8 x 5 lb')
+    f.check(ids(pg, 'po0a', 'po0b', 'po1a', 'po1b', 'po2a', 'po2b', 'pota', 'potb', 'pla', 'plb2', 'sv2') == '24|4|12|2|18|0|54|6|5|4|60 bags', 'step 3: three orders 54 + 6 = 60 bags, 5 and 4 left')
 
 
 def s4(pg, f):
-    f.check(ids(pg, 'qrp0', 'qrp1', 'qwt') == '$18.40|$31.75|17.236 kg', 'step 4: two rates for SO-6101, 17.236 kg')
+    f.check(ids(pg, 'pcw', 'pr0', 'pr1') == '2 cartons, 19.0 kg|$38.40|$61.25', 'step 4: SO-7716 19.0 kg, two rates')
 
 
 def s5(pg, f):
-    f.check(ids(pg, 'qtk', 'qv4') == 'NLF 7714 2093 18|28', 'step 5: tracking on SO-6101, 28 bags shipped')
+    f.check(ids(pg, 'ptk', 'sv3') == 'NW 4418 2093 77|28 bags', 'step 5: tracking on SO-7716, 28 bags shipped')
 
 
-def prep(pg):
-    pg.locator('#cv #qn12').fill('48')
+PLAN = [('Packed into two bag sizes', '43.000'),
+        ('Labels carry lot and roast date', '69 labels'),
+        ('Open orders by customer and size', 'Copperline Market'),
+        ('Rates from the sales order', '$61.25'),
+        ('Tracking lands on the order', 'NW 4418 2093 77')]
 
-
-PLAN = [('Pack a roasted lot into 12 ounce and 5 pound bags', '34.473'),
-        ('Print a label with the lot number and roast date', 'Nov 18, 2026'),
-        ('See open wholesale orders by customer and bag size', 'SO-6103'),
-        ('Compare carrier rates from the sales order', '$31.75'),
-        ('Book the shipment and see tracking on the order', 'NLF 7714 2093 18')]
-
-f = run_card(4, PLAN, ['1.527', 'NLF 7714 2093 18', '17.236 kg'], start=start,
+f = run_card(4, PLAN, ['43.000 kg', '60 bags', '28 bags', 'NW 4418 2093 77'], start=start,
              extra={'before': {0: bad_then_type}, 'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
-enter_submits(f, 4, '#qn5', '8', 'Your turn2 of 5', prep=prep)
+enter_submits(f, 4, '#pin', 'RL-8820', 'Your turn2 of 5')
+keyboard_walk(f, 4, 5, fill=lambda pg, i: i == 0 and pg.locator('#cv #psp').click())
 finish(f)

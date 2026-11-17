@@ -11,6 +11,9 @@ import frame_auto  # noqa: E402
 frame_auto.frame.KEY = 'coffee-roasting'
 frame_auto.frame.LABEL = 'Coffee roasting'
 frame_auto.frame.TOOLS = 'coffee-roasting'
+# the README asks for the first action at 900 ms: the ghost cursor appears at startDelay + 150 ms
+assert frame_auto.frame.ENGINE_JS.count('startDelay:600') == 1
+frame_auto.frame.ENGINE_JS = frame_auto.frame.ENGINE_JS.replace('startDelay:600', 'startDelay:750')
 
 
 def load(n):

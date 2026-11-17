@@ -1,92 +1,90 @@
 #!/usr/bin/env python3
-"""Card 3 (blend list and BOM detail): the brief's numbers in Python, then the full click through.
+"""Card 3 (list and detail: blends and bean substitution): the numbers in Python, then the full click through.
 Run: python3 tools/coffee-roasting/test_card3.py"""
 import os, sys
-from decimal import Decimal as D, ROUND_HALF_UP
+from fractions import Fraction as F
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from cr_tests import run_card, finish, js, pill, testlib, ids, enter_submits
+from cr_tests import run_card, finish, js, pill, testlib, ids, enter_submits, keyboard_walk
 
-# ---- the brief's numbers, derived independently of the card ----
-PRICE = {'Brazil': D('6.20'), 'Colombia': D('7.40'), 'Ethiopia': D('8.60'), 'Guatemala': D('7.10'), 'Honduras': D('5.90')}
-BLENDS = {'HB': {'Brazil': 45, 'Colombia': 35, 'Ethiopia': 20}, 'NO': {'Brazil': 60, 'Guatemala': 40}, 'SL': {'Ethiopia': 70, 'Colombia': 30}}
-for b in BLENDS.values():
-    assert sum(b.values()) == 100
-GREEN_PER_BAG = {'12 oz': D('0.400'), '5 lb': D('2.668')}
-
-
-def lines(kg):
-    return [str((D(kg) * p / 100).quantize(D('0.001'))) for p in BLENDS['HB'].values()]
+# ---- the numbers, derived independently of the card ----
+COST = {'BR': 520, 'CO': 640, 'ET': 760, 'HN': 580, 'DC': 790}       # cents per kg of green
+BL = {'Foundry espresso': [('BR', 50), ('CO', 30), ('ET', 20)], 'Daybreak roast': [('CO', 60), ('BR', 40)],
+      'Mesa decaf': [('DC', 100)], 'Ridgeline cold brew': [('BR', 70), ('CO', 30)]}
+BAG = [('12 oz', 400, 38), ('5 lb', 2650, 95)]                       # green grams per bag, bag and label cents
 
 
-assert lines(5) == ['2.250', '1.750', '1.000'] and sum(D(x) for x in lines(5)) == 5
-assert lines(120) == ['54.000', '42.000', '24.000'] and sum(D(x) for x in lines(120)) == 120
+def swap(m):
+    return [('HN' if o == 'BR' else o, p) for o, p in m]
 
 
-def bag(blend, size, swap=False):
-    per_kg = sum(PRICE['Honduras' if swap and o == 'Brazil' else o] * D(p) / 100 for o, p in BLENDS[blend].items())
-    return (per_kg * GREEN_PER_BAG[size]).quantize(D('0.01'), ROUND_HALF_UP)
+for n, m in BL.items():
+    assert sum(p for _, p in m) == 100 and sum(p for _, p in swap(m)) == 100, n          # every blend sums to exactly 100
+uses = [n for n, m in BL.items() if any(o == 'BR' for o, _ in m)]
+assert len(uses) == 3 and len(uses) * len(BAG) == 6                                         # 3 blends, 6 bag sizes
+FE = BL['Foundry espresso']
+assert [F(5000 * p, 100) for _, p in FE] == [2500, 1500, 1000]                               # 5 kg test roast
+assert [F(120000 * p, 100) for _, p in FE] == [60000, 36000, 24000] and sum([60000, 36000, 24000]) == 120000   # 120 kg batch
 
 
-WANT = {('HB', '12 oz'): ('2.84', '2.79'), ('HB', '5 lb'): ('18.94', '18.58'), ('NO', '12 oz'): ('2.62', '2.55'), ('NO', '5 lb'): ('17.50', '17.02')}
-for (b, s), (o, n) in WANT.items():
-    assert str(bag(b, s)) == o and str(bag(b, s, True)) == n, (b, s, bag(b, s), bag(b, s, True))
-assert [k for k, v in BLENDS.items() if 'Brazil' in v] == ['HB', 'NO']   # 2 blends, 4 bag sizes; Sunrise Light unchanged
+def cpk(m):
+    return F(sum(p * COST[o] for o, p in m), 100)
+
+
+def bag(m, i):
+    v = F(BAG[i][1]) * cpk(m) / 1000 + BAG[i][2]
+    assert v - int(v) != F(1, 2), 'no rounding ties'
+    return round(v)
+
+
+assert cpk(FE) == 604 and cpk(swap(FE)) == 634                                               # $6.04 to $6.34 per kg
+assert (bag(FE, 0), bag(swap(FE), 0), bag(FE, 1), bag(swap(FE), 1)) == (280, 292, 1696, 1775)
+assert bag(swap(FE), 0) - bag(FE, 0) == 12 and bag(swap(FE), 1) - bag(FE, 1) == 79           # +$0.12 and +$0.79 per bag
 
 
 def start(pg, f, when='start'):
-    t = js(pg, "return r.querySelector('.q3').innerText")
-    f.check(js(pg, "return r.querySelectorAll('.qdt .row,.qar,.qvr').length") == 0, '%s: no BOM lines, no swap, no versions' % when)
-    f.check(js(pg, "return ['qfr','qto','qpw'].every(function(i){return r.getElementById(i).disabled})"), '%s: the swap form waits' % when)
-    f.check(not any(s in t for s in ('GL-2214', '2.250', '$2.84', 'Kept for reference')), '%s: nothing from the blend shows' % when)
+    f.check(js(pg, "return r.querySelectorAll('.bom,.cg,.bhi .row,#bsz').length") == 0, '%s: no BOM, batch, cost or versions open' % when)
+    t = js(pg, "return r.querySelector('.k3r').innerText")
+    f.check(not any(s in t for s in ('GL-4510', '120.0', '$', 'v2')), '%s: nothing derived from a blend shows' % when)
 
 
-def type_batch(pg, f):
-    inp = pg.locator('#cv #qbs')
-    inp.fill('0'); pg.locator('#cv #qrz').click(); pg.wait_for_timeout(300)
-    f.check(js(pg, "return r.getElementById('qfs').classList.contains('err')") and 'Your turn2 of 5' in pill(pg), 'step 2: a 0 kg batch shows an error')
-    inp = pg.locator('#cv #qbs'); inp.fill(''); inp.press_sequentially('120')
+def bad_size(pg, f):
+    inp = pg.locator('#cv #bsz'); inp.fill('abc'); pg.locator('#cv #brz').click(); pg.wait_for_timeout(300)
+    f.check(js(pg, "return r.getElementById('bfl').classList.contains('err')"), 'step 2: a bad batch size shows an inline error')
+    f.check('Your turn2 of 5' in pill(pg), 'step 2: a bad batch size does not advance')
+    inp.fill(''); inp.press_sequentially('120')
 
 
 def s1(pg, f):
-    t = js(pg, "return r.getElementById('qdt').innerText")
-    f.check('45%' in t and '35%' in t and '20%' in t and ids(pg, 'qps') == '100%', 'step 1: Brazil 45%, Colombia 35%, Ethiopia 20%, total 100%')
-    f.check(ids(pg, 'qk0', 'qk1', 'qk2', 'qkt') == '|'.join(lines(5) + ['5.000']), 'step 1: test roast lines 2.250, 1.750, 1.000 = 5.000 kg')
+    f.check(ids(pg, 'bp0', 'bp1', 'bp2', 'bpt') == '50%|30%|20%|100%', 'step 1: Brazil 50, Colombia 30, Ethiopia 20, total 100')
+    f.check(ids(pg, 'bk0', 'bk1', 'bk2', 'bkt') == '2.5|1.5|1.0|5.0', 'step 1: 5 kg test roast lines 2.5, 1.5, 1.0')
 
 
 def s2(pg, f):
-    f.check(ids(pg, 'qk0', 'qk1', 'qk2', 'qkt') == '|'.join(lines(120) + ['120.000']), 'step 2: 120 kg batch lines 54.000, 42.000, 24.000')
+    f.check(ids(pg, 'bk0', 'bk1', 'bk2', 'bkt', 'bpt') == '60.0|36.0|24.0|120.0|100%', 'step 2: 120 kg batch lines 60.0, 36.0, 24.0')
 
 
 def s3(pg, f):
-    f.check(ids(pg, 'qaff') == '2 blends and 4 bag sizes change. 1 blend unchanged.', 'step 3: 2 blends and 4 bag sizes change')
-    t = js(pg, "return r.getElementById('qdt').innerText")
-    f.check('Honduras' in t and 'GL-2219' in t and ids(pg, 'qvc') == 'v2 not saved', 'step 3: Honduras replaces Brazil, not saved yet')
-    f.check(ids(pg, 'qk0', 'qkt') == '54.000|120.000' and ids(pg, 'qps') == '100%', 'step 3: the swap keeps 45% and the 120 kg batch')
+    f.check(ids(pg, 'bsn', 'bsb', 'bu0', 'bu1', 'bu2', 'bpt') == '3|6|50%|40%|70%|100%', 'step 3: Honduras in 3 blends, 6 bag sizes, still 100%')
+    t = js(pg, "return r.getElementById('bls').innerText")
+    f.check('Brazil' not in t and t.count('Honduras') == 3, 'step 3: no blend lists Brazil, three list Honduras')
 
 
 def s4(pg, f):
-    got = ids(pg, 'qc-HB0', 'qc-HB1', 'qc-NO0', 'qc-NO1')
-    f.check(got == '$2.79|$18.58|$2.55|$17.02', 'step 4: new cost per bag (%s)' % got)
-    t = js(pg, "return r.getElementById('qcost').innerText")
-    f.check(all('$' + o in t for o, _ in WANT.values()), 'step 4: old cost per bag shown beside the new')
+    f.check(ids(pg, 'bck', 'bco0', 'bcn0', 'bcd0', 'bco1', 'bcn1', 'bcd1') == 'Green $6.04 to $6.34 per kg|$2.80|$2.92|+$0.12 per bag|$16.96|$17.75|+$0.79 per bag', 'step 4: cost per bag before and after')
 
 
 def s5(pg, f):
-    f.check(ids(pg, 'qvc') == 'v2 current' and 'Kept for reference' in ids(pg, 'qv1'), 'step 5: v2 current, v1 kept for reference')
-    f.check('Honduras 45%' in ids(pg, 'qb0') and 'Honduras 60%' in ids(pg, 'qb1') and 'Honduras' not in ids(pg, 'qb2'), 'step 5: both blends using Brazil now list Honduras, Sunrise Light unchanged')
+    f.check(ids(pg, 'bv2', 'bv1') == 'Current|Kept for reference', 'step 5: v2 current, v1 kept for reference')
 
 
-def prep(pg):
-    pg.locator('#cv #qb0').click(); pg.wait_for_timeout(1700)
+PLAN = [('A blend is a BOM by origin', '100%'),
+        ('From test roast to production', '120.0'),
+        ('One swap, every blend', 'Honduras Marcala'),
+        ('Cost per bag before you save', '$2.92'),
+        ('The earlier version stays', 'Kept for reference')]
 
-
-PLAN = [('Open a house blend and read its origin percentages', '100%'),
-        ('Resize the blend from a test roast to a production batch', '120.000'),
-        ('Swap one origin across every blend', 'Honduras'),
-        ('See cost per bag change with the new bean', '$2.79'),
-        ('Keep the earlier version for reference', 'Kept for reference')]
-
-f = run_card(3, PLAN, ['$2.79', '$18.58', '$17.02', 'v2 current'], start=start,
-             extra={'before': {1: type_batch}, 'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
-enter_submits(f, 3, '#qbs', '120', 'Your turn3 of 5', prep=prep)
+f = run_card(3, PLAN, ['$17.75', '120.0', 'Kept for reference'], start=start,
+             extra={'before': {1: bad_size}, 'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
+enter_submits(f, 3, '#bsz', '120', 'Your turn3 of 5', prep=lambda pg: (pg.locator('#cv #bl0').click(), pg.wait_for_timeout(1700)))
+keyboard_walk(f, 3, 5)
 finish(f)
