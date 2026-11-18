@@ -3,7 +3,7 @@
 Run: python3 tools/coffee-roasting/test_card4.py"""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from cr_tests import run_card, finish, js, pill, testlib, ids, enter_submits, keyboard_walk
+from cr_tests import clicks_only, run_card, finish, js, pill, testlib, ids, enter_submits, keyboard_walk
 
 # ---- the numbers, derived independently of the card (grams, cents) ----
 LOT = 43000
@@ -13,7 +13,7 @@ assert N12 * B12 + N5 * B5 == 42740 and N12 * B12 + N5 * B5 + RET == LOT        
 assert N12 + N5 == 69                                                                     # 69 bags, 69 labels
 ORD = [(24, 4), (12, 2), (18, 0)]
 assert sum(o[0] for o in ORD) == 54 and sum(o[1] for o in ORD) == 6 and 54 + 6 == 60       # wholesale allocated
-assert N12 - 54 == 5 and N5 - 6 == 4                                                      # left for retail and subscriptions
+assert N12 - 54 == 5 and N5 - 6 == 4                                                      # left for retail and web orders
 SO = 24 * B12 + 4 * B5 + 2 * 900
 assert SO == 19032 and round(SO / 1000, 1) == 19.0 and 24 + 4 == 28                       # 2 cartons, 19.0 kg, 28 bags shipped
 
@@ -64,4 +64,6 @@ f = run_card(4, PLAN, ['43.000 kg', '60 bags', '28 bags', 'NW 4418 2093 77'], st
              extra={'before': {0: bad_then_type}, 'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
 enter_submits(f, 4, '#pin', 'RL-8820', 'Your turn2 of 5')
 keyboard_walk(f, 4, 5, fill=lambda pg, i: i == 0 and pg.locator('#cv #psp').click())
+clicks_only(f, 4)
+clicks_only(f, 4, card_w=358, vw=390)
 finish(f)

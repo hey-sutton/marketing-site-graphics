@@ -1,6 +1,6 @@
 """Coffee roasting test setup: the Automotive harness (tools/automotive/auto_tests.py) pointed at graphics/coffee-roasting,
-with this page's banned words. The Automotive list bans "subscription", but subscription orders are a real order channel
-for a roaster (card 4), so the list is rebuilt here without it. Added: claim words (organic certified, fair trade
+with this page's banned words. The Automotive list, including "subscription", applies as is (the repo UI checker bans it too,
+so card 4 says "web and club orders"). Added: claim words (organic certified, fair trade
 certified, FDA, FSMA, SQF, validated, audit ready), "recipe", size words, concept tags, and real roaster, importer and
 retailer names."""
 import os, re, sys
@@ -13,7 +13,7 @@ testlib.KEY = 'coffee-roasting'
 testlib.SHOTS = os.environ.get('GFX_SHOTS', '/tmp/cr_shots')
 os.makedirs(testlib.SHOTS, exist_ok=True)
 testlib.EXTRA_CLAIMS = re.compile(
-    r'(?i:\bpricing\b|\bprice plan|\byour plan\b|\bpaid plan|\bplan tier|\bper month\b|/mo\b|free trial|\bsmall\b|mid ?size|enterprise|\blarge\b|startup'
+    r'(?i:\bpricing\b|\bprice plan|\byour plan\b|\bpaid plan|\bplan tier|\bper month\b|/mo\b|free trial|\btrial\b|subscription|\bsmall\b|mid ?size|enterprise|\blarge\b|startup'
     r'|concept|live product demo|illustrative|compliance|compliant|certified|\bvalidat\w*|\bFDA\b|\bFSMA\b|\bSQF\b|\bHACCP\b|audit ready|\bbulk\b|\bmid\b|\brecipe)'
     r'|\b(?:Starbucks|Peet|Folgers|Maxwell|Dunkin|Lavazza|Illy|Intelligentsia|Stumptown|Counter Culture|Blue Bottle|La Colombe|Onyx|Olam|Volcafe|Sucafina|Royal Coffee|Cafe Imports|Walmart|Costco|Kroger|Target|Whole Foods|Trader Joe|Amazon|UPS|FedEx|USPS|DHL|Digit)\b')
 
@@ -61,3 +61,31 @@ def keyboard_walk(f, n, steps, fill=None):
         f.check('Done' in pill(pg), 'keyboard: every step completes with Enter (%s)' % pill(pg))
         f.check(not errs, 'keyboard: no page errors')
         b.close()
+
+
+def clicks_only(f, n, card_w=604, vw=1300):
+    """Try it with the mouse only: from a fresh start, click the one highlighted target at each step, never type and
+    never use a sample button. The card must reach Done in exactly one click per step (November 18, 2026 rule: a reader
+    should not have to leave the mouse or trackpad to move a demo forward)."""
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as p:
+        b = testlib.browser(p)
+        pg, errs = testlib.open_card(b, n, vw, card_w)
+        pg.locator('#cv').scroll_into_view_if_needed()
+        pg.locator('#cv .mtg [data-m="try"]').click()
+        ns = int(pg.locator('#cv #sn').text_content().split(' of ')[1])
+        clicks = 0
+        for i in range(ns):
+            pg.wait_for_timeout(1600)
+            want = 'Your turn%d of %d' % (i + 1, ns)
+            if want not in pill(pg):
+                f.check(False, 'card %d at %d px: mouse only, step %d is reached (%s)' % (n, card_w, i + 1, pill(pg)))
+                break
+            pg.locator('#cv .hint').first.click()
+            clicks += 1
+            pg.wait_for_timeout(500)
+        typed = js(pg, "return [].map.call(r.querySelectorAll('input'),function(i){return i.value}).join('|')")
+        f.check('Done' in pill(pg) and clicks == ns, 'card %d at %d px: mouse only, Done in %d clicks with no typing (%s)' % (n, card_w, clicks, pill(pg)))
+        f.check(not errs, 'card %d at %d px: mouse only, no page errors %s' % (n, card_w, errs[:1]))
+        b.close()
+        return typed
