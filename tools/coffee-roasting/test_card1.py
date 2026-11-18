@@ -3,7 +3,7 @@
 Run: python3 tools/coffee-roasting/test_card1.py"""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from cr_tests import run_card, finish, js, pill, testlib, ids, keyboard_walk
+from cr_tests import clicks_only, run_card, finish, js, pill, testlib, ids, keyboard_walk
 
 # ---- the numbers, derived independently of the card ----
 ORDER_G, BATCHES = 60000, ['B-301', 'B-302', 'B-303']
@@ -109,4 +109,6 @@ f = run_card(1, PLAN, ['B-305', '07:45 to 08:30', '96 bags'], start=start,
              extra={'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}, 'after': done})
 drag(f)
 keyboard_walk(f, 1, 5)
+clicks_only(f, 1)
+clicks_only(f, 1, card_w=358, vw=390)
 finish(f)

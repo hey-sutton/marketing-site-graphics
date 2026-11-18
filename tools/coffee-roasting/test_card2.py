@@ -4,7 +4,7 @@ Run: python3 tools/coffee-roasting/test_card2.py"""
 import os, sys
 from decimal import Decimal as D, ROUND_HALF_UP
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from cr_tests import run_card, finish, js, pill, testlib, ids, enter_submits, keyboard_walk
+from cr_tests import clicks_only, run_card, finish, js, pill, testlib, ids, enter_submits, keyboard_walk
 
 
 def pct(loss, inn):
@@ -100,4 +100,6 @@ f = run_card(2, PLAN, ['780.0 kg', '14.0%', '13.9%', '50.0 kg green in'], start=
              extra={'before': {0: bad_then_type, 2: bad_weight}, 'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
 enter_submits(f, 2, '#gin', 'GL-4471', 'Your turn2 of 5')
 keyboard_walk(f, 2, 5, fill=lambda pg, i: i == 0 and pg.locator('#cv #gsm').click())
+clicks_only(f, 2)
+clicks_only(f, 2, card_w=358, vw=390)
 finish(f)

@@ -4,7 +4,7 @@ Run: python3 tools/coffee-roasting/test_card3.py"""
 import os, sys
 from fractions import Fraction as F
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from cr_tests import run_card, finish, js, pill, testlib, ids, enter_submits, keyboard_walk
+from cr_tests import clicks_only, run_card, finish, js, pill, testlib, ids, enter_submits, keyboard_walk
 
 # ---- the numbers, derived independently of the card ----
 COST = {'BR': 520, 'CO': 640, 'ET': 760, 'HN': 580, 'DC': 790}       # cents per kg of green
@@ -87,4 +87,6 @@ f = run_card(3, PLAN, ['$17.75', '120.0', 'Kept for reference'], start=start,
              extra={'before': {1: bad_size}, 'after_step': {0: s1, 1: s2, 2: s3, 3: s4, 4: s5}})
 enter_submits(f, 3, '#bsz', '120', 'Your turn3 of 5', prep=lambda pg: (pg.locator('#cv #bl0').click(), pg.wait_for_timeout(1700)))
 keyboard_walk(f, 3, 5)
+clicks_only(f, 3)
+clicks_only(f, 3, card_w=358, vw=390)
 finish(f)

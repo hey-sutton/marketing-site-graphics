@@ -12,7 +12,7 @@ SUMMARY = 'Packing, Labels & Shipping (pack a roasted lot into 12 oz and 5 lb ba
 ARIA = 'Interactive product screen: roasted lot RL-8820, 43.000 kg, packs into 59 bags of 12 oz and 10 bags of 5 lb with 0.260 kg kept for cupping; 69 labels print with lot and roast date, three wholesale orders take 60 bags, sales order SO-7716 compares two carrier rates and booking writes tracking to the order'
 STEPS = 5
 STUDIO = dict(lede='A typical pack and ship screen, built on your Sutton data with Studio. Want it different? Describe the change.',
-              examples=['Add a best by date to labels', 'Split a pallet by customer', 'Ship subscriptions in waves', 'Pick the cheapest rate'],
+              examples=['Add a best by date to labels', 'Split a pallet by customer', 'Ship club orders in waves', 'Pick the cheapest rate'],
               built_on='Roasted lots, bags, sales orders and carriers', change='Bag sizes, label fields and rules')
 
 ICON = '<path d="M2 5.5l6-3 6 3v5l-6 3-6-3z"/><path d="M2 5.5l6 3 6-3M8 8.5v5M5 4l6 3"/>'
@@ -89,7 +89,7 @@ if(!S.lb)O.innerHTML='<div class="ct"><span>Open wholesale orders</span></div><d
 else if(!S.od)O.innerHTML='<div class="ct"><span>Open wholesale orders</span><button type="button" class="bt pri" id="pob">Show open orders</button></div><div class="empt"><b>'+ORD.length+' orders waiting</b><span>Match them to the packed bags by size.</span></div>';
 else O.innerHTML='<div class="ct"><span>Open wholesale orders</span><span class="ch c-info">'+ORD.length+' orders</span></div><div class="row h"><span>Customer</span><span>12 oz</span><span>5 lb</span><span>Order</span></div>'
 +ORD.map(function(o,i){return '<div class="row'+(i===0&&S.rt?' on':'')+'"><span>'+o[1]+'</span><span id="po'+i+'a">'+o[2]+'</span><span id="po'+i+'b">'+o[3]+'</span><span>'+o[0]+'</span></div>';}).join('')
-+'<div class="row tot"><span>Wholesale</span><span id="pota">'+ordT(0)+'</span><span id="potb">'+ordT(1)+'</span><span></span></div><div class="row lf"><span>Left for retail, subscriptions</span><span id="pla">'+(BAGS[0][2]-ordT(0))+'</span><span id="plb2">'+(BAGS[1][2]-ordT(1))+'</span><span></span></div>';
++'<div class="row tot"><span>Wholesale</span><span id="pota">'+ordT(0)+'</span><span id="potb">'+ordT(1)+'</span><span></span></div><div class="row lf"><span>Left for retail and web orders</span><span id="pla">'+(BAGS[0][2]-ordT(0))+'</span><span id="plb2">'+(BAGS[1][2]-ordT(1))+'</span><span></span></div>';
 var R=$('pso'),o=ORD[0];
 if(!S.od)R.innerHTML='<div class="ct"><span>Sales order</span></div><div class="empt"><b>No order open</b><span>Rates and labels come from the sales order.</span></div>';
 else R.innerHTML='<div class="ct"><span>'+o[0]+', '+o[1]+'</span>'+(S.bk?'<span class="ch c-ok">Shipped</span>':S.rt?'<span class="ch c-warn">Pick a rate</span>':'<button type="button" class="bt pri" id="prb">Compare rates</button>')+'</div>'
@@ -103,8 +103,8 @@ function typeIn(id,t,done){var i=0;(function k(){$(id).value=t.slice(0,i);if(i<t
 function resetState(){S={pk:false,lb:false,od:false,rt:false,bk:false};$('pin').value='';$('pfl').classList.remove('err');render();}
 var CAPAT=function(hh){return cur>=2?{l:14,t:visH()-hh-14}:{l:350,t:visH()-hh-14};};
 var ST=[
-{id:'pack',target:function(){return mode==='try'?$('pkb'):$('pin');},prompt:'Type RL-8820 or pick the sample, then Pack lot',where:'below',
- ok:function(){var v=val(),b=!(v==='rl-8820'||v==='rl8820'||v==='8820');$('pem').textContent=v?'No roasted lot found. Try RL-8820':'Enter a lot, for example RL-8820';$('pfl').classList.toggle('err',b);return !b;},
+{id:'pack',target:function(){return mode==='try'?$('pkb'):$('pin');},prompt:'Click Pack lot to pack roasted lot RL-8820',where:'below',
+ ok:function(){if(!val())$('pin').value='RL-8820';var v=val(),b=!(v==='rl-8820'||v==='rl8820'||v==='8820');$('pem').textContent=v?'No roasted lot found. Try RL-8820':'Enter a lot, for example RL-8820';$('pfl').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){$('pin').value=LOT.id;$('pfl').classList.remove('err');S.pk=true;render();};if(mode==='watch'&&!quick){S.pk=true;typeIn('pin',LOT.id,go);}else go();},
  after:function(){return['Packed into two bag sizes',LOT.id+', '+kg3(LOT.g)+' kg roasted: '+BAGS.map(function(b){return b[2]+' bags of '+b[0];}).join(' and ')+' hold '+kg3(packedG())+' kg, with '+kg3(RET)+' kg kept for cupping.'];}},
 {id:'label',target:function(){return $('plb1');},prompt:'Print the labels',where:'above',run:function(){S.lb=true;render();},
