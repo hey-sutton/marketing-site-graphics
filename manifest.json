@@ -1,5 +1,5 @@
 {
-  "version": "1.39.0",
+  "version": "1.40.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -155,6 +155,12 @@
       4
     ],
     "sauce-manufacturing": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "functional-beverage": [
       1,
       2,
       3,
