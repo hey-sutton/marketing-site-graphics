@@ -87,8 +87,8 @@ function typeIt(done){var t=PAL,i=0;(function k(){$('isc').value=t.slice(0,i);if
 function resetState(){S={scan:false,zone:null,tab:'zl',moved:false,st:false,hold:false,bins:fresh(),v:'HB-R1-B4'};$('isc').value='';$('fsc').classList.remove('err');render();}
 var CAPAT=function(hh){return cur===2||cur===3?{l:14,t:visH()-hh-14}:{l:14,t:96};};
 var ST=[
-{id:'scan',target:function(){return mode==='try'?$('scb'):$('isc');},prompt:'Type P-0912 or pick the sample, then Scan',where:'below',
- ok:function(){var v=sval(),b=!(v==='P-0912'||v==='P0912');$('sem').textContent=v?'No pallet found. Try P-0912':'Scan a pallet, for example P-0912';$('fsc').classList.toggle('err',b);return !b;},
+{id:'scan',target:function(){return mode==='try'?$('scb'):$('isc');},prompt:'Click Scan to scan pallet P-0912',where:'below',
+ ok:function(){if(!sval())$('isc').value='P-0912';var v=sval(),b=!(v==='P-0912'||v==='P0912');$('sem').textContent=v?'No pallet found. Try P-0912':'Scan a pallet, for example P-0912';$('fsc').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){$('isc').value=PAL;$('fsc').classList.remove('err');S.scan=true;render();};if(mode==='watch'&&!quick)typeIt(go);else go();},
  after:function(){return['Every pallet has a place, down to the bin',PAL+': '+CPP+' cases in Blast freezer 1, rack 2, bin 3. '+n0(onhand())+' cases across four zones.'];}},
 {id:'zone',target:function(){return $('z-bf1');},prompt:'Open Blast freezer 1',where:'below',run:function(){S.zone='bf1';S.tab='zl';render();},

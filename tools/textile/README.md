@@ -22,3 +22,5 @@ Run with `pip install playwright pillow` first. Set `PW_CHROME` to use a Chromiu
 Preview page: `python3 tools/electronics/make_preview_page.py --card graphics/textile/card-1.js --bg graphics/textile/bg-1.jpg --out preview1.html`.
 
 All data in the cards is illustrative and every name is made up.
+
+**Mouse only (November 19, 2026).** A reader never has to type to move a demo forward. In Try it, clicking the highlighted button with its field left empty (or, for a number that starts filled in, left untouched) uses the sample value, so every step is one click. Typing still works, Enter still submits, and an unknown value still shows an inline error. `python3 tools/check_click_only.py textile` checks it at 604 and 358 px.

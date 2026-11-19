@@ -120,8 +120,8 @@ function typeIn(inp,t,done){var i=0;(function k(){inp.value=t.slice(0,i);if(i<t.
 function resetState(){S={scan:false,sel:null,rsv:false,blk:false,spl:false,note:false,av:''};$('rin').value='';$('frin').classList.remove('err');render();}
 var CAPAT=function(hh){return {l:14,t:52};};
 var ST=[
-{id:'scan',target:function(){return mode==='try'?$('scn'):$('rin');},prompt:'Type R-48214 or pick a sample, then Scan',where:'below',
- ok:function(){var v=norm($('rin').value),b=!known(v);$('rem').textContent=v?'No roll found. Try R-48214':'Enter a roll ID, for example R-48214';$('frin').classList.toggle('err',b);return !b;},
+{id:'scan',target:function(){return mode==='try'?$('scn'):$('rin');},prompt:'Click Scan to scan roll R-48214',where:'below',
+ ok:function(){if(!$('rin').value.trim())$('rin').value='R-48214';var v=norm($('rin').value),b=!known(v);$('rem').textContent=v?'No roll found. Try R-48214':'Enter a roll ID, for example R-48214';$('frin').classList.toggle('err',b);return !b;},
  run:function(quick){var v=mode==='try'&&known(norm($('rin').value))?norm($('rin').value):'R-48214';S.scan=true;S.sel=v;var go=function(){$('rin').value=v;$('frin').classList.remove('err');S.fl=true;render();};if(mode==='watch'&&!quick)typeIn($('rin'),v,go);else go();},
  after:function(){var r=find(S.sel);return['Scan a roll label',r.id+' is '+r.yd+' yd of shade '+r.sh+', dye lot '+r.lot+', '+WID+' in wide, bin '+r.bin+'.'];}},
 {id:'rsv',target:function(){return $('rsv');},prompt:'Reserve '+NEED+' yd for '+SO,where:'above',run:function(){S.rsv=true;S.fr=true;S.av='R-48330';render();},

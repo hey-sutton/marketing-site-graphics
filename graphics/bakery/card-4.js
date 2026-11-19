@@ -92,8 +92,8 @@ function resetState(){S={st:['portal','portal','portal'],eq:[30,15]};$('kl2').in
 function setAll(a,b){ORD.forEach(function(o,i){if(S.st[i]===a)S.st[i]=b;});}
 var CAPAT=function(hh){return cur<=1?{l:14,t:visH()-hh-14}:{l:14,t:150};};
 var ST=[
-{id:'place',target:function(){return mode==='try'?$('kpl'):$('kq0');},prompt:'Enter 30 and 15 crates, or pick Usual order, then Place order',where:'above',
- ok:function(){var a=qv('kq0'),b=qv('kq1'),f0=free(0,2),f1=free(1,2),bad=!(a>=0&&b>=0&&a+b>0&&a<=f0&&b<=f1);$('kqe').textContent=(a>f0||b>f1)?'Only '+f0+' loaf and '+f1+' bun crates are free':'Enter whole crates';$('kptl').classList.toggle('err',bad);return !bad;},
+{id:'place',target:function(){return mode==='try'?$('kpl'):$('kq0');},prompt:'Click Place order for 30 loaf and 15 bun crates',where:'above',
+ ok:function(){if(!$('kq0').value.trim()&&!$('kq1').value.trim()){$('kq0').value='30';$('kq1').value='15';}var a=qv('kq0'),b=qv('kq1'),f0=free(0,2),f1=free(1,2),bad=!(a>=0&&b>=0&&a+b>0&&a<=f0&&b<=f1);$('kqe').textContent=(a>f0||b>f1)?'Only '+f0+' loaf and '+f1+' bun crates are free':'Enter whole crates';$('kptl').classList.toggle('err',bad);return !bad;},
  run:function(quick){var go=function(){var a=qv('kq0'),b=qv('kq1');if(mode==='watch'||!(a+b>0)){a=30;b=15;}S.eq=[a,b];S.st[2]='pending';render();};if(mode==='watch'&&!quick)typeQ(go);else{if(!$('kq0').value){$('kq0').value='30';$('kq1').value='15';}go();}},
  after:function(){return['A franchise orders from the central bakery',ORD[2].id+' from Eastgate Franchise: '+S.eq[0]+' crates Sandwich Loaf, '+S.eq[1]+' crates Brioche Bun. Pending approval.'];}},
 {id:'approve',target:function(){return $('kap');},prompt:'Approve the portal order',where:'above',run:function(){S.st=S.st.map(function(){return 'committed';});render();},

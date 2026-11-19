@@ -100,8 +100,8 @@ function typeLot(done){var t=LOT.id,i=0;(function k(){$('lin').value=t.slice(0,i
 function resetState(){S={lot:false,wo:false,fg:false,sh:false,hold:false};$('lin').value='';$('flin').classList.remove('err');render();}
 var CAPAT=function(hh){return cur>=3?{l:14,t:96}:{l:14,t:visH()-hh-14};};
 var ST=[
-{id:'lot',target:function(){return mode==='try'?$('trc'):$('lin');},prompt:'Type SL-4471 or pick the sample, then Trace',where:'below',
- ok:function(){var v=val(),b=!(v==='SL-4471'||v==='SL4471');$('lem').textContent=v?'No lot found. Try SL-4471':'Enter a lot, for example SL-4471';$('flin').classList.toggle('err',b);return !b;},
+{id:'lot',target:function(){return mode==='try'?$('trc'):$('lin');},prompt:'Click Trace to trace steel lot SL-4471',where:'below',
+ ok:function(){if(!val())$('lin').value='SL-4471';var v=val(),b=!(v==='SL-4471'||v==='SL4471');$('lem').textContent=v?'No lot found. Try SL-4471':'Enter a lot, for example SL-4471';$('flin').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){$('lin').value=LOT.id;$('flin').classList.remove('err');S.lot=true;S.a1=true;render();};if(mode==='watch'&&!quick)typeLot(go);else go();},
  after:function(){return['Type a suspect lot and the trace starts at the supplier lot',LOT.id+' is '+n0(LOT.qty)+' zinc plated fasteners '+LOT.part+' from '+LOT.sup+'.'];}},
 {id:'wo',target:function(){return $('wu');},prompt:'Click Where used',where:'below',run:function(){S.wo=true;S.a2=true;render();},

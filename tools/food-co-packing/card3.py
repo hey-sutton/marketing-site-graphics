@@ -86,8 +86,8 @@ function typeLot(done){var t=LOT.id,i=0;(function k(){$('tin').value=t.slice(0,i
 function resetState(){S={lot:false,runs:false,fl:false,sh:false,ex:false};$('tin').value='';$('tfl').classList.remove('err');render();}
 var CAPAT=function(hh){return cur<=1?{l:14,t:visH()-hh-14}:{l:226,t:visH()-hh-14};};
 var ST=[
-{id:'lot',target:function(){return mode==='try'?$('tsb'):$('tin');},prompt:'Type SE-3318 or pick the sample, then Search',where:'below',
- ok:function(){var v=val(),b=!(v==='SE-3318'||v==='SE3318');$('tem').textContent=v?'No lot found. Try SE-3318':'Enter a lot, for example SE-3318';$('tfl').classList.toggle('err',b);return !b;},
+{id:'lot',target:function(){return mode==='try'?$('tsb'):$('tin');},prompt:'Click Search to find lot SE-3318',where:'below',
+ ok:function(){if(!val())$('tin').value='SE-3318';var v=val(),b=!(v==='SE-3318'||v==='SE3318');$('tem').textContent=v?'No lot found. Try SE-3318':'Enter a lot, for example SE-3318';$('tfl').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){$('tin').value=LOT.id;$('tfl').classList.remove('err');S.lot=true;render();};if(mode==='watch'&&!quick)typeLot(go);else go();},
  after:function(){return['Search an ingredient lot',LOT.id+', '+LOT.ing.toLowerCase()+', '+kg(LOT.g)+' kg from '+LOT.sup+', received '+LOT.rc+'.'];}},
 {id:'runs',target:function(){return $('sg1');},prompt:'Open the Runs stage',where:'right',run:function(){S.runs=true;render();},

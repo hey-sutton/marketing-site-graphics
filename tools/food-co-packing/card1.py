@@ -88,8 +88,8 @@ function typeIt(t,done){var i=0;(function k(){$('qin').value=t.slice(0,i);if(i<t
 function resetState(){S={q:false,sel:0,cmp:false,rel:false,flag:false,hold:false,an:false};$('qin').value='';$('qfl').classList.remove('err');render();}
 var CAPAT=function(hh){return cur>=4?{l:14,t:110}:{l:14,t:visH()-hh-14};};
 var ST=[
-{id:'lot',target:function(){return mode==='try'?$('qsb'):$('qin');},prompt:'Type Rice flour or pick the sample, then Search',where:'below',
- ok:function(){var v=val(),b=!(v==='rice flour'||v.indexOf('rf-22')===0);$('qem').textContent=v?'No item found. Try Rice flour':'Enter an item, for example Rice flour';$('qfl').classList.toggle('err',b);return !b;},
+{id:'lot',target:function(){return mode==='try'?$('qsb'):$('qin');},prompt:'Click Search to find Rice flour',where:'below',
+ ok:function(){if(!val())$('qin').value='Rice flour';var v=val(),b=!(v==='rice flour'||v.indexOf('rf-22')===0);$('qem').textContent=v?'No item found. Try Rice flour':'Enter an item, for example Rice flour';$('qfl').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){$('qin').value='Rice flour';$('qfl').classList.remove('err');S.q=true;S.sel=0;S.an=true;render();};if(mode==='watch'&&!quick)typeIt('Rice flour',go);else go();},
  after:function(){var l=LOTS[0];return['Every lot carries its owner',l.id+' is rice flour supplied by '+OWN[l.o]+', '+kg(l.g)+' kg in '+l.loc.toLowerCase()+'.'];}},
 {id:'cmp',target:function(){return $('qcm');},prompt:'Click Compare owners',where:'above',run:function(){S.cmp=true;render();},
