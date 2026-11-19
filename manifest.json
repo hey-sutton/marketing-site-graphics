@@ -1,5 +1,5 @@
 {
-  "version": "1.40.0",
+  "version": "1.41.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -164,6 +164,9 @@
       1,
       2,
       3,
+      4
+    ],
+    "food-distributors": [
       4
     ]
   }
