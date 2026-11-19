@@ -113,12 +113,12 @@ function typeIn(id,t,done){var i=0;(function k(){$(id).value=t.slice(0,i);if(i<t
 function resetState(){S={open:false,fee:false,bs:'u',rate:0,post:false,portal:false,rec:false};$('bin').value='';$('brt').value='';$('bfl').classList.remove('err');$('bfr').classList.remove('err');render();}
 var CAPAT=function(hh){return cur<=1?{l:14,t:visH()-hh-14}:{l:14,t:96};};
 var ST=[
-{id:'open',target:function(){return mode==='try'?$('bsb'):$('bin');},prompt:'Type R-5108 or pick the sample, then Open',where:'below',
- ok:function(){var v=val(),b=!(v==='R-5108'||v==='R5108');$('bem').textContent=v?'No completed run found. Try R-5108':'Enter a run, for example R-5108';$('bfl').classList.toggle('err',b);return !b;},
+{id:'open',target:function(){return mode==='try'?$('bsb'):$('bin');},prompt:'Click Open to open run R-5108',where:'below',
+ ok:function(){if(!val())$('bin').value='R-5108';var v=val(),b=!(v==='R-5108'||v==='R5108');$('bem').textContent=v?'No completed run found. Try R-5108':'Enter a run, for example R-5108';$('bfl').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){$('bin').value=RUN.id;$('bfl').classList.remove('err');S.open=true;$('brt').value='0.85';render();};if(mode==='watch'&&!quick)typeIn('bin',RUN.id,go);else go();},
  after:function(){return['Open a completed run and read its billing lines',RUN.id+' for '+RUN.cl+': '+n0(RUN.cs)+' cases. Plant packaging '+mc(packT())+', client materials at $0.00.'];}},
-{id:'fee',target:function(){return mode==='try'?$('bad'):$('brt');},prompt:'Type 0.85 as the rate per unit, then Add fee',where:'above',
- ok:function(){var b=!(rval()>0);$('bfr').classList.toggle('err',b);return !b;},
+{id:'fee',target:function(){return mode==='try'?$('bad'):$('brt');},prompt:'Click Add fee at 0.85 per unit',where:'above',
+ ok:function(){if(!$('brt').value)$('brt').value='0.85';var b=!(rval()>0);$('bfr').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){var r=mode==='watch'?RATE.u:rval();if(!(r>0)){r=RATE.u;S.bs='u';}if(mode==='watch')S.bs='u';S.rate=r;S.fee=true;$('bfr').classList.remove('err');render();};if(mode==='watch'&&!quick){S.bs='u';$('brt').value='';typeIn('brt','0.85',go);}else{if(!$('brt').value)$('brt').value='0.85';go();}},
  after:function(){return['Add a conversion fee by unit, hour or batch',BAS[S.bs][0]+': '+qtyS(S.bs)+' '+BAS[S.bs][1]+' at '+rateS(S.rate)+' is '+mc(convT())+'. The run now bills '+mc(total())+'.'];}},
 {id:'post',target:function(){return $('bpo');},prompt:'Click Post to invoice',where:'below',run:function(){S.post=true;render();},

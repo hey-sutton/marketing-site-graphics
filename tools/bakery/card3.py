@@ -99,8 +99,8 @@ function typeLot(done){var t=LOT.id,i=0;(function k(){$('kli').value=t.slice(0,i
 function resetState(){S={lot:false,grid:false,bat:false,rcp:false,hold:false,an:false};$('kli').value='';$('kfl').classList.remove('err');render();}
 var CAPAT=function(hh){return cur<=3?{l:14,t:visH()-hh-14}:{l:14,t:136};};
 var ST=[
-{id:'lot',target:function(){return mode==='try'?$('ksb'):$('kli');},prompt:'Type AF-1042 or pick the sample, then Search',where:'below',
- ok:function(){var v=val(),b=!(v==='AF-1042'||v==='AF1042');$('kle').textContent=v?'No lot found. Try AF-1042':'Enter a lot, for example AF-1042';$('kfl').classList.toggle('err',b);return !b;},
+{id:'lot',target:function(){return mode==='try'?$('ksb'):$('kli');},prompt:'Click Search to find lot AF-1042',where:'below',
+ ok:function(){if(!val())$('kli').value='AF-1042';var v=val(),b=!(v==='AF-1042'||v==='AF1042');$('kle').textContent=v?'No lot found. Try AF-1042':'Enter a lot, for example AF-1042';$('kfl').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){$('kli').value=LOT.id;$('kfl').classList.remove('err');S.lot=true;render();};if(mode==='watch'&&!quick)typeLot(go);else go();},
  after:function(){return['Search the flagged lot',LOT.id+', '+LOT.ing.toLowerCase()+', '+kg(LOT.g)+' kg from '+LOT.sup+', received '+LOT.rcv+', certificate attached.'];}},
 {id:'grid',target:function(){return $('kam');},prompt:'Click Map allergens',where:'below',run:function(){S.grid=true;render();},

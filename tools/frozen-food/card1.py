@@ -91,8 +91,8 @@ function typeLot(done){var t=LOT.id,i=0;(function k(){$('lin').value=t.slice(0,i
 function resetState(){S={lot:false,ba:false,pa:false,cu:false,hold:false};$('lin').value='';$('flin').classList.remove('err');render();}
 var CAPAT=function(hh){return cur>=3?{l:visW()-cap.offsetWidth-14,t:visH()-hh-14}:{l:14,t:visH()-hh-14};};
 var ST=[
-{id:'lot',target:function(){return mode==='try'?$('trc'):$('lin');},prompt:'Type HR-7731 or pick the sample, then Trace',where:'below',
- ok:function(){var v=val(),b=!(v==='HR-7731'||v==='HR7731');$('lem').textContent=v?'No lot found. Try HR-7731':'Enter a lot, for example HR-7731';$('flin').classList.toggle('err',b);return !b;},
+{id:'lot',target:function(){return mode==='try'?$('trc'):$('lin');},prompt:'Click Trace to trace lot HR-7731',where:'below',
+ ok:function(){if(!val())$('lin').value='HR-7731';var v=val(),b=!(v==='HR-7731'||v==='HR7731');$('lem').textContent=v?'No lot found. Try HR-7731':'Enter a lot, for example HR-7731';$('flin').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){$('lin').value=LOT.id;$('flin').classList.remove('err');S.lot=true;S.a1=true;render();};if(mode==='watch'&&!quick)typeLot(go);else go();},
  after:function(){return['Type an ingredient lot and the trace starts there',LOT.id+' is '+n0(LOT.lb)+' lb of '+LOT.item+' from '+LOT.sup+'.'];}},
 {id:'ba',target:function(){return $('wu');},prompt:'Click Where used',where:'right',run:function(){S.ba=true;S.a2=true;render();},

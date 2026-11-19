@@ -12,3 +12,5 @@ This folder is the source for `graphics/frozen-food/card-1.js` to `card-4.js`. T
 Run with `pip install playwright pillow` first. Set `PW_CHROME` to use a Chromium binary already on the machine. Screenshots go to `GFX_SHOTS` (default `/tmp/frozen_shots`).
 
 All data in the cards is illustrative.
+
+**Mouse only (November 19, 2026).** A reader never has to type to move a demo forward. In Try it, clicking the highlighted button with its field left empty (or, for a number that starts filled in, left untouched) uses the sample value, so every step is one click. Typing still works, Enter still submits, and an unknown value still shows an inline error. `python3 tools/check_click_only.py frozen-food` checks it at 604 and 358 px.

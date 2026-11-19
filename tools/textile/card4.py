@@ -103,8 +103,8 @@ function typeIn(inp,t,done){var i=0;(function k(){inp.value=t.slice(0,i);if(i<t.
 function resetState(){S={q:null,sel:null,fw:false,pk:false,an:false};$('lin').value='';$('flin').classList.remove('err');render();}
 var CAPAT=function(hh){return {l:14,t:52};};
 var ST=[
-{id:'q',target:function(){return mode==='try'?$('trc'):$('lin');},prompt:'Type R-48211 or pick a sample, then Trace',where:'below',
- ok:function(){var v=norm($('lin').value),b=!known(v);$('lem').textContent=v?'No record found. Try R-48211':'Enter a roll or lot, for example R-48211';$('flin').classList.toggle('err',b);return !b;},
+{id:'q',target:function(){return mode==='try'?$('trc'):$('lin');},prompt:'Click Trace to trace roll R-48211',where:'below',
+ ok:function(){if(!$('lin').value.trim())$('lin').value='R-48211';var v=norm($('lin').value),b=!known(v);$('lem').textContent=v?'No record found. Try R-48211':'Enter a roll or lot, for example R-48211';$('flin').classList.toggle('err',b);return !b;},
  run:function(quick){var v=mode==='try'&&known(norm($('lin').value))?norm($('lin').value):'R-48211';S.q=v;S.sel=v;var go=function(){$('lin').value=v;$('flin').classList.remove('err');S.an=true;render();};if(mode==='watch'&&!quick)typeIn($('lin'),v,go);else go();},
  after:function(){return['Type or scan any roll',(S.q===LOT?LOT:S.q+' comes from '+LOT+', which')+' used greige '+GR+', woven from '+YL[0][0]+' and '+YL[1][0]+'.'];}},
 {id:'yl',target:function(){return $('n-'+YL[0][0]);},prompt:'Open warp yarn lot '+YL[0][0],where:'right',run:function(){S.sel=YL[0][0];render();},

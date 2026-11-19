@@ -115,24 +115,25 @@ function qval(){var v=String($('kpr').value).replace(/^\$/,'').trim();return /^\
 $('ksm').addEventListener('click',function(){$('kpi').value='Cinnamon Roll';$('kfp').classList.remove('err');});
 $('kv4').addEventListener('click',function(){if(mode==='done'&&S.rolled){S.ver=4;S.cmp=true;render();}});
 $('kv3').addEventListener('click',function(){if(mode==='done'&&S.rolled){S.ver=3;S.cmp=true;render();}});
-function resetState(){S={p:false,R:STD,rolled:false,ver:4,cmp:false,bp:750,bp0:750,px:false,an:false};$('kpi').value='';$('kri').value='';$('kri').disabled=true;$('kpr').value='7.50';
+['kri','kpr'].forEach(function(x){$(x).addEventListener('input',function(){this._ty=1;});});
+function resetState(){$('kri')._ty=0;$('kpr')._ty=0;S={p:false,R:STD,rolled:false,ver:4,cmp:false,bp:750,bp0:750,px:false,an:false};$('kpi').value='';$('kri').value='';$('kri').disabled=true;$('kpr').value='7.50';
 ['kfp','kfr','kfq'].forEach(function(x){$(x).classList.remove('err');});render();}
 var CAPAT=function(hh){return cur<=1?{l:14,t:visH()-hh-14}:{l:14,t:visH()-hh-150};};
 var ST=[
-{id:'load',target:function(){return mode==='try'?$('kld'):$('kpi');},prompt:'Type Cinnamon Roll or pick the sample, then Load',where:'below',
- ok:function(){var b=pval()!=='cinnamon roll';$('kpe').textContent=pval()?'No product found. Try Cinnamon Roll':'Enter a product, for example Cinnamon Roll';$('kfp').classList.toggle('err',b);return !b;},
+{id:'load',target:function(){return mode==='try'?$('kld'):$('kpi');},prompt:'Click Load to load Cinnamon Roll',where:'below',
+ ok:function(){if(!pval())$('kpi').value='Cinnamon Roll';var b=pval()!=='cinnamon roll';$('kpe').textContent=pval()?'No product found. Try Cinnamon Roll':'Enter a product, for example Cinnamon Roll';$('kfp').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){$('kpi').value='Cinnamon Roll';$('kfp').classList.remove('err');S.p=true;S.R=STD;S.an=true;$('kri').disabled=false;$('kri').value=String(STD);render();};if(mode==='watch'&&!quick)typeIn('kpi','Cinnamon Roll',go);else go();},
  after:function(){return['Pick a layered product and every layer loads','Cinnamon Roll, BOM v4, standard batch 250: dough '+kg(layG(0,4,STD))+' kg, filling '+kg(layG(1,4,STD))+' kg, glaze '+kg(layG(2,4,STD))+' kg.'];}},
-{id:'scale',target:function(){return mode==='try'?$('ksc'):$('kri');},prompt:'Type 750 as the batch, then Scale',where:'below',
- ok:function(){var R=rval(),b=!(R>=1&&R<=5000);$('kfr').classList.toggle('err',b);return !b;},
+{id:'scale',target:function(){return mode==='try'?$('ksc'):$('kri');},prompt:'Click Scale to make a batch of 750',where:'below',
+ ok:function(){if(!$('kri')._ty)$('kri').value='750';var R=rval(),b=!(R>=1&&R<=5000);$('kfr').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){var R=mode==='watch'?750:rval();if(!(R>=1&&R<=5000))R=750;$('kri').value=n0(R);$('kfr').classList.remove('err');S.R=R;render();['kq00','kq01','kq02','kq03','kq04'].forEach(function(x){var e=$(x);if(e&&!quick)e.classList.add('kflash');});};if(mode==='watch'&&!quick)typeIn('kri','750',go);else go();},
  after:function(){var R=S.R;return['Enter a batch size and every layer scales',n0(R)+' rolls is factor '+fac(R)+': dough '+kg(layG(0,4,R))+' kg, filling '+kg(layG(1,4,R))+' kg, glaze '+kg(layG(2,4,R))+' kg, flour in '+sacks(R)+'.'];}},
 {id:'roll',target:function(){return $('kru');},prompt:'Click Roll up cost',where:'above',run:function(){S.rolled=true;render();},
  after:function(){var c=cost(4,S.R,S.bp);return['The cost rolls up to a cost per roll','Ingredients '+mc(c.ing)+', packaging '+mc(c.pkg)+', labor '+mc(c.lab)+'. Total '+mc(c.tot)+', $'+pr3(c.tot,S.R)+' per roll.'];}},
 {id:'v3',target:function(){return $('kv3');},prompt:'Switch to v3, the previous BOM',where:'below',run:function(){S.ver=3;S.cmp=true;render();},
  after:function(){var R=S.R,c=cost(3,R,S.bp),d=(parseFloat(pr3(cost(4,R,S.bp).tot,R))-parseFloat(pr3(c.tot,R))).toFixed(3);return['Compare with the previous BOM version','v3 had '+kg(V3BD)+' kg of butter in the dough: '+mc(c.tot)+' for '+n0(R)+', $'+pr3(c.tot,R)+' per roll. v4 is +$'+d+' per roll.'];}},
-{id:'price',target:function(){return mode==='try'?$('kupd'):$('kpr');},prompt:'Type 8.00 as the butter price, then Update',where:'below',
- ok:function(){var b=!(qval()>0);$('kfq').classList.toggle('err',b);return !b;},
+{id:'price',target:function(){return mode==='try'?$('kupd'):$('kpr');},prompt:'Click Update to set butter at $8.00 per kg',where:'below',
+ ok:function(){if(!$('kpr')._ty)$('kpr').value='8.00';var b=!(qval()>0);$('kfq').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){var p=mode==='watch'?800:qval();if(!(p>0))p=800;$('kpr').value=(p/100).toFixed(2);$('kfq').classList.remove('err');S.bp0=S.bp;S.bp=p;S.px=true;S.ver=4;render();};if(mode==='watch'&&!quick){$('kpr').value='';typeIn('kpr','8.00',go);}else go();},
  after:function(){var R=S.R,c=cost(4,R,S.bp),c0=cost(4,R,S.bp0),dd=c.tot-c0.tot;return['Change an ingredient price and watch the cost move','Back on v4. Butter at $'+(S.bp/100).toFixed(2)+' per kg '+(dd>=0?'adds '+mc(dd):'saves '+mc(-dd))+' on '+kg(butG(4,R))+' kg. Total '+mc(c.tot)+', $'+pr3(c.tot,R)+' per roll.'];}}];
 '''

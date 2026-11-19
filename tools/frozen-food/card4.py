@@ -86,8 +86,8 @@ function typeMo(done){var t='MO-6105',i=0;(function k(){$('moi').value=t.slice(0
 function resetState(){S={sel:false,exp:false,act:0,post:false,chk:false,po:false,stg:-1};$('moi').value='';$('fmo').classList.remove('err');render();}
 var CAPAT=function(hh){return cur>=4?{l:14,t:176}:cur>=3?{l:14,t:96}:{l:visW()-cap.offsetWidth-14,t:visH()-hh-14};};
 var ST=[
-{id:'sel',target:function(){return mode==='try'?$('opn'):$('moi');},prompt:'Type MO-6105 or pick the sample, then Open',where:'below',
- ok:function(){var v=val(),b=!(v==='MO-6105'||v==='MO6105');$('mem').textContent=v?'No order found. Try MO-6105':'Enter an order, for example MO-6105';$('fmo').classList.toggle('err',b);return !b;},
+{id:'sel',target:function(){return mode==='try'?$('opn'):$('moi');},prompt:'Click Open to open order MO-6105',where:'below',
+ ok:function(){if(!val())$('moi').value='MO-6105';var v=val(),b=!(v==='MO-6105'||v==='MO6105');$('mem').textContent=v?'No order found. Try MO-6105':'Enter an order, for example MO-6105';$('fmo').classList.toggle('err',b);return !b;},
  run:function(quick){var go=function(){$('moi').value='MO-6105';$('fmo').classList.remove('err');S.sel=true;render();};if(mode==='watch'&&!quick)typeMo(go);else go();},
  after:['One run, five stages, 400 lb in','MO-6105 makes FE-2210 on Line 1 through prep, cook, assemble, freeze and pack.']},
 {id:'exp',target:function(){return $('lrt');},prompt:'Load the routing',where:'below',run:function(){S.exp=true;render();},

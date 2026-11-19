@@ -109,11 +109,11 @@ function scanned(v){$('fsc').classList.remove('err');setScan(v);render();}
 function resetState(){S={roll:null,bad:null,lays:false,rec:false,used:0,uv:''};$('sin').value='';$('fsc').classList.remove('err');render();}
 var CAPAT=function(hh){return cur<2?{l:290,t:410}:{l:14,t:196};};
 var ST=[
-{id:'bad',target:function(){return mode==='try'?$('scn'):$('sin');},prompt:'Scan R-48330 or pick a sample',where:'below',
- ok:function(){var v=norm($('sin').value),b=!RL[v];$('sem').textContent=v?'No roll found. Try R-48330':'Enter a roll ID, for example R-48330';$('fsc').classList.toggle('err',b);return !b;},
+{id:'bad',target:function(){return mode==='try'?$('scn'):$('sin');},prompt:'Click Scan to scan roll R-48330',where:'below',
+ ok:function(){if(!$('sin').value.trim())$('sin').value='R-48330';var v=norm($('sin').value),b=!RL[v];$('sem').textContent=v?'No roll found. Try R-48330':'Enter a roll ID, for example R-48330';$('fsc').classList.toggle('err',b);return !b;},
  run:function(quick){var v=mode==='try'&&RL[norm($('sin').value)]?norm($('sin').value):'R-48330';setScan(v);var go=function(){$('sin').value=v;scanned(v);if(S.bad)$('sin').value='R-48214';};if(mode==='watch'&&!quick)typeIn($('sin'),v,go);else go();},
  after:function(){return S.bad?['Scan the roll at the cut table','Wrong dye lot. This order needs '+NEED+', and '+S.bad+' is '+RL[S.bad][0]+'.']:['Scan the roll at the cut table',S.roll+' matches '+NEED+'. The bar shows its '+RL[S.roll][1]+' yd.'];}},
-{id:'ok',target:function(){return mode==='try'?$('scn'):$('sin');},prompt:'Now scan R-48214',where:'below',
+{id:'ok',target:function(){return mode==='try'?$('scn'):$('sin');},prompt:'Click Scan to scan roll R-48214',where:'below',
  ok:function(){var v=norm($('sin').value),b=v!=='R-48214';$('sem').textContent='Scan R-48214, it holds '+NEED;$('fsc').classList.toggle('err',b);return !b;},
  run:function(quick){setScan('R-48214');var go=function(){$('sin').value='R-48214';scanned('R-48214');};if(mode==='watch'&&!quick)typeIn($('sin'),'R-48214',go);else go();},
  after:function(){return['Right lot, the roll is accepted','R-48214 is '+RL['R-48214'][1]+' yd of '+NEED+'. Its length bar is drawn.'];}},
