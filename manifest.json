@@ -1,5 +1,5 @@
 {
-  "version": "1.45.0",
+  "version": "1.47.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -173,6 +173,18 @@
       4
     ],
     "nut-processing": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "meat-poultry-processing": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wineries": [
       1,
       2,
       3,
