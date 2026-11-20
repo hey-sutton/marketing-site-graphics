@@ -1,5 +1,5 @@
 {
-  "version": "1.43.0",
+  "version": "1.45.0",
   "graphics": {
     "food-beverage": [
       1,
@@ -167,6 +167,12 @@
       4
     ],
     "food-distributors": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "nut-processing": [
       1,
       2,
       3,
