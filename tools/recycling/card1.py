@@ -9,7 +9,7 @@ STUDIO = dict(lede='A typical receiving screen, built on your Sutton data with S
 # storyboard: screen, module, target type, position (the variety test reads this and checks the built card against it)
 STORY = [('Inbound loads', 'rec', 'table row', 'center'), ('Scale ticket', 'rec', 'prefilled field', 'left'),
          ('Load detail', 'rec', 'tab', 'top center'), ('Load detail', 'rec', 'toggle', 'right'),
-         ('Labels', 'rec', 'menu item', 'top right'), ('Inventory by grade', 'inv', 'nav item', 'top left')]
+         ('Labels', 'rec', 'menu item', 'top right'), ('Inventory by grade', 'inv', 'header button', 'top right')]
 
 CSS = (
  '.tl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:none}.tile{border:1px solid #E4E4E7;border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}.tile small{font-size:8.8px;color:#71717A}.tile b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:15px;font-weight:600}'
@@ -82,6 +82,9 @@ var ST=[
 {id:'po',target:function(){return $('tg-po');},prompt:'Switch on Receive without a PO',where:'below',run:function(){S.po=true;render();},after:function(){return['Received first, and the purchase order follows from what arrived','PO-7710 created from the load for Harlan Plastics, '+n0(S.net)+' lb.'];},pc:'Received first, PO-7710 follows'},
 {id:'lab',target:function(){if(!S.menu&&S.scr==='detail'){S.menu=true;render();}return $('mi-lab');},prompt:'Click Print 12 pallet labels',where:'below',run:function(){S.menu=false;S.scr='labels';render();},
  after:function(){return['Every pallet gets its own serialized label with weight and grade',PALS+' labels, '+n0(per())+' lb each, '+n0(per()*PALS)+' lb in all.'];},pc:'A serialized label for every pallet'},
-{id:'inv',target:function(){return $(ph()?'bn-inv':'nv-inv');},prompt:'Click Inventory',where:'right',run:function(){S.scr='inv';render();},
+{id:'inv',target:function(){return $('go');},prompt:'Click Open inventory by grade',where:'below',run:function(){S.scr='inv';render();},
  after:function(){return['The load lands in stock by grade and bin','PP mixed scrap is now '+n0(PP0+S.net)+' lb, with '+n0(S.net)+' lb added in bin Y1-03.'];},pc:'The load lands in stock by grade'}];
+/* No module nav on the cards (November 24, 2026): the step that clicked the nav now clicks this header button,
+   which opens the same screen. */
+var renderBase=render;render=function(){renderBase();if(S.po&&S.scr!=='inv'){var pa=$('pa');if(pa&&!$('go'))pa.insertAdjacentHTML('beforeend','<button type="button" class="bt go" id="go">Open inventory by grade</button>');}};
 '''

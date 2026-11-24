@@ -101,12 +101,15 @@ var ST=[
  after:function(){return['Cost per pair stacks up for every size','Material, labor, overhead and landed. Size 9 comes to '+c2(tot(2))+' a pair, '+c2(tot(0))+' to '+c2(tot(5))+' across the run.'];},pc:'Cost per pair for every size'},
 {id:'seg',target:function(){return $('seg-d-9');},prompt:'Click the landed cost on size 9',where:'right',run:function(){S.scr='land';render();},
  after:function(){return['Landed cost comes from the receipt',m2(RFRT/100)+' freight and '+m2(RDUT/100)+' duties over '+rpairs()+' pairs: '+c2(lnd())+' a pair.'];},pc:'2.40 landed, spread from the receipt'},
-{id:'nav',target:function(){return $(ph()?'bn-cst':'nv-cst');},prompt:'Click Costing',where:'right',run:function(){S.scr='cost';render();},
+{id:'nav',target:function(){return $('go');},prompt:'Click Back to cost by size',where:'below',run:function(){S.scr='cost';render();},
  after:['Back to the cost stack for HR-210','The landed segment on every size is the 2.40 spread from receipt RC-7720.'],pc:'Back to the cost stack'},
 {id:'qa',target:function(){return $('tb-qa');},prompt:'Click Quoted vs actual',where:'below',run:function(){S.scr='qv';render();},
  after:function(){return['Quoted cost sits next to actual cost','Quoted '+c2(QUO)+' for every size. Size 9 is '+c2(tot(2))+', '+sg(vr(2))+' or '+pct(vr(2),QUO)+'% over quote.'];},pc:'Size 9 is 1.20 over the quote'},
 {id:'ch',target:function(){return $('ch-dr');},prompt:'Switch the margin to Direct',where:'above',run:function(){S.ch='dr';render();},
  after:function(){var w=pct(PRICE.wh-tot(2),PRICE.wh);return['Margin changes by channel','Size 9 at '+c2(tot(2))+': wholesale '+c2(PRICE.wh)+' gives '+w+'%, direct '+c2(PRICE.dr)+' gives '+mg(2)+'%.'];},pc:'Direct margin on size 9: 60.6%'}];
+/* No module nav on the cards (November 24, 2026): the step that clicked the nav now clicks this header button,
+   which opens the same screen. */
+var renderBase=render;render=function(){renderBase();if(S.scr==='land'){var pa=$('pa');if(pa&&!$('go'))pa.insertAdjacentHTML('beforeend','<button type="button" class="bt go" id="go">Back to cost by size</button>');}};
 /* ===== App shell (opt-in) ===== */
 function ph(){return false;}
 function setNav(o){[].forEach.call(winEl.querySelectorAll('.ni,.bi'),function(b){var on=b.getAttribute('data-m')===o.m;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});

@@ -12,7 +12,7 @@ STUDIO = dict(lede='A typical job costing report, built on your Sutton data with
 STORY = [('Project margin', 'rep', 'text input', 'top left'), ('Project margin', 'rep', 'suggestion', 'top center'),
          ('Project margin', 'rep', 'table row', 'bottom'), ('Kitchen variance', 'rep', 'chart bar', 'center'),
          ('Labor: Kitchen', 'pro', 'link', 'right'), ('Labor: Kitchen', 'pro', 'table row', 'center'),
-         ('Project margin', 'rep', 'nav item', 'top left')]
+         ('Project margin', 'rep', 'header button', 'top right')]
 RATE = 52
 # sub job: revenue, estimate (materials, labor hours, other), actual (materials, labor hours, other)
 SUBS = [('Kitchen', 52000, (19800, 220, 2100), (21350, 248, 2240)),
@@ -104,8 +104,11 @@ var ST=[
  after:function(){var L=lines(0);return['The Kitchen is where the margin went','Materials '+sg(L[0][2]-L[0][1])+', labor '+sg(L[1][2]-L[1][1])+', other '+sg(L[2][2]-L[2][1])+'.'];},pc:'The Kitchen is where the margin went'},
 {id:'lab',target:function(){return $('lab');},prompt:'Click View labor entries',where:'below',run:function(){S.scr='lab';render();},after:['Labor shows which departments ran long','248 hours against 220 estimated, by department.'],pc:'Labor shows which departments ran long'},
 {id:'bld',target:function(){return $('d-build');},prompt:'Click the Build row',where:'below',run:function(){S.bo=true;render();},after:['Build ran ten hours over, the most of any department','76 h against 66, including 6.5 h of door rework.'],pc:'Build ran ten hours over'},
-{id:'back',target:function(){return $(ph()?'bn-rep':'nv-rep');},prompt:'Click Reports',where:'right',run:function(){S.scr='m';S.sel=null;S.win=true;render();},
+{id:'back',target:function(){return $('go');},prompt:'Click Back to project margin',where:'below',run:function(){S.scr='m';S.sel=null;S.win=true;render();},
  after:function(){var x=sub(1);return['Some jobs beat the estimate. Now you know which','Primary closet: '+p1(x.am)+' actual margin against '+p1(x.em)+' estimated.'];},pc:'Some jobs beat the estimate'}];
+/* No module nav on the cards (November 24, 2026): the step that clicked the nav now clicks this header button,
+   which opens the same screen. */
+var renderBase=render;render=function(){renderBase();if(S.bo&&S.scr==='lab'){var pa=$('pa');if(pa&&!$('go'))pa.insertAdjacentHTML('beforeend','<button type="button" class="bt go" id="go">Back to project margin</button>');}};
 '''
 JS = (JS.replace('__RATE__', repr(RATE)).replace('__SUBS__', repr([[s[0], s[1], list(s[2]), list(s[3])] for s in SUBS]).replace("'", '"'))
       .replace('__DEPTS__', repr([list(d) for d in DEPTS]).replace("'", '"')).replace('__BLOG__', repr([list(b) for b in BUILD_LOG]).replace("'", '"'))

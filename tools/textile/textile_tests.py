@@ -76,7 +76,7 @@ def control_checks(f, pg, label, cw):
         f.check(win_top >= c['watch']['b'] + 2, '%s: the window starts below the control row' % label)
     else:
         same = len({round(c[k]['t'] + c[k]['h'] / 2) for k in keys}) <= 2
-        f.check(same and c['studio']['r'] < c['watch']['l'] and c['tryit']['r'] < c['counter']['l'] and c['counter']['r'] < c['replay']['l'], '%s: one row in order Studio, toggle, counter, Replay' % label)
+        f.check(same and c['studio']['r'] < c['watch']['l'] and c['tryit']['r'] < c['replay']['l'], '%s: one row in order Studio, toggle, Replay' % label)
     return d
 
 

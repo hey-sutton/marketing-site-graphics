@@ -117,9 +117,12 @@ var ST=[
 {id:'sort',target:function(){return $('logb');},prompt:'Click Log sort',where:'above',ok:okS,run:function(){okS();S.sort=int($('is').value);S.logged=true;S.scr='conv';render();},
  after:function(){return['Log what you pull out as you sort it',n0(S.sort)+' lb out as metal, paper and film. The rest goes to the grinder.'];},pc:'Log what you pull out as you sort'},
 {id:'node',target:function(){return $('nd-nat');},prompt:'Click Natural regrind',where:'below',run:function(){S.open=true;render();},after:['See where each pound of input went',n0(NAT)+' lb of natural regrind and '+n0(MIX)+' lb of mixed color regrind.'],pc:'See where each pound went'},
-{id:'rep',target:function(){return $(ph()?'bn-rep':'nv-rep');},prompt:'Click Reports',where:'right',run:function(){S.scr='yield';render();},
+{id:'rep',target:function(){return $('go');},prompt:'Click Open yield report',where:'below',run:function(){S.scr='yield';render();},
  after:function(){return['Yield and loss, in the open, for this job',n0(use())+' of '+n0(inp())+' lb usable, yield '+yld()+'%, '+n0(loss())+' lb lost.'];},pc:'Yield and loss for this job'},
 {id:'cpl',target:function(){return $('cpl');},prompt:'Click Complete job',where:'above',run:function(){S.scr='done';render();},after:['Completing books the outputs, with labels that trace back to the loads','Two output lots, labeled and booked into stock by grade.'],pc:'Outputs labeled and booked to stock'}];
+/* No module nav on the cards (November 24, 2026): the step that clicked the nav now clicks this header button,
+   which opens the same screen. */
+var renderBase=render;render=function(){renderBase();if(S.open&&S.scr==='conv'){var pa=$('pa');if(pa&&!$('go'))pa.insertAdjacentHTML('beforeend','<button type="button" class="bt go" id="go">Open yield report</button>');}};
 /* ===== App shell (opt-in) ===== */
 function ph(){return false;}
 function setNav(o){[].forEach.call(winEl.querySelectorAll('.ni,.bi'),function(b){var on=b.getAttribute('data-m')===o.m;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});

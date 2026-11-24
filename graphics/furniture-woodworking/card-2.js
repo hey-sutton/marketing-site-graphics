@@ -106,9 +106,12 @@ var ST=[
 {id:'rem',target:function(){return $('rem');},prompt:'Click the leftover',where:'below',run:function(){S.open=true;render();},
  after:function(){return['The leftover is a usable piece, not waste',REM[2]+' x '+REM[3]+' in, '+remSqft().toFixed(2)+' sq ft. Yield '+yld().toFixed(1)+'%.'];},pc:'The leftover is usable, not waste'},
 {id:'book',target:function(){return $('book');},prompt:'Click Book remnant to stock',where:'above',run:function(){S.booked=true;render();},after:['One click books it back',NEW[0]+', '+NEW[2]+' x '+NEW[3]+' in, goes to shelf '+NEW[4]+'.']},
-{id:'inv',target:function(){return $(ph()?'bn-inv':'nv-inv');},prompt:'Click Inventory',where:'right',run:function(){S.scr='inv';render();},
+{id:'inv',target:function(){return $('go');},prompt:'Click Open in inventory',where:'below',run:function(){S.scr='inv';render();},
  after:function(){return['It lands in inventory with its size and shelf',sheets()+' sheets and '+rems()+' remnants. '+NEW[0]+' is on shelf '+NEW[4]+'.'];},pc:'It lands in inventory, sized and shelved'},
 {id:'flt',target:function(){return $('f-w');},prompt:'Click Width 24 in or more',where:'below',run:function(){S.flt=true;render();},after:['Find leftovers by width before ordering new sheets','Two remnants qualify, including '+NEW[0]+'.'],pc:'Find leftovers by width first'}];
+/* No module nav on the cards (November 24, 2026): the step that clicked the nav now clicks this header button,
+   which opens the same screen. */
+var renderBase=render;render=function(){renderBase();if(S.booked&&S.scr!=='inv'){var pa=$('pa');if(pa&&!$('go'))pa.insertAdjacentHTML('beforeend','<button type="button" class="bt go" id="go">Open in inventory</button>');}};
 /* ===== App shell (opt-in) ===== */
 function ph(){return false;}
 function setNav(o){[].forEach.call(winEl.querySelectorAll('.ni,.bi'),function(b){var on=b.getAttribute('data-m')===o.m;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});

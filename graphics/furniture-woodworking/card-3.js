@@ -113,7 +113,10 @@ var ST=[
 {id:'link',target:function(){return $('so');},prompt:'Click SO-1184',where:'below',run:function(){S.scr='so';render();},after:['The customer adds length after approval','The top goes from 72 in to 84 in on change order CO-1184-1.'],pc:'The customer adds length after approval'},
 {id:'apply',target:function(){return $('apply');},prompt:'Click Apply change order',where:'above',run:function(){S.co=true;S.scr='co';render();},
  after:function(){var a=C0(),b=calc(S.sp,2,S.f);return['Only the difference moves, and the shop sees it','Lumber +'+(b.bf-a.bf)+' bf, labor +'+(b.h-a.h)+' h, price +'+d0(b.price-a.price)+'. MO-3306 goes to '+b.bf+' bf.'];},pc:'Only the difference moves'},
-{id:'nav',target:function(){return $(ph()?'bn-pro':'nv-pro');},prompt:'Click Production',where:'right',run:function(){S.scr='mo';render();},after:['Quote, order and production stay in step','MO-3306 is on Rev B with 64 bf of white oak.'],pc:'Quote, order and production in step'}];
+{id:'nav',target:function(){return $('go');},prompt:'Click Open MO-3306',where:'below',run:function(){S.scr='mo';render();},after:['Quote, order and production stay in step','MO-3306 is on Rev B with 64 bf of white oak.'],pc:'Quote, order and production in step'}];
+/* No module nav on the cards (November 24, 2026): the step that clicked the nav now clicks this header button,
+   which opens the same screen. */
+var renderBase=render;render=function(){renderBase();if(S.co&&S.scr==='co'){var pa=$('pa');if(pa&&!$('go'))pa.insertAdjacentHTML('beforeend','<button type="button" class="bt go" id="go">Open MO-3306</button>');}};
 /* ===== App shell (opt-in) ===== */
 function ph(){return false;}
 function setNav(o){[].forEach.call(winEl.querySelectorAll('.ni,.bi'),function(b){var on=b.getAttribute('data-m')===o.m;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
