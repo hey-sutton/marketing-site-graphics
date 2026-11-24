@@ -33,19 +33,35 @@ _orig_layout = testlib.layout_checks
 def layout_checks(f, pg, n, label):
     if not js(pg, "return r.querySelector('.shot').classList.contains('ph')"):
         return _orig_layout(f, pg, n, label)
-    d = js(pg, '''var cv=document.getElementById('cv').getBoundingClientRect(),w=r.querySelector('.fwin').getBoundingClientRect(),p=r.getElementById('pg'),s=r.querySelector('.stp').getBoundingClientRect();
-return {in_:w.left>=cv.left&&w.right<=cv.right+0.5&&w.bottom<=cv.bottom,ratio:cv.height/cv.width,cw:cv.width,ov:p.scrollWidth-p.clientWidth,stp:s.bottom<=cv.bottom&&s.top>=w.bottom-2,bn:getComputedStyle(r.querySelector('.bn')).display,rail:getComputedStyle(r.querySelector('.rail')).display,right:cv.right-s.right,tap:[].map.call(r.querySelectorAll('.stp button,.studio-chip,.mtg button,.tbar .rp'),function(b){return Math.round(b.getBoundingClientRect().height)})};''')
+    d = js(pg, '''var cv=document.getElementById('cv').getBoundingClientRect(),w=r.querySelector('.fwin').getBoundingClientRect(),p=r.getElementById('pg');
+return {in_:w.left>=cv.left&&w.right<=cv.right+0.5&&w.bottom<=cv.bottom,ratio:cv.height/cv.width,cw:cv.width,ov:p.scrollWidth-p.clientWidth,gap:cv.bottom-w.bottom,bn:getComputedStyle(r.querySelector('.bn')).display,rail:getComputedStyle(r.querySelector('.rail')).display,tap:[].map.call(r.querySelectorAll('.studio-chip,.mtg button,.tbar .rp'),function(b){return Math.round(b.getBoundingClientRect().height)})};''')
     want = 1.0 if d['cw'] <= 400 else 1 - 0.12 * (d['cw'] - 400) / 120
     f.check(d['in_'], '%s phone: the window sits inside the card' % label)
     f.check(abs(d['ratio'] - want) < 0.02, '%s phone: stage height %.2f of its width (want %.2f)' % (label, d['ratio'], want))
     f.check(d['ov'] <= 0, '%s phone: nothing overflows sideways' % label)
-    f.check(d['stp'], '%s phone: step arrows in the strip under the window' % label)
-    f.check(d['right'] < 20, '%s phone: step arrows at the bottom right (%.0f px from the edge)' % (label, d['right']))
+    f.check(d['gap'] < 16, '%s phone: only a slim strip of photo under the window (%.0f px)' % (label, d['gap']))
     f.check(min(d['tap']) >= 39, '%s phone: controls are 40 px tap targets %s' % (label, d['tap']))
     f.check(d['bn'] == 'flex' and d['rail'] == 'none', '%s phone: bottom nav replaces the side nav' % label)
 
 
 testlib.layout_checks = layout_checks
+
+# The distilleries cards hide the step arrows and the status pill (November 24, 2026). The shared run_card clicks the
+# arrows and checks they sit inside shorter cards, so those two blocks are swapped for checks that both stay hidden.
+# The pill keeps its text for the screen reader free checks below (pill() reads textContent, which display:none keeps).
+import inspect, textwrap  # noqa: E402
+_src = textwrap.dedent(inspect.getsource(testlib.run_card))
+_a, _b = _src.index('        # arrows jump to a step'), _src.index('        # Replay in Try it restarts Try it')
+_src = _src[:_a] + """        hid = js(pg, "var s=r.querySelector('.stp'),m=r.querySelector('.tbar .mode');return getComputedStyle(s).display==='none'&&getComputedStyle(m).display==='none'")
+        f.check(hid, 'the step arrows and the status pill are hidden')
+""" + _src[_b:]
+_a, _b = _src.index('        # step arrows stay inside shorter cards'), _src.index('        # Studio fits at 340')
+_src = _src[:_a] + _src[_b:]
+_src = _src.replace("f.check(js(pg, \"return getComputedStyle(r.querySelector('.tbar .mode')).visibility\") == 'hidden', 'pill hides while the popover is open')", "pass")
+_src = _src.replace("        f.check(js(pg, \"return getComputedStyle(r.querySelector('.tbar .mode .mc')).display\") == 'none', '340 px: pill hides n of N')\n", "")
+_ns = dict(vars(testlib))
+exec(compile(_src, testlib.__file__, 'exec'), _ns)
+testlib.run_card = _ns['run_card']
 
 
 def variety(n, f):
