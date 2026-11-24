@@ -66,15 +66,17 @@ When the loader version changes, update it on every feature page that carries it
 
 ## Demo card rules
 
-These hold for every card built on the shared frame (`tools/electronics/frame.py`): Electronics, Apparel, Distribution, Plastics, Furniture and woodworking, Recycling, and any new industry.
+These hold for every new card built on the shared frame (`tools/electronics/frame.py`). The reference build is `tools/distilleries`: copy it for a new industry and change the key, label, company name, Studio chips and the four card files.
 
-* **Step arrows stay inside the card.** The product window is sized from the card's width, so the window's bottom edge can sit well below the card's visible bottom. That happens on cards shorter than 604 by 540: the template's 604/523 shape from 1440 px, and the sticky capability cards on the Industries template.
-  * The frame's `placeStp()`, called from `fit()`, keeps the arrows at least 28 design px above the card's visible bottom, and never lower than 44 px above the window's bottom.
-  * Don't pin the arrows with fixed CSS in a card. Let the frame place them.
-  * In the phone layout (`phone=True`) the arrows sit in their own strip under the window instead.
-  * `testlib.run_card` checks this at 604/523, 584/460 and 700/430 for every card, so a card that breaks it fails its tests.
-* **Window edges.** The window runs past the card's right and bottom edges at 1300, 1024, 768 and 390 px, and the card's bottom right corner is square.
-* **Release tags start with `v`** (for example `v1.26.2`). The loader's `BASE` is built around `@v...`, and the tag must be on the merged `main` commit whose `manifest.json` version matches it.
+* **What the card shows.** The Studio chip and popover (four example chips, rows "Built on", "Change" and "Get help: From the Sutton team"), the Watch and Try it toggle, Replay, the ghost cursor, the ripple on the next target, captions, and the yellow prompt inside the window in Try it mode.
+* **What it does not show (since November 24, 2026).** No step arrows, no status pill (Watching, Your turn, Done) and no app module nav (the side nav on desktop, the icon bar on phones). The window shows only the app screen with its breadcrumb and header. No plan or tier wording, and no "Concept screen", "Live demo" or "Illustrative" tags.
+  * Hide them in the industry's own `build.py`, the way `tools/distilleries/build.py` does (`.stp,.tbar .mode{display:none!important}` and `.rail,.bn{display:none!important}` with a one column `.app`). Don't edit the shared frame for one industry; other industries still use it as it is.
+  * Cards built before Distilleries still show the arrows and the pill. Their arrows follow the older rule: the frame's `placeStp()` keeps them inside cards shorter than 604 by 540, and `testlib.run_card` checks that.
+* **Phone layout.** Under 520 px of card width (measured on the card, not the viewport) the card becomes a phone stage: square up to 400 px, then 1 to 0.88 tall from 401 to 520 px, with the window laid out at a fixed scale of 0.95 and about 10 px of photo at the sides and bottom. Each step has its own compact phone screen (three column tables, an opened item as its own screen with a back button, one line captions), controls are 40 px tap targets, and short screens get a few rows of real detail instead of an empty band. Test at 340, 390 and 480 px as well as 768, 1024 and 1300.
+* **Window edges.** On desktop the window runs past the card's right and bottom edges at 1300, 1024, 768 and 390 px, and the card's bottom right corner is square.
+* **Numbers.** Every sum in the brief is asserted in Python before the build (`tools/distilleries/numbers_check.py`), and the tests read each number off the screen.
+* **Size.** Each card file is 40 to 65 KB, never above 80 KB. `prune()` in `tools/distilleries/build.py` drops scaffold CSS a card never uses.
+* **Release tags start with `v`** (for example `v1.26.2`). The loader's `BASE` is built around `@v...`, and the tag must be on the merged `main` commit whose `manifest.json` version matches it. Bump the version in the same pull request as the cards, and push every commit before it is merged.
 
 ## After a release
 
