@@ -32,13 +32,13 @@ def layout_checks(f, pg, n, label):
     if not js(pg, "return r.querySelector('.shot').classList.contains('ph')"):
         return _orig_layout(f, pg, n, label)
     d = js(pg, '''var cv=document.getElementById('cv').getBoundingClientRect(),w=r.querySelector('.fwin').getBoundingClientRect(),p=r.getElementById('pg'),s=r.querySelector('.stp').getBoundingClientRect();
-return {in_:w.left>=cv.left&&w.right<=cv.right+0.5&&w.bottom<=cv.bottom,ratio:cv.height/cv.width,cw:cv.width,ov:p.scrollWidth-p.clientWidth,stp:s.bottom<=cv.bottom&&s.top>=w.bottom-2,bn:getComputedStyle(r.querySelector('.bn')).display,rail:getComputedStyle(r.querySelector('.rail')).display};''')
+return {in_:w.left>=cv.left&&w.right<=cv.right+0.5&&w.bottom<=cv.bottom,ratio:cv.height/cv.width,cw:cv.width,ov:p.scrollWidth-p.clientWidth,stp:s.bottom<=cv.bottom&&s.top>=w.bottom-2,bn:getComputedStyle(r.querySelector('.bn')).display,stpd:getComputedStyle(r.querySelector('.stp')).display,rail:getComputedStyle(r.querySelector('.rail')).display};''')
     want = 1.0 if d['cw'] <= 400 else 1 - 0.12 * (d['cw'] - 400) / 120
     f.check(d['in_'], '%s phone: the window sits inside the card' % label)
     f.check(abs(d['ratio'] - want) < 0.02, '%s phone: stage height %.2f of its width (want %.2f)' % (label, d['ratio'], want))
     f.check(d['ov'] <= 0, '%s phone: nothing overflows sideways' % label)
-    f.check(d['stp'], '%s phone: step arrows in the strip under the window' % label)
-    f.check(d['bn'] == 'flex' and d['rail'] == 'none', '%s phone: bottom nav replaces the side nav' % label)
+    # no step arrows and no module nav since November 24, 2026
+    f.check(d['bn'] == 'none' and d['rail'] == 'none' and d['stpd'] == 'none', '%s phone: no step arrows, no side nav and no bottom bar' % label)
 
 
 testlib.layout_checks = layout_checks

@@ -206,16 +206,10 @@ def run_card(n, plan, numbers, extra=None):
             f.check(s in txt, 'final screen shows %s' % s)
         if extra and 'after' in extra:
             extra['after'](pg, f)
-        # arrows jump to a step
-        pg.locator('#cv #pv').click()
-        pg.wait_for_timeout(500)
-        f.check(('Your turn%d of %d' % (N, N)) in pill(pg), 'arrows: previous jumps to step %d (%s)' % (N, pill(pg)))
-        pg.locator('#cv #pv').click()
-        pg.wait_for_timeout(500)
-        f.check(('Your turn%d of %d' % (N - 1, N)) in pill(pg), 'arrows: previous again to step %d' % (N - 1))
-        pg.locator('#cv #nx').click()
-        pg.wait_for_timeout(500)
-        f.check(('Your turn%d of %d' % (N, N)) in pill(pg), 'arrows: next to step %d' % N)
+        # No step arrows and no status pill on any card (November 24, 2026): check both stay hidden. The pill keeps its
+        # text, which pill() reads through textContent, so the other checks still work.
+        hid = js(pg, "return [].every.call(r.querySelectorAll('.stp,#pv,#nx,.tbar .mode'),function(e){return getComputedStyle(e).display==='none'})")
+        f.check(hid, 'the step arrows and the status pill are hidden')
         # Replay in Try it restarts Try it
         pg.locator('#cv .tbar .rp').click()
         pg.wait_for_timeout(400)
@@ -232,7 +226,6 @@ def run_card(n, plan, numbers, extra=None):
         pg.locator('#cv .studio-chip').click()
         pg.wait_for_timeout(600)
         f.check(pg.locator('#cv .studio.open').count() == 1, 'Studio popover opens')
-        f.check(js(pg, "return getComputedStyle(r.querySelector('.tbar .mode')).visibility") == 'hidden', 'pill hides while the popover is open')
         pg.keyboard.press('Escape')
         pg.wait_for_timeout(400)
         f.check(pg.locator('#cv .studio.open').count() == 0, 'Studio popover closes')
@@ -248,16 +241,6 @@ def run_card(n, plan, numbers, extra=None):
             layout_checks(f, pg, n, '%d px' % vw)
             shot(pg, 'card%d_layout_%d.png' % (n, vw))
             pg.close()
-        # step arrows stay inside shorter cards: the template makes the card 604/523 from 1440 px, and its sticky
-        # capability cards can be wider than 604/540. The frame's placeStp() keeps them in; this guards it.
-        for vw, cw, ar in ((1500, 604, '604/523'), (1300, 584, '584/460'), (1300, 700, '700/430')):
-            pg, errs = open_card(b, n, vw, cw)
-            pg.evaluate("a=>{document.getElementById('cv').style.aspectRatio=a}", ar)
-            pg.locator('#cv').scroll_into_view_if_needed()
-            pg.wait_for_timeout(300)
-            ok = js(pg, "var cv=document.getElementById('cv').getBoundingClientRect(),s=r.querySelector('.stp').getBoundingClientRect();return s.bottom<=cv.bottom-4&&s.top>=cv.top&&s.right<=cv.right")
-            f.check(ok, 'card %s: step arrows inside the card' % ar)
-            pg.close()
         # Studio fits at 340
         pg, errs = open_card(b, n, 372, 340)
         pg.locator('#cv').scroll_into_view_if_needed()
@@ -268,7 +251,6 @@ def run_card(n, plan, numbers, extra=None):
         fits = js(pg, "var cv=document.getElementById('cv').getBoundingClientRect(),p=r.querySelector('.pop').getBoundingClientRect();return {pop:p.left>=cv.left&&p.right<=cv.right+1,hid:getComputedStyle(r.querySelector('.tbar')).visibility==='hidden'};")
         f.check(fits['pop'], '340 px: Studio popover fits the card')
         f.check(fits['hid'], '340 px: the top bar steps aside while the popover is open')
-        f.check(js(pg, "return getComputedStyle(r.querySelector('.tbar .mode .mc')).display") == 'none', '340 px: pill hides n of N')
         shot(pg, 'card%d_340_studio.png' % n)
         pg.keyboard.press('Escape')
         pg.close()
