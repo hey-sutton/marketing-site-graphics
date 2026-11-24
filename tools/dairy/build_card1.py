@@ -176,6 +176,7 @@ from gfx_scaffold import COMMON_CSS  # noqa: E402  (card 1 keeps its own CSS; ta
 HIDE=[l for l in COMMON_CSS.split('}') if l.startswith('.fwin>.stp,#pv,#nx')]
 assert len(HIDE)==1
 css+=HIDE[0]+'}'
+css+='.stp{display:none!important}'  # card 1's arrow bar is not a direct child of .fwin, and nothing else in card 1 uses .stp
 out.append('var CSS='+json.dumps(css)+".replace('__BG__',BGU);")
 out.append('var BODY='+json.dumps(body)+';')
 pre=src[src.index("var c=document.currentScript&&document.currentScript.sxCard;"):src.index('function boot(root){')]
