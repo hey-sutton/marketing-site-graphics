@@ -5,8 +5,9 @@ Uses the shared Watch and Try it frame in tools/electronics/frame.py (the Brewer
 and popover, Replay, hint pill, ghost cursor, captions, step arrows, ripple hotspots, visibility observer, aria live
 region) with the app shell (SHELL) and the phone layout (PHONE), like Footwear. On top of that, for distilleries:
   * the Studio popover's "Get help" row says "From the Sutton team" (no plan wording, November 11, 2026 rule);
-  * on the phone stage the strip under the window is 50 px instead of 36 px, so the step arrows can sit at the
-    bottom right as 40 px tap targets without touching the window;
+  * no step arrows and no status pill (Watching, Your turn, Done) at any width: the Watch and Try it toggle, Replay,
+    the ghost cursor, the ripple and the prompts inside the window stay;
+  * on the phone stage the strip under the window is 10 px of photo instead of 36 px;
   * the top bar controls are 40 px tall on the phone stage.
 Before writing anything, every number in the brief is asserted in numbers.py.
 Run from anywhere: python3 tools/distilleries/build.py [card numbers]"""
@@ -30,21 +31,24 @@ frame.MODS = [('pro', 'Production', '<path d="M5 2.5h6M6 2.5v3.2L3 12a1.3 1.3 0 
               ('sal', 'Sales', '<path d="M2.5 8.6V2.5h6.1l5 5-6.1 6.1z"/><circle cx="5.4" cy="5.4" r="1"/>'),
               ('pur', 'Purchasing', '<path d="M1.8 2.5h2l1.6 7.5h7l1.4-5.2H4.6"/><circle cx="6.2" cy="12.6" r="1"/><circle cx="11.6" cy="12.6" r="1"/>')]
 
-# phone stage: a 50 px strip under the window for the step arrows, arrows at the bottom right, 40 px targets
+# no step arrows and no status pill at any width (November 24, 2026); the phone stage keeps a 10 px strip of photo
+# under the window and 40 px top bar controls
 PHONE_STRIP_OLD = 'wh=Math.round((H-48-36)/s)'
-PHONE_STRIP_NEW = 'wh=Math.round((H-48-50)/s)'
+PHONE_STRIP_NEW = 'wh=Math.round((H-48-10)/s)'
 PHONE_CSS = (
- '.shot.ph .stp{left:auto;right:0;transform:none;bottom:-49px;gap:4px}.shot.ph .stp button{width:42px;height:42px;border-radius:10px}.shot.ph .stp svg{width:15px;height:15px}'
- '.shot.ph .stp .sn{min-width:44px;font-size:11px}'
+ '.stp,.tbar .mode{display:none!important}'
+ # no module nav (November 24, 2026): the side nav on desktop and the bottom bar on the phone stage are hidden, so the
+ # window shows only the app screen with its breadcrumb and header
+ '.rail,.bn,.shot.ph .bn{display:none!important}.app,.shot.ph .app{grid-template-columns:1fr}'
  '.shot.ph .studio{top:4px;left:8px}.shot.ph .studio-chip{height:40px}.shot.ph .tbar{top:4px}.shot.ph .mtg{height:40px}.shot.ph .mtg button{min-width:44px}'
  '.shot.ph .mode{height:40px}.shot.ph .tbar .rp{height:40px;min-width:40px;justify-content:center}'
- '.xw{display:none}.shot.ph:not(.nar) .xw{display:block}.xw .row{grid-template-columns:1fr auto;font-size:10px}.xw .row span:last-child{font-family:"JetBrains Mono",ui-monospace,monospace}'
+ '.xw{display:none}.shot.ph .xw{display:block}.shot.ph.nar .xw .row:nth-child(n+3){display:none}.xw .row{grid-template-columns:1fr auto;font-size:10px}.xw .row span:last-child{font-family:"JetBrains Mono",ui-monospace,monospace}'
  '.shot.ph .bi{width:44px;height:40px}.shot.ph .mtg{height:auto;padding:0;gap:0}.shot.ph .mtg button{height:40px}'
  '.shot.ph.nar .studio-chip{padding:0 10px}.shot.ph.nar .studio-chip>span:nth-child(2){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}'
 )
 
-# a short detail list each card appends to its phone screens; it shows only on phone stages 430 px and wider,
-# where the stage is taller, so those screens have no empty band
+# a short detail list each card appends to its phone screens, so they have no empty band: three rows on phone
+# stages 430 px and wider, two below that
 XW_JS = "function xw(rows){return '<div class=\"xw\"><div class=\"cd\">'+rows.map(function(r){return '<div class=\"row\"><span>'+r[0]+'</span><span>'+r[1]+'</span></div>';}).join('')+'</div></div>';}\n"
 
 
