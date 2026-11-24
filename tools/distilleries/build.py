@@ -37,15 +37,18 @@ PHONE_STRIP_OLD = 'wh=Math.round((H-48-36)/s)'
 PHONE_STRIP_NEW = 'wh=Math.round((H-48-10)/s)'
 PHONE_CSS = (
  '.stp,.tbar .mode{display:none!important}'
+ # no module nav (November 24, 2026): the side nav on desktop and the bottom bar on the phone stage are hidden, so the
+ # window shows only the app screen with its breadcrumb and header
+ '.rail,.bn,.shot.ph .bn{display:none!important}.app,.shot.ph .app{grid-template-columns:1fr}'
  '.shot.ph .studio{top:4px;left:8px}.shot.ph .studio-chip{height:40px}.shot.ph .tbar{top:4px}.shot.ph .mtg{height:40px}.shot.ph .mtg button{min-width:44px}'
  '.shot.ph .mode{height:40px}.shot.ph .tbar .rp{height:40px;min-width:40px;justify-content:center}'
- '.xw{display:none}.shot.ph:not(.nar) .xw{display:block}.xw .row{grid-template-columns:1fr auto;font-size:10px}.xw .row span:last-child{font-family:"JetBrains Mono",ui-monospace,monospace}'
+ '.xw{display:none}.shot.ph .xw{display:block}.shot.ph.nar .xw .row:nth-child(n+3){display:none}.xw .row{grid-template-columns:1fr auto;font-size:10px}.xw .row span:last-child{font-family:"JetBrains Mono",ui-monospace,monospace}'
  '.shot.ph .bi{width:44px;height:40px}.shot.ph .mtg{height:auto;padding:0;gap:0}.shot.ph .mtg button{height:40px}'
  '.shot.ph.nar .studio-chip{padding:0 10px}.shot.ph.nar .studio-chip>span:nth-child(2){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}'
 )
 
-# a short detail list each card appends to its phone screens; it shows only on phone stages 430 px and wider,
-# where the stage is taller, so those screens have no empty band
+# a short detail list each card appends to its phone screens, so they have no empty band: three rows on phone
+# stages 430 px and wider, two below that
 XW_JS = "function xw(rows){return '<div class=\"xw\"><div class=\"cd\">'+rows.map(function(r){return '<div class=\"row\"><span>'+r[0]+'</span><span>'+r[1]+'</span></div>';}).join('')+'</div></div>';}\n"
 
 

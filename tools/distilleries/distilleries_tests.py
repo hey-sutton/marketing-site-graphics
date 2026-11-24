@@ -41,7 +41,7 @@ return {in_:w.left>=cv.left&&w.right<=cv.right+0.5&&w.bottom<=cv.bottom,ratio:cv
     f.check(d['ov'] <= 0, '%s phone: nothing overflows sideways' % label)
     f.check(d['gap'] < 16, '%s phone: only a slim strip of photo under the window (%.0f px)' % (label, d['gap']))
     f.check(min(d['tap']) >= 39, '%s phone: controls are 40 px tap targets %s' % (label, d['tap']))
-    f.check(d['bn'] == 'flex' and d['rail'] == 'none', '%s phone: bottom nav replaces the side nav' % label)
+    f.check(d['bn'] == 'none' and d['rail'] == 'none', '%s phone: no side nav and no bottom bar' % label)
 
 
 testlib.layout_checks = layout_checks

@@ -5,9 +5,10 @@ Source for `graphics/distilleries/card-1.js` to `card-4.js`, page /industries/di
 * **Frame:** the shared Watch and Try it frame (`tools/electronics/frame.py`, the Brewery scaffold at 716 by 640: shadow DOM host, Studio badge and popover, Replay, hint pill, ghost cursor, captions, step arrows, ripple hotspots, visibility observer, aria live region, reduced motion) with the app shell (`shell=True`) and the phone layout (`phone=True`), like Footwear. `build.py` adds, for distilleries only:
   * distillery modules in the shell: Production, Warehouse, Inventory, Traceability, Sales, Purchasing;
   * "Get help: From the Sutton team" in the Studio popover (no plan wording);
+  * no module nav: the side nav on desktop and the bottom bar on the phone stage are hidden, so the window shows only the app screen with its breadcrumb and header (November 24, 2026);
   * no step arrows and no status pill (Watching, Your turn, Done) at any width (November 24, 2026); the Watch and Try it toggle, Replay and the prompts inside the window stay;
   * on the phone stage (card under 520 px): a 10 px strip of photo under the window, 40 px top bar controls, and an icon only Studio chip under 430 px (its name stays for screen readers);
-  * a short detail list on phone stages 430 px and wider (`xw()`), so the taller stage has no empty band;
+  * a short detail list on the phone stage (`xw()`, three rows from 430 px, two below), so the screens have no empty band;
   * card 3 starts sooner (`ENGINE_PATCH`), so the lot is typed about 1.3 s after the card is in view;
   * scaffold CSS rules whose classes a card never uses are dropped from that card's file (`prune()`), which keeps every card at or under 65 KB.
 * **Build:** `python3 tools/distilleries/build.py` rebuilds all four, or pass card numbers. It first imports `numbers_check.py`, which asserts every sum in the brief (mash bill totals, 346.00, 2,000.00, 4.00 per liter, 1.80, 3.25, 19.50, 20.35, 692.00, 511.0, 110, 3.4%, 80 + 70 = 150, 560, 400 + 100 + 60, 1,200, 300 short, 276.00).
