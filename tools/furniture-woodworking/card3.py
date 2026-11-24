@@ -12,7 +12,7 @@ STUDIO = dict(lede='A typical quote configurator, built on your Sutton data with
 STORY = [('Configurator', 'sal', 'select', 'top left'), ('Configurator', 'sal', 'product chip', 'top center'),
          ('Configurator', 'sal', 'option', 'left'), ('Configurator', 'sal', 'tab', 'top right'),
          ('Production order MO-3306', 'pro', 'primary button', 'bottom right'), ('Sales order SO-1184', 'sal', 'link', 'top left'),
-         ('Change order CO-1184-1', 'sal', 'primary button', 'bottom right'), ('Production order MO-3306', 'pro', 'nav item', 'top left')]
+         ('Change order CO-1184-1', 'sal', 'primary button', 'bottom right'), ('Production order MO-3306', 'pro', 'header button', 'top right')]
 SPECIES = [('Walnut', 18.00), ('White oak', 12.50), ('Maple', 9.00)]
 WIDTHS = [(60, 48, 16), (72, 56, 18), (84, 64, 20)]          # top width in, board feet, labor hours
 FINISHES = [('Natural oil', 38.00), ('Matte lacquer', 54.00), ('Stain and lacquer', 76.00)]
@@ -117,7 +117,10 @@ var ST=[
 {id:'link',target:function(){return $('so');},prompt:'Click SO-1184',where:'below',run:function(){S.scr='so';render();},after:['The customer adds length after approval','The top goes from 72 in to 84 in on change order CO-1184-1.'],pc:'The customer adds length after approval'},
 {id:'apply',target:function(){return $('apply');},prompt:'Click Apply change order',where:'above',run:function(){S.co=true;S.scr='co';render();},
  after:function(){var a=C0(),b=calc(S.sp,2,S.f);return['Only the difference moves, and the shop sees it','Lumber +'+(b.bf-a.bf)+' bf, labor +'+(b.h-a.h)+' h, price +'+d0(b.price-a.price)+'. MO-3306 goes to '+b.bf+' bf.'];},pc:'Only the difference moves'},
-{id:'nav',target:function(){return $(ph()?'bn-pro':'nv-pro');},prompt:'Click Production',where:'right',run:function(){S.scr='mo';render();},after:['Quote, order and production stay in step','MO-3306 is on Rev B with 64 bf of white oak.'],pc:'Quote, order and production in step'}];
+{id:'nav',target:function(){return $('go');},prompt:'Click Open MO-3306',where:'below',run:function(){S.scr='mo';render();},after:['Quote, order and production stay in step','MO-3306 is on Rev B with 64 bf of white oak.'],pc:'Quote, order and production in step'}];
+/* No module nav on the cards (November 24, 2026): the step that clicked the nav now clicks this header button,
+   which opens the same screen. */
+var renderBase=render;render=function(){renderBase();if(S.co&&S.scr==='co'){var pa=$('pa');if(pa&&!$('go'))pa.insertAdjacentHTML('beforeend','<button type="button" class="bt go" id="go">Open MO-3306</button>');}};
 '''
 JS = (JS.replace('__SP__', repr([list(s) for s in SPECIES]).replace("'", '"')).replace('__WD__', repr([list(w) for w in WIDTHS]))
       .replace('__FN__', repr([list(f) for f in FINISHES]).replace("'", '"')).replace('__HW__', repr(HARDWARE)).replace('__RATE__', repr(RATE)).replace('__MG__', repr(MARGIN)))

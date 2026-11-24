@@ -52,8 +52,9 @@ def control_checks(f, pg, label, cw):
     f.check(d['rpText'] == '' and d['rpAria'] == 'Replay' and d['rpTitle'] == 'Replay', '%s: Replay is an icon with aria-label and title "Replay"' % label)
     f.check(d['shell'] == 0, '%s: no side nav and no profile' % label)
     f.check(d['hd'], '%s: header has the icon, title and subtitle' % label)
-    f.check(d['mc'], '%s: the step counter (n of N) is visible in the pill' % label)
-    keys = ['studio', 'watch', 'tryit', 'pv', 'counter', 'nx', 'replay'] if two else ['studio', 'watch', 'tryit', 'counter', 'replay']
+    # no step arrows and no status pill since November 24, 2026
+    f.check(not d['mc'] and not c['pv']['vis'] and not c['nx']['vis'] and not c['counter']['vis'], '%s: the step arrows and the status pill are hidden' % label)
+    keys = ['studio', 'watch', 'tryit', 'replay']
     for k in keys:
         b = c[k]
         f.check(b and b['vis'] and b['l'] >= cv['l'] - 0.5 and b['r'] <= cv['r'] + 0.5 and b['t'] >= cv['t'] - 0.5 and b['b'] <= cv['b'] + 0.5, '%s: %s visible inside the card' % (label, k))
@@ -63,18 +64,17 @@ def control_checks(f, pg, label, cw):
         for b in keys[i + 1:]:
             f.check(not overlap(c[a], c[b]), '%s: %s and %s do not overlap' % (label, a, b))
     if two:
-        f.check(d['inBar'], '%s: step arrows sit in the control row' % label)
-        for k in ['studio', 'watch', 'tryit', 'pv', 'nx', 'replay']:
+        for k in ['studio', 'watch', 'tryit', 'replay']:
             f.check(c[k]['w'] >= 40 - 0.5 and c[k]['h'] >= 40 - 0.5, '%s: %s at least 40 by 40 CSS px (%.0f by %.0f)' % (label, k, c[k]['w'], c[k]['h']))
         l1 = abs(c['studio']['t'] - c['replay']['t']) < 2
-        l2 = len({round(c[k]['t']) for k in ['watch', 'pv', 'counter', 'nx']}) == 1
-        f.check(l1 and l2 and c['watch']['t'] >= c['studio']['b'], '%s: line 1 Studio and Replay, line 2 toggle and counter' % label)
-        f.check(c['studio']['r'] < c['replay']['l'] and c['watch']['r'] <= c['tryit']['l'] + 0.5 and c['tryit']['r'] < c['pv']['l'] and c['pv']['r'] < c['counter']['l'] and c['counter']['r'] < c['nx']['l'], '%s: order Studio, toggle, counter, Replay' % label)
+        l2 = abs(c['watch']['t'] - c['tryit']['t']) < 2
+        f.check(l1 and l2 and c['watch']['t'] >= c['studio']['b'], '%s: line 1 Studio and Replay, line 2 the toggle' % label)
+        f.check(c['studio']['r'] < c['replay']['l'] and c['watch']['r'] <= c['tryit']['l'] + 0.5, '%s: order Studio, toggle, Replay' % label)
         win_top = js(pg, "return r.querySelector('.fwin').getBoundingClientRect().top")
         f.check(win_top >= c['watch']['b'] + 2, '%s: the window starts below the control row' % label)
     else:
         same = len({round(c[k]['t'] + c[k]['h'] / 2) for k in keys}) <= 2
-        f.check(same and c['studio']['r'] < c['watch']['l'] and c['tryit']['r'] < c['counter']['l'] and c['counter']['r'] < c['replay']['l'], '%s: one row in order Studio, toggle, counter, Replay' % label)
+        f.check(same and c['studio']['r'] < c['watch']['l'] and c['tryit']['r'] < c['replay']['l'], '%s: one row in order Studio, toggle, Replay' % label)
     return d
 
 
@@ -99,12 +99,6 @@ def touch_popover(f, b, n, cw):
     pg.locator('#cv .mtg [data-m="try"]').tap()
     pg.wait_for_timeout(400)
     f.check('Your turn1 of' in pill(pg), '%d px touch: tapping Try it starts Try it (%s)' % (cw, pill(pg)))
-    pg.locator('#cv #nx').tap()
-    pg.wait_for_timeout(400)
-    f.check('Your turn2 of' in pill(pg), '%d px touch: tapping next moves to step 2' % cw)
-    pg.locator('#cv #pv').tap()
-    pg.wait_for_timeout(400)
-    f.check('Your turn1 of' in pill(pg), '%d px touch: tapping previous moves back to step 1' % cw)
     pg.locator('#cv .tbar .rp').tap()
     pg.wait_for_timeout(400)
     f.check('Your turn1 of' in pill(pg), '%d px touch: tapping Replay restarts' % cw)
@@ -180,13 +174,7 @@ def run_card(n, plan, numbers, extra=None, start=None):
             f.check(s in txt, 'final screen shows %s' % s)
         if extra and 'after' in extra:
             extra['after'](pg, f)
-        # arrows, Replay, toggle
-        pg.locator('#cv #pv').click(); pg.wait_for_timeout(500)
-        f.check(('Your turn%d of %d' % (N, N)) in pill(pg), 'arrows: previous jumps to step %d' % N)
-        pg.locator('#cv #pv').click(); pg.wait_for_timeout(500)
-        f.check(('Your turn%d of %d' % (N - 1, N)) in pill(pg), 'arrows: previous again to step %d' % (N - 1))
-        pg.locator('#cv #nx').click(); pg.wait_for_timeout(500)
-        f.check(('Your turn%d of %d' % (N, N)) in pill(pg), 'arrows: next to step %d' % N)
+        # Replay and toggle (no step arrows since November 24, 2026)
         pg.locator('#cv .tbar .rp').click(); pg.wait_for_timeout(400)
         f.check(('Your turn1 of %d' % N) in pill(pg), 'Replay restarts Try it at step 1')
         if start:
@@ -213,14 +201,6 @@ def run_card(n, plan, numbers, extra=None, start=None):
             testlib.layout_checks(f, pg, n, '%d px' % vw)
             control_checks(f, pg, '%d px card %d' % (vw, cw), cw)
             shot(pg, 'card%d_layout_%d.png' % (n, cw))
-            pg.close()
-        for vw, cw, ar in ((1500, 604, '604/523'), (1300, 584, '584/460'), (1300, 700, '700/430')):
-            pg, errs = testlib.open_card(b, n, vw, cw)
-            pg.evaluate("a=>{document.getElementById('cv').style.aspectRatio=a}", ar)
-            pg.locator('#cv').scroll_into_view_if_needed()
-            pg.wait_for_timeout(300)
-            ok = js(pg, "var cv=document.getElementById('cv').getBoundingClientRect();return [r.getElementById('pv'),r.getElementById('nx')].every(function(e){var s=e.getBoundingClientRect();return s.width>0&&s.bottom<=cv.bottom-4&&s.top>=cv.top&&s.right<=cv.right&&s.left>=cv.left;})")
-            f.check(ok, 'card %s: step arrows inside the card' % ar)
             pg.close()
         for cw in (390, 340):
             touch_popover(f, b, n, cw)

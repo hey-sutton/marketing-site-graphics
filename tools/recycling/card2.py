@@ -9,7 +9,7 @@ STUDIO = dict(lede='A typical processing job screen, built on your Sutton data w
               built_on='Loads, jobs, outputs and lots', change='Steps, fields and views')
 STORY = [('New job', 'pro', 'drag and drop', 'left to center'), ('Job PJ-0318', 'pro', 'tab', 'top center'),
          ('Hand sort', 'pro', 'prefilled field', 'bottom'), ('Conversion', 'pro', 'graph node', 'right'),
-         ('Yield report', 'rep', 'nav item', 'top left'), ('Job PJ-0318', 'pro', 'primary button', 'bottom right')]
+         ('Yield report', 'rep', 'header button', 'top right'), ('Job PJ-0318', 'pro', 'primary button', 'bottom right')]
 
 CSS = (
  '.nj{display:grid;grid-template-columns:200px 1fr;gap:12px;flex:1 1 0;min-height:0}.nj .side{display:flex;flex-direction:column;gap:10px;min-height:0}'
@@ -104,7 +104,10 @@ var ST=[
 {id:'sort',target:function(){return $('logb');},prompt:'Click Log sort',where:'above',ok:okS,run:function(){okS();S.sort=int($('is').value);S.logged=true;S.scr='conv';render();},
  after:function(){return['Log what you pull out as you sort it',n0(S.sort)+' lb out as metal, paper and film. The rest goes to the grinder.'];},pc:'Log what you pull out as you sort'},
 {id:'node',target:function(){return $('nd-nat');},prompt:'Click Natural regrind',where:'below',run:function(){S.open=true;render();},after:['See where each pound of input went',n0(NAT)+' lb of natural regrind and '+n0(MIX)+' lb of mixed color regrind.'],pc:'See where each pound went'},
-{id:'rep',target:function(){return $(ph()?'bn-rep':'nv-rep');},prompt:'Click Reports',where:'right',run:function(){S.scr='yield';render();},
+{id:'rep',target:function(){return $('go');},prompt:'Click Open yield report',where:'below',run:function(){S.scr='yield';render();},
  after:function(){return['Yield and loss, in the open, for this job',n0(use())+' of '+n0(inp())+' lb usable, yield '+yld()+'%, '+n0(loss())+' lb lost.'];},pc:'Yield and loss for this job'},
 {id:'cpl',target:function(){return $('cpl');},prompt:'Click Complete job',where:'above',run:function(){S.scr='done';render();},after:['Completing books the outputs, with labels that trace back to the loads','Two output lots, labeled and booked into stock by grade.'],pc:'Outputs labeled and booked to stock'}];
+/* No module nav on the cards (November 24, 2026): the step that clicked the nav now clicks this header button,
+   which opens the same screen. */
+var renderBase=render;render=function(){renderBase();if(S.open&&S.scr==='conv'){var pa=$('pa');if(pa&&!$('go'))pa.insertAdjacentHTML('beforeend','<button type="button" class="bt go" id="go">Open yield report</button>');}};
 '''

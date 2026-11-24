@@ -61,7 +61,6 @@ def layout_rules(ctx, p, n, prep):
         ctx.chk(f'card {n} at {w}px: right border and corner hidden (window {m["over"]:.0f}px past)', m['over'] >= m['need'], json.dumps(m))
         ctx.chk(f'card {n} at {w}px: bottom edge and corners hidden ({m["overB"]:.0f}px past)', m['overB'] >= m['need'], json.dumps(m))
         ctx.chk(f'card {n} at {w}px: bottom right corner square, others keep the template radius', m['brr'] == '0px' and m['tlr'] == '8px', json.dumps(m))
-        ctx.chk(f'card {n} at {w}px: arrows inside the card', m['arR'] >= 6 * m['s'] and m['arB'] >= 4 * m['s'], json.dumps(m))
         ctx.chk(f'card {n} at {w}px: content not clipped at the right', m['contentRight'] >= 4 * m['s'], json.dumps(m))
         ctx.chk(f'card {n} at {w}px: bottom empty band under 40 design px (is {m["gap"]:.0f})', m['gap'] <= 40, json.dumps(m))
         real = [e for e in errs if 'attachShadow' not in e and 'ERR_FAILED' not in e]; ctx.chk(f'card {n} at {w}px: no page errors', not real, str(real)); b.close()
@@ -74,14 +73,9 @@ def speed(ctx, p, n, key_js, limit_ms=4200):
     print(f'card {n} timing: first caption {r[0]:.0f} ms, key result {r[1]:.0f} ms')
     ctx.chk(f'card {n} speed: walkthrough starts within 1.8 s', 0 < r[0] < 1800, str(r)); ctx.chk(f'card {n} speed: key result by about 4 s', 0 < r[1] < limit_ms, str(r)); b.close()
 def arrows_generic(ctx, p, n, steps):
-    b, pg, errs, h = ctx.open(p, n, 640)
-    ctx.chk(f'card {n}: previous disabled at step 1', h.dis('#pv')); 
-    for i in range(2, steps + 1):
-        h.click('#nx'); pg.wait_for_timeout(500)
-        ctx.chk(f'card {n}: next reaches step {i}', h.txt('#sn') == f'{i} of {steps}', h.txt('#sn'))
-    ctx.chk(f'card {n}: next disabled at the last step', h.dis('#nx'))
-    h.click('#pv'); pg.wait_for_timeout(400); ctx.chk(f'card {n}: previous goes back', h.txt('#sn') == f'{steps-1} of {steps}')
-    b.close()
-    b, pg, errs, h = ctx.open(p, n, 640, reduced=True); pg.wait_for_timeout(2500)
-    h.click('#nx'); pg.wait_for_timeout(600); an = h.ev("return getComputedStyle(r.getElementById('hs')).animationName")
-    ctx.chk(f'card {n}: reduced motion, arrows work and hotspot is not animated', h.txt('#sn') == f'2 of {steps}' and an == 'none', an); b.close()
+    """No step arrows since November 24, 2026: check they stay hidden at desktop width and with reduced motion."""
+    for reduced in (False, True):
+        b, pg, errs, h = ctx.open(p, n, 640, reduced=reduced); pg.wait_for_timeout(600)
+        hid = h.ev("return [].every.call(r.querySelectorAll('.stp,#pv,#nx'),function(e){return getComputedStyle(e).display==='none'})")
+        ctx.chk(f'card {n}: step arrows hidden' + (' with reduced motion' if reduced else ''), hid)
+        b.close()

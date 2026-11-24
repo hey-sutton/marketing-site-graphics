@@ -171,6 +171,11 @@ out=[]
 out.append('/* Dairy, card 1: Milk Lot Traceability (lot genealogy from milk intake to customer: trace forward from a milk lot, trace back from a complaint, blended silo lots, lot records)\n   Loaded by the site loader. Mounts into the card visual passed in by the loader.\n   Source of truth for this graphic: edit here, open a pull request, then release a new tag. */')
 out.append('(function(){')
 out.append("var SRC=document.currentScript&&document.currentScript.src;var BGU=SRC?new URL('bg-1.jpg',SRC).href:'';")
+import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from gfx_scaffold import COMMON_CSS  # noqa: E402  (card 1 keeps its own CSS; take only the hiding rule)
+HIDE=[l for l in COMMON_CSS.split('}') if l.startswith('.stp,#pv,#nx')]
+assert len(HIDE)==1
+css+=HIDE[0]+'}'
 out.append('var CSS='+json.dumps(css)+".replace('__BG__',BGU);")
 out.append('var BODY='+json.dumps(body)+';')
 pre=src[src.index("var c=document.currentScript&&document.currentScript.sxCard;"):src.index('function boot(root){')]

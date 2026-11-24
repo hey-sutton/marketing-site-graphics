@@ -46,22 +46,6 @@ return {in_:w.left>=cv.left&&w.right<=cv.right+0.5&&w.bottom<=cv.bottom,ratio:cv
 
 testlib.layout_checks = layout_checks
 
-# The distilleries cards hide the step arrows and the status pill (November 24, 2026). The shared run_card clicks the
-# arrows and checks they sit inside shorter cards, so those two blocks are swapped for checks that both stay hidden.
-# The pill keeps its text for the screen reader free checks below (pill() reads textContent, which display:none keeps).
-import inspect, textwrap  # noqa: E402
-_src = textwrap.dedent(inspect.getsource(testlib.run_card))
-_a, _b = _src.index('        # arrows jump to a step'), _src.index('        # Replay in Try it restarts Try it')
-_src = _src[:_a] + """        hid = js(pg, "var s=r.querySelector('.stp'),m=r.querySelector('.tbar .mode');return getComputedStyle(s).display==='none'&&getComputedStyle(m).display==='none'")
-        f.check(hid, 'the step arrows and the status pill are hidden')
-""" + _src[_b:]
-_a, _b = _src.index('        # step arrows stay inside shorter cards'), _src.index('        # Studio fits at 340')
-_src = _src[:_a] + _src[_b:]
-_src = _src.replace("f.check(js(pg, \"return getComputedStyle(r.querySelector('.tbar .mode')).visibility\") == 'hidden', 'pill hides while the popover is open')", "pass")
-_src = _src.replace("        f.check(js(pg, \"return getComputedStyle(r.querySelector('.tbar .mode .mc')).display\") == 'none', '340 px: pill hides n of N')\n", "")
-_ns = dict(vars(testlib))
-exec(compile(_src, testlib.__file__, 'exec'), _ns)
-testlib.run_card = _ns['run_card']
 
 
 def variety(n, f):

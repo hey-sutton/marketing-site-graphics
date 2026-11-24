@@ -129,7 +129,7 @@ def wide(n, f):
                 pg.wait_for_timeout(1500)
                 d = js(pg, '''var cv=document.getElementById('cv').getBoundingClientRect(),s=r.querySelector('.stp').getBoundingClientRect(),bad=[];
 r.querySelectorAll('#pg .row').forEach(function(row){var b=row.getBoundingClientRect();if(b.height<2)return;var kids=[].filter.call(row.children,function(c){return c.getBoundingClientRect().width>0;}),why='';kids.forEach(function(c,i){var x=c.getBoundingClientRect();if(x.right>b.right+1||x.left<b.left-1)why='outside';if(c.scrollWidth>c.clientWidth+1&&getComputedStyle(c).overflow==='hidden')why='clipped';var nx=kids[i+1];if(nx&&nx.getBoundingClientRect().left<x.right-1)why='overlap';});if(why)bad.push(why+' '+(row.id||row.textContent).slice(0,30));});
-return {stp:s.bottom<=cv.bottom-2&&s.top>=cv.top,bad:bad,up:getComputedStyle(r.querySelector('.tbar .mode')).textTransform};''')
+return {stp:getComputedStyle(r.querySelector('.stp')).display==='none'||(s.bottom<=cv.bottom-2&&s.top>=cv.top),bad:bad,up:getComputedStyle(r.querySelector('.tbar .mode')).textTransform};''')
                 if d['up'] != 'none':
                     bad_rows.append('step %d: the top bar inherits text-transform %s' % (k, d['up']))
                 if not d['stp']:

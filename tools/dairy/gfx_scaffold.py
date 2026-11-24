@@ -24,6 +24,10 @@ COMMON_CSS = (
  '.lgd{display:flex;align-items:center;gap:14px;color:#52525B;font-size:8.6px;margin-top:-2px;white-space:nowrap}.lgd span{display:inline-flex;align-items:center;gap:5px}.lgd i{width:12px;height:8px;border-radius:2px;border:1px solid #E4E4E7;background:#fff;flex:none}'
  '.hs{position:absolute;z-index:55;pointer-events:none;border:2px solid #FFB92B;border-radius:9px;opacity:0;transition:opacity .25s ease}.hs.on{opacity:1;animation:hsr 1.6s ease-out infinite}@keyframes hsr{0%{box-shadow:0 0 0 0 rgba(255,185,43,.6)}70%,100%{box-shadow:0 0 0 9px rgba(255,185,43,0)}}'
  '.stp{position:absolute;right:44px;bottom:44px;z-index:56;display:flex;align-items:center;gap:6px}.stp button{width:24px;height:24px;padding:0;border:1px solid #E4E4E7;border-radius:7px;background:#fff;color:#18181B;cursor:pointer;display:grid;place-items:center;transition:background-color .2s}.stp button:hover:not(:disabled){background:#F4F4F5}.stp button:disabled{opacity:.35;cursor:default}.stp button:focus-visible{outline:2px solid #18181B;outline-offset:2px}.stp svg{width:12px;height:12px}.stp .sn{min-width:38px;text-align:center;color:#71717A;font-size:9px}'
+ # No step arrows, no status pill (Watching, Your turn, Done) and no app module nav on any card (November 24, 2026).
+ # Every card built from this file or from tools/electronics/frame.py gets this rule; #pv and #nx also cover the
+ # arrows the automotive control row moves into the top bar on narrow cards.
+ '.stp,#pv,#nx,.tbar .mode,.rail,.bn{display:none!important}.app{grid-template-columns:1fr!important}'
 )
 TAIL_CSS = '.cap{max-width:360px}.cap.turn{max-width:360px}.tr-act{min-height:48px}.cap{z-index:80}'
 
