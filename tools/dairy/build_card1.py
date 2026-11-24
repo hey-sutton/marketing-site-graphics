@@ -173,7 +173,7 @@ out.append('(function(){')
 out.append("var SRC=document.currentScript&&document.currentScript.src;var BGU=SRC?new URL('bg-1.jpg',SRC).href:'';")
 import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gfx_scaffold import COMMON_CSS  # noqa: E402  (card 1 keeps its own CSS; take only the hiding rule)
-HIDE=[l for l in COMMON_CSS.split('}') if l.startswith('.stp,#pv,#nx')]
+HIDE=[l for l in COMMON_CSS.split('}') if l.startswith('.fwin>.stp,#pv,#nx')]
 assert len(HIDE)==1
 css+=HIDE[0]+'}'
 out.append('var CSS='+json.dumps(css)+".replace('__BG__',BGU);")

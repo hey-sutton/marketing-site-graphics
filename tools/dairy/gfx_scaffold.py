@@ -26,8 +26,9 @@ COMMON_CSS = (
  '.stp{position:absolute;right:44px;bottom:44px;z-index:56;display:flex;align-items:center;gap:6px}.stp button{width:24px;height:24px;padding:0;border:1px solid #E4E4E7;border-radius:7px;background:#fff;color:#18181B;cursor:pointer;display:grid;place-items:center;transition:background-color .2s}.stp button:hover:not(:disabled){background:#F4F4F5}.stp button:disabled{opacity:.35;cursor:default}.stp button:focus-visible{outline:2px solid #18181B;outline-offset:2px}.stp svg{width:12px;height:12px}.stp .sn{min-width:38px;text-align:center;color:#71717A;font-size:9px}'
  # No step arrows, no status pill (Watching, Your turn, Done) and no app module nav on any card (November 24, 2026).
  # Every card built from this file or from tools/electronics/frame.py gets this rule; #pv and #nx also cover the
- # arrows the automotive control row moves into the top bar on narrow cards.
- '.stp,#pv,#nx,.tbar .mode,.rail,.bn{display:none!important}.app{grid-template-columns:1fr!important}'
+ # arrows the automotive control row moves into the top bar on narrow cards. The selectors are scoped to the frame's
+ # own elements, because some cards use class names such as bn for their own content.
+ '.fwin>.stp,#pv,#nx,.tbar>.mode,.app>.rail,.mn>.bn{display:none!important}.app{grid-template-columns:1fr!important}'
 )
 TAIL_CSS = '.cap{max-width:360px}.cap.turn{max-width:360px}.tr-act{min-height:48px}.cap{z-index:80}'
 
